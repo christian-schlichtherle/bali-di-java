@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  - Copyright © 2020 Schlichtherle IT Services
+  - Copyright © 2021 Schlichtherle IT Services
   -
   - Licensed under the Apache License, Version 2.0 (the "License");
   - you may not use this file except in compliance with the License.
@@ -33,6 +33,8 @@
     <name>Bali DI Parent</name>
     <description>Bali DI is a code generator for dependency injection.</description>
 
+    <url>https://github.com/christian-schlichtherle/bali-di</url>
+    <inceptionYear>2021</inceptionYear>
     <developers>
         <developer>
             <name>Christian Schlichtherle</name>
@@ -51,6 +53,12 @@
         <system>Github</system>
         <url>https://github.com/christian-schlichtherle/bali-di/issues</url>
     </issueManagement>
+    <scm>
+        <connection>scm:git:https://github.com/christian-schlichtherle/bali-di.git</connection>
+        <developerConnection>scm:git:git@github.com:christian-schlichtherle/bali-di.git</developerConnection>
+        <url>https://github.com/christian-schlichtherle/bali-di</url>
+        <tag>HEAD</tag>
+    </scm>
 
     <properties>
         <maven.compiler.showDeprecation>true</maven.compiler.showDeprecation>
