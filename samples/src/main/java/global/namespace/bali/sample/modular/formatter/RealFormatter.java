@@ -13,27 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package global.namespace.bali.sample.greeting
+package global.namespace.bali.sample.modular.formatter;
 
-import org.scalatest.matchers.should.Matchers._
-import org.scalatest.wordspec.AnyWordSpec
+public interface RealFormatter extends Formatter {
 
-class GreetingAppSpec extends AnyWordSpec {
+    String format();
 
-  "The greeting app" should {
-    val app = GreetingApp$.new$
-    import app._
-
-    "cache the formatter" in {
-      formatter shouldBe theSameInstanceAs(formatter)
+    @Override
+    default String format(Object... args) {
+        return String.format(format(), args);
     }
-
-    "cache the greeting" in {
-      greeting shouldBe theSameInstanceAs(greeting)
-    }
-
-    "produce 'Hello world!'" in {
-      greeting.message("world") shouldBe "Hello world!"
-    }
-  }
 }

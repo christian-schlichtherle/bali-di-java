@@ -15,7 +15,6 @@
  */
 package global.namespace.bali.sample.greeting;
 
-@FunctionalInterface
 interface RealFormatter extends Formatter {
 
     String format();

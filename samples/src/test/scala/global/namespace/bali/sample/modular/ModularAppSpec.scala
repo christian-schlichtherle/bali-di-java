@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package global.namespace.bali.sample.greeting
+package global.namespace.bali.sample.modular
 
 import org.scalatest.matchers.should.Matchers._
 import org.scalatest.wordspec.AnyWordSpec
 
-class GreetingAppSpec extends AnyWordSpec {
+class ModularAppSpec extends AnyWordSpec {
 
-  "The greeting app" should {
-    val app = GreetingApp$.new$
+  "The modular app" should {
+    val app = ModularApp$.new$
     import app._
 
     "cache the formatter" in {

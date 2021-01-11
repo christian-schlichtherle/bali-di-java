@@ -21,6 +21,7 @@ import bali.Module;
 
 import static java.lang.System.out;
 
+@Cache
 @Module
 public interface GreetingApp extends Runnable {
 
@@ -28,11 +29,9 @@ public interface GreetingApp extends Runnable {
         return "Hello %s!";
     }
 
-    @Cache
     @Make(RealFormatter.class)
     Formatter formatter();
 
-    @Cache
     @Make(RealGreeting.class)
     Greeting greeting();
 
