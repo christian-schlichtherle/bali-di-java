@@ -496,12 +496,12 @@ public final class AnnotationProcessor extends AbstractProcessor {
             }
         }
     }
-}
 
-@Accessors(fluent = true)
-@Value
-class AccessedElement {
+    @Accessors(fluent = true)
+    @Value
+    private static class AccessedElement {
 
-    TypeElement where;
-    Element what;
+        TypeElement where;
+        Element what;
+    }
 }
