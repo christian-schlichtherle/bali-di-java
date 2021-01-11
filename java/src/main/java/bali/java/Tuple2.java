@@ -13,27 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package bali.sample.modular;
+package bali.java;
 
-import bali.Module;
-import bali.sample.modular.formatter.FormatterModule;
-import bali.sample.modular.greeting.GreetingModule;
+import lombok.Value;
+import lombok.experimental.Accessors;
 
-import static java.lang.System.out;
+@Accessors(fluent = true)
+@Value
+class Tuple2<T1, T2> {
 
-@Module
-public interface ModularApp extends FormatterModule, GreetingModule, Runnable {
-
-    default String format() {
-        return "Hello %s!";
-    }
-
-    @Override
-    default void run() {
-        out.println(greeting().message("world"));
-    }
-
-    static void main(String... args) {
-        ModularApp$.new$().run();
-    }
+    T1 t1;
+    T2 t2;
 }
