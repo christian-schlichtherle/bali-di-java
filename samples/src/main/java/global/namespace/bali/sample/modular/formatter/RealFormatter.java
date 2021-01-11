@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package global.namespace.bali.sample.greeting;
+package global.namespace.bali.sample.modular.formatter;
 
-interface RealFormatter extends Formatter {
+public interface RealFormatter extends Formatter {
 
     String format();
 

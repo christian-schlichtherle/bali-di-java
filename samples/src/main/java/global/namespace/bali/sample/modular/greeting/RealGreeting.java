@@ -13,14 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package global.namespace.bali.sample.greeting;
+package global.namespace.bali.sample.modular.greeting;
 
-interface RealFormatter extends Formatter {
+import global.namespace.bali.sample.modular.formatter.Formatter;
 
-    String format();
+public interface RealGreeting extends Greeting {
+
+    Formatter formatter();
 
     @Override
-    default String format(Object... args) {
-        return String.format(format(), args);
+    default String message(String entity) {
+        return formatter().format(entity);
     }
 }

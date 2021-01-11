@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package global.namespace.bali.sample.greeting;
+package global.namespace.bali.sample.modular.greeting;
 
-interface RealFormatter extends Formatter {
+import bali.Cache;
+import bali.Make;
 
-    String format();
+public interface GreetingModule {
 
-    @Override
-    default String format(Object... args) {
-        return String.format(format(), args);
-    }
+    @Cache
+    @Make(RealGreeting.class)
+    Greeting greeting();
 }
