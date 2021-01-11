@@ -1,4 +1,4 @@
-name: Scala CI
+name: Scala CI with SBT
 
 on:
   push:
