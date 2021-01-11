@@ -21,8 +21,6 @@ import bali.Module;
 @Module
 public interface TupleFactory {
 
-    TupleFactory factory = TupleFactory$.new$();
-
     @Make(ImmutableTuple2.class)
     <T1, T2> Tuple2<T1, T2> tuple(T1 t1, T2 t2);
 

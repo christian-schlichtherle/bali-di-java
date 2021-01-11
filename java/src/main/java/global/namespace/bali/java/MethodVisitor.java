@@ -33,14 +33,7 @@ interface MethodVisitor {
                     .andThen(visitMethodBegin(m, in))
                     .andThen(visitDependencyCacheBegin(m, in))
                     .accept(out);
-            if (m.isParameterAccess()) {
-                out.ad(m.methodName());
-            } else {
-                out.ad(m.moduleRef()).ad(".").ad(m.methodName());
-                if (m.isMethodAccess()) {
-                    out.ad("()");
-                }
-            }
+            out.ad(m.accessedElementRef());
             visitDependencyCacheEnd(m, in)
                     .andThen(visitMethodEnd(m, in))
                     .accept(out);

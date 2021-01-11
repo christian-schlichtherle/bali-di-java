@@ -61,6 +61,10 @@ final class Utils {
         return e.getModifiers().contains(Modifier.STATIC);
     }
 
+    static boolean isType(Element e) {
+        return e instanceof TypeElement;
+    }
+
     static boolean isVoid(TypeMirror t) {
         return VOID.equals(t.getKind()) || VOID_CLASSNAME.equals(t.toString());
     }

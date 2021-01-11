@@ -24,14 +24,14 @@ import static java.lang.System.out;
 public final class NestedApp {
 
     public static void main(String... args) {
-        StaticModule.instance.run();
+        StaticModule.INSTANCE.run();
     }
 
     @Module
     @SuppressWarnings("experimental")
     interface StaticModule extends Runnable {
 
-        StaticModule instance = StaticModule$.new$();
+        StaticModule INSTANCE = StaticModule$.new$();
 
         String get = "Hello world!";
 

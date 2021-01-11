@@ -21,7 +21,7 @@ import org.scalatest.wordspec.AnyWordSpec
 class TupleFactorySpec extends AnyWordSpec {
 
   "The tuple factory" should {
-    val factory = TupleFactory.factory
+    val factory = TupleFactory$.new$
     import factory._
 
     "Create a tuple with the given values" in {

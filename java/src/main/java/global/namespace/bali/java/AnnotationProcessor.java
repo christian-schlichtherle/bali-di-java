@@ -354,9 +354,9 @@ public final class AnnotationProcessor extends AbstractProcessor {
 
                 @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
                 @Getter(lazy = true)
-                private final Optional<AccessElement> accessedElement = resolveAccessedElement();
+                private final Optional<AccessedElement> accessedElement = resolveAccessedElement();
 
-                private Optional<AccessElement> resolveAccessedElement() {
+                private Optional<AccessedElement> resolveAccessedElement() {
                     val element = resolveAccessedElement(classElement());
                     if (!element.isPresent()) {
                         error("Missing dependency: There is no such element...", methodElement());
@@ -365,8 +365,8 @@ public final class AnnotationProcessor extends AbstractProcessor {
                     return element;
                 }
 
-                private Optional<AccessElement> resolveAccessedElement(final TypeElement where) {
-                    for (Element next = where; next instanceof TypeElement; next = next.getEnclosingElement()) {
+                private Optional<AccessedElement> resolveAccessedElement(final TypeElement start) {
+                    for (Element next = start; next instanceof TypeElement; next = next.getEnclosingElement()) {
                         val element = findAccessedElement((TypeElement) next);
                         if (element.isPresent()) {
                             return element;
@@ -375,24 +375,35 @@ public final class AnnotationProcessor extends AbstractProcessor {
                     return Optional.empty();
                 }
 
-                private Optional<AccessElement> findAccessedElement(final TypeElement where) {
-                    val list = elements()
+                private Optional<AccessedElement> findAccessedElement(final TypeElement where) {
+                    val members = elements()
                             .getAllMembers(where)
                             .stream()
                             .filter(e -> methodName().equals(e.getSimpleName()))
-                            .map(e -> new AccessElement(where, e))
+                            .map(e -> new AccessedElement(where, e))
                             .collect(Collectors.toList());
-                    val method = list.stream().filter(t -> isMethod(t.what())).findAny();
-                    return method.isPresent() ? method : list.stream().filter(t -> isField(t.what())).findAny();
+                    val element = Stream
+                            .<Function<Element, Boolean>>of(Utils::isMethod, Utils::isField)
+                            .flatMap(f -> members.stream().filter(t -> f.apply(t.what())))
+                            .findFirst();
+                    return element.isPresent()
+                            ? element
+                            : types().isSubtype(classType(), methodReturnType())
+                            ? Optional.of(new AccessedElement(where, where))
+                            : Optional.empty();
                 }
 
                 @Getter(lazy = true)
                 private final boolean isCachingDisabled =
                         isParameterAccess() || accessedElement()
-                                .map(AccessElement::what)
+                                .map(AccessedElement::what)
                                 .filter(Utils::isFinal)
                                 .filter(Utils::isField)
                                 .isPresent();
+
+                @Getter(lazy = true)
+                private final boolean isFieldAccess =
+                        accessedElement().map(AccessedElement::what).filter(Utils::isField).isPresent();
 
                 @Getter(lazy = true)
                 private final boolean isParameterAccess =
@@ -404,13 +415,15 @@ public final class AnnotationProcessor extends AbstractProcessor {
 
                 @Getter(lazy = true)
                 private final boolean isStaticAccess =
-                        accessedElement().map(AccessElement::what).filter(Utils::isStatic).isPresent();
+                        accessedElement().map(AccessedElement::what).filter(Utils::isStatic).isPresent();
+
+                @Getter(lazy = true)
+                private final boolean isTypeAccess =
+                        accessedElement().map(AccessedElement::what).filter(Utils::isType).isPresent();
 
                 @Override
                 boolean resolveIsMethodAccess() {
-                    return !isParameterAccess() &&
-                            (accessedElement().map(AccessElement::what).filter(Utils::isMethod).isPresent() ||
-                                    !accessedElement().isPresent());
+                    return accessedElement().map(AccessedElement::what).filter(Utils::isMethod).isPresent();
                 }
 
                 @Override
@@ -419,11 +432,20 @@ public final class AnnotationProcessor extends AbstractProcessor {
                 }
 
                 @Getter(lazy = true)
-                private final String moduleRef =
-                        accessedElement()
-                                .map(AccessElement::where)
+                private final String accessedElementRef = resolveAccessedElementRef();
+
+                private String resolveAccessedElementRef() {
+                    if (isParameterAccess()) {
+                        return methodName().toString();
+                    } else {
+                        return accessedElement()
+                                .map(AccessedElement::where)
                                 .map(Element::getSimpleName)
-                                .orElseGet(ModuleClass.this::classSimpleName) + (isStaticAccess() ? "$" : "$.this");
+                                .orElseGet(ModuleClass.this::classSimpleName)
+                                + (isStaticAccess() ? "$" : "$.this")
+                                + (isTypeAccess() ? "" : "." + methodName() + (isMethodAccess() ? "()" : ""));
+                    }
+                }
 
                 @Override
                 public Consumer<Output> apply(MethodVisitor v) {
@@ -477,7 +499,7 @@ public final class AnnotationProcessor extends AbstractProcessor {
 
 @Accessors(fluent = true)
 @Value
-class AccessElement {
+class AccessedElement {
 
     TypeElement where;
     Element what;

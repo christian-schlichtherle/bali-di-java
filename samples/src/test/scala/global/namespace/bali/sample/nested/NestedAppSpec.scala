@@ -21,7 +21,7 @@ import org.scalatest.wordspec.AnyWordSpec
 class NestedAppSpec extends AnyWordSpec {
 
   "The static module in the nested app" should {
-    val module = NestedApp.StaticModule.instance
+    val module = NestedApp.StaticModule.INSTANCE
     import module._
 
     "produce 'Hello world!'" in {
