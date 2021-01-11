@@ -382,6 +382,7 @@ public final class AnnotationProcessor extends AbstractProcessor {
                             .filter(e -> methodName().equals(e.getSimpleName()))
                             .map(e -> new AccessedElement(where, e))
                             .collect(Collectors.toList());
+                    // Prefer method access over field access:
                     val element = Stream
                             .<Function<Element, Boolean>>of(Utils::isMethod, Utils::isField)
                             .flatMap(f -> members.stream().filter(t -> f.apply(t.what())))
