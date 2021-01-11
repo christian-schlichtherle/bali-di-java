@@ -80,8 +80,8 @@ public final class AnnotationProcessor extends AbstractProcessor {
     public final boolean process(final Set<? extends TypeElement> annotations, final RoundEnvironment roundEnv) {
         annotations
                 .stream()
-                .filter(e -> moduleAnnotationName().equals(e.getQualifiedName()))
-                .forEach(annotation -> roundEnv.getElementsAnnotatedWith(annotation).forEach(this::process));
+                .filter(a -> moduleAnnotationName().equals(a.getQualifiedName()))
+                .forEach(a -> roundEnv.getElementsAnnotatedWith(a).forEach(this::process));
         return true;
     }
 
