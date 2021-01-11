@@ -28,7 +28,7 @@ class GreetingAppSpec extends AnyWordSpec {
       formatter shouldBe theSameInstanceAs(formatter)
     }
 
-    "not cache the greeting" in {
+    "cache the greeting" in {
       greeting shouldBe theSameInstanceAs(greeting)
     }
 
