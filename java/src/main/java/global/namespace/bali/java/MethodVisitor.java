@@ -28,16 +28,12 @@ import java.util.stream.Collectors;
 interface MethodVisitor {
 
     default Consumer<Output> visitAccessorMethod(AccessorMethod m, String in) {
-        return out -> {
-            visitDependencyField(m, in)
-                    .andThen(visitMethodBegin(m, in))
-                    .andThen(visitDependencyCacheBegin(m, in))
-                    .accept(out);
-            out.ad(m.accessedElementRef());
-            visitDependencyCacheEnd(m, in)
-                    .andThen(visitMethodEnd(m, in))
-                    .accept(out);
-        };
+        return visitDependencyField(m, in)
+                .andThen(visitMethodBegin(m, in))
+                .andThen(visitDependencyCacheBegin(m, in))
+                .andThen(out -> out.ad(m.accessedElementRef()))
+                .andThen(visitDependencyCacheEnd(m, in))
+                .andThen(visitMethodEnd(m, in));
     }
 
     default Consumer<Output> visitFactoryMethod(FactoryMethod m) {
