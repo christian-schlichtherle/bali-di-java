@@ -15,20 +15,24 @@
  */
 package bali.sample.tuple;
 
+import bali.Lookup;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
+@SuppressWarnings("experimental")
 @EqualsAndHashCode
 @ToString
 abstract class ImmutableTuple2<T1, T2> implements AbstractTuple2<T1, T2> {
 
     @EqualsAndHashCode.Include
-    @ToString.Include
+    @ToString.Include(name = "t1")
+    @Lookup("t1")
     @Override
-    public abstract T1 t1();
+    public abstract T1 getT1();
 
     @EqualsAndHashCode.Include
-    @ToString.Include
+    @ToString.Include(name = "t2")
+    @Lookup(param = "t2", method = "t2")
     @Override
-    public abstract T2 t2();
+    public abstract T2 getT2();
 }

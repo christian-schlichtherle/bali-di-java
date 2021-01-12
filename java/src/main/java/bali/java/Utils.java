@@ -15,9 +15,15 @@
  */
 package bali.java;
 
+import lombok.val;
+
+import javax.lang.model.AnnotatedConstruct;
 import javax.lang.model.element.*;
 import javax.lang.model.type.TypeMirror;
+import java.lang.annotation.Annotation;
+import java.util.Arrays;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
@@ -29,12 +35,29 @@ final class Utils {
 
     private static final String VOID_CLASSNAME = Void.class.getName();
 
+    static <A extends Annotation> Optional<A> getAnnotation(AnnotatedConstruct c, Class<A> klass) {
+        return Optional.ofNullable(c.getAnnotation(klass));
+    }
+
     static boolean hasParameters(ExecutableElement e) {
         return !e.getParameters().isEmpty() || !e.getTypeParameters().isEmpty();
     }
 
     static boolean isAbstract(Element e) {
         return e.getModifiers().contains(Modifier.ABSTRACT);
+    }
+
+    static boolean isExperimentalWarningSuppressed(Element e) {
+        for (; e != null; e = e.getEnclosingElement()) {
+            val w = getAnnotation(e, SuppressWarnings.class);
+            if (w.map(SuppressWarnings::value)
+                    .map(Arrays::asList)
+                    .filter(l -> l.contains("experimental"))
+                    .isPresent()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     static boolean isField(Element e) {

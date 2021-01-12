@@ -26,25 +26,25 @@ class TupleFactorySpec extends AnyWordSpec {
 
     "Create a tuple with the given values" in {
       val t = tuple("Hello", " world!")
-      t.t1 shouldBe "Hello"
-      t.t2 shouldBe " world!"
+      t.getT1 shouldBe "Hello"
+      t.getT2 shouldBe " world!"
     }
 
     "Create a tuple with the given values and update them all" in {
       val t = tuple("one", "two").mapT1(_ + " plus ").mapT2(_ + " equals three")
-      t.t1 + t.t2 shouldBe "one plus two equals three"
+      t.getT1 + t.getT2 shouldBe "one plus two equals three"
     }
 
     "Create a tuple with the given t1 value and an implicit t2 value" in {
       val t = tupleFromT1("t1")
-      t.t1 shouldBe "t1"
-      t.t2 shouldBe "t2"
+      t.getT1 shouldBe "t1"
+      t.getT2 shouldBe "t2"
     }
 
     "Create a tuple with the given t2 value and an implicit t1 value" in {
       val t = tupleFromT2("t2")
-      t.t1 shouldBe "t1"
-      t.t2 shouldBe "t2"
+      t.getT1 shouldBe "t1"
+      t.getT2 shouldBe "t2"
     }
 
     "implement equals and hashCode" in {
