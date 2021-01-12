@@ -15,10 +15,7 @@
  */
 package bali.java;
 
-import bali.Cache;
-import bali.CachingStrategy;
-import bali.Make;
-import bali.Module;
+import bali.*;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.Accessors;
@@ -133,16 +130,16 @@ public final class AnnotationProcessor extends AbstractProcessor {
         }
     }
 
-    private static Optional<CachingStrategy> cachingStrategy(final ExecutableElement element) {
-        Optional<Cache> cache = Optional.ofNullable(element.getAnnotation(Cache.class));
+    private static Optional<CachingStrategy> cachingStrategy(final ExecutableElement e) {
+        Optional<Cache> cache = Optional.ofNullable(e.getAnnotation(Cache.class));
         if (!cache.isPresent()) {
-            cache = Optional.ofNullable(element.getEnclosingElement()).flatMap(e -> Optional.ofNullable(e.getAnnotation(Cache.class)));
+            cache = Optional.ofNullable(e.getEnclosingElement()).flatMap(e2 -> Optional.ofNullable(e2.getAnnotation(Cache.class)));
         }
         return cache.map(Cache::value);
     }
 
-    private Optional<TypeMirror> makeType(Element element) {
-        return element
+    private Optional<TypeMirror> makeType(ExecutableElement e) {
+        return e
                 .getAnnotationMirrors()
                 .stream()
                 .filter(mirror -> makeAnnotationName().equals(qualifiedNameOf(mirror)))
@@ -155,12 +152,12 @@ public final class AnnotationProcessor extends AbstractProcessor {
                         .map(v -> (TypeMirror) v.getValue()));
     }
 
-    private TypeElement typeElement(TypeMirror type) {
-        return (TypeElement) types().asElement(type);
+    private TypeElement typeElement(TypeMirror t) {
+        return (TypeElement) types().asElement(t);
     }
 
-    private Stream<ExecutableElement> forAllInjectableMethods(final TypeMirror type) {
-        val element = typeElement(type);
+    private Stream<ExecutableElement> forAllInjectableMethods(final TypeMirror t) {
+        val element = typeElement(t);
         val list = elements()
                 .getAllMembers(element)
                 .stream()
@@ -177,8 +174,8 @@ public final class AnnotationProcessor extends AbstractProcessor {
                         .filter(e2 -> e1.getSimpleName().equals(e2.getSimpleName()))
                         .noneMatch(e2 -> {
                             val types = types();
-                            val t1 = (ExecutableType) types.asMemberOf((DeclaredType) type, e1);
-                            val t2 = (ExecutableType) types.asMemberOf((DeclaredType) type, e2);
+                            val t1 = (ExecutableType) types.asMemberOf((DeclaredType) t, e1);
+                            val t2 = (ExecutableType) types.asMemberOf((DeclaredType) t, e2);
                             return (types.isSubsignature(t1, t2) || types.isSubsignature(t2, t1))
                                     && !error("Cannot implement this " + (isInterface(element) ? "interface" : "class") + " ...", element)
                                     && !error("... because this method ...", e1)
