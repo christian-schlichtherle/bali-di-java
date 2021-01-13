@@ -31,16 +31,34 @@ import static javax.lang.model.type.TypeKind.VOID;
 
 final class Utils {
 
+    static final ModifierSet ABSTRACT = ModifierSet.of(Modifier.ABSTRACT);
+
     static final ModifierSet PROTECTED_PUBLIC = ModifierSet.of(Modifier.PROTECTED, Modifier.PUBLIC);
+
+    static final ModifierSet PRIVATE_PROTECTED_PUBLIC = ModifierSet.of(Modifier.PRIVATE, Modifier.PROTECTED, Modifier.PUBLIC);
+
+    static final ModifierSet STATIC = ModifierSet.of(Modifier.STATIC);
 
     private static final String VOID_CLASSNAME = Void.class.getName();
 
-    static <A extends Annotation> Optional<A> getAnnotation(AnnotatedConstruct c, Class<A> klass) {
-        return Optional.ofNullable(c.getAnnotation(klass));
+    static <A extends Annotation> Optional<A> getAnnotation(AnnotatedConstruct c, Class<A> k) {
+        return Optional.ofNullable(c.getAnnotation(k));
+    }
+
+    static boolean hasAnnotation(AnnotatedConstruct c, Class<? extends Annotation> k) {
+        return getAnnotation(c, k).isPresent();
     }
 
     static boolean hasParameters(ExecutableElement e) {
         return !e.getParameters().isEmpty() || !e.getTypeParameters().isEmpty();
+    }
+
+    static boolean hasPrimitiveReturnType(ExecutableElement e) {
+        return isPrimitive(e.getReturnType());
+    }
+
+    static boolean hasVoidReturnType(ExecutableElement e) {
+        return isVoid(e.getReturnType());
     }
 
     static boolean isAbstract(Element e) {

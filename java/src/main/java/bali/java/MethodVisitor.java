@@ -80,7 +80,7 @@ interface MethodVisitor {
                             .map(var -> var.asType() + " " + var)
                             .collect(Collectors.joining(", ")))
                     .ad(") ");
-            if (m.isMethodAccess()) {
+            if (m.isMethodRef()) {
                 out.ad(mkString(m.methodThrownTypes(), "throws ", ", ", " "));
             }
             out.ad("{").nl();

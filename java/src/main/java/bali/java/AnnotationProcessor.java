@@ -144,25 +144,21 @@ public final class AnnotationProcessor extends AbstractProcessor {
                         .values()
                         .stream()
                         .findFirst()
-                        .map(v -> (TypeMirror) v.getValue()));
+                        .map(AnnotationValue::getValue)
+                        .filter(v -> v instanceof TypeMirror || error("Cannot resolve make type.", e))
+                        .map(TypeMirror.class::cast));
     }
 
     private TypeElement typeElement(TypeMirror t) {
         return (TypeElement) types().asElement(t);
     }
 
-    private Stream<ExecutableElement> forAllInjectableMethods(final TypeMirror t) {
+    private Stream<ExecutableElement> filteredInjectionTargets(final TypeMirror t) {
         val element = typeElement(t);
-        val list = elements()
-                .getAllMembers(element)
-                .stream()
-                .filter(Utils::isAbstract)
-                .filter(Utils::isMethod)
-                .map(ExecutableElement.class::cast)
-                .filter(this::isNotVoidReturnType)
+        val list = allInjectionTargets(t)
+                .filter(this::hasNotVoidReturnType)
                 .collect(Collectors.toList());
-        return list
-                .stream()
+        return allInjectionTargets(t)
                 .filter(e1 -> list
                         .stream()
                         .filter(e2 -> e1 != e2)
@@ -178,9 +174,13 @@ public final class AnnotationProcessor extends AbstractProcessor {
                         }));
     }
 
-    private boolean isNotVoidReturnType(ExecutableElement e) {
-        return !isVoid(e.getReturnType())
-                || error("Cannot implement this method because it returns nothing.", e);
+    private Stream<ExecutableElement> allInjectionTargets(TypeMirror t) {
+        return elements()
+                .getAllMembers(typeElement(t))
+                .stream()
+                .filter(Utils::isAbstract)
+                .filter(Utils::isMethod)
+                .map(ExecutableElement.class::cast);
     }
 
     private boolean error(final CharSequence message, final Element e) {
@@ -194,9 +194,37 @@ public final class AnnotationProcessor extends AbstractProcessor {
         return true;
     }
 
+    private boolean hasNoParameters(ExecutableElement e) {
+        return !hasParameters(e) || error("Dependency accessor methods cannot have parameters.", e);
+    }
+
+    private boolean hasNotPrimitiveReturnType(ExecutableElement e) {
+        return !hasPrimitiveReturnType(e)
+                || error("Cannot return primitive types from abstract methods in modules.", e);
+    }
+
+    private boolean hasNotVoidReturnType(ExecutableElement e) {
+        return !hasVoidReturnType(e) ||
+                error("Cannot return nothing from abstract methods in modules or dependencies.", e);
+    }
+
     @RequiredArgsConstructor
     @Getter
     final class ModuleClass implements Consumer<Output> {
+
+        private final TypeElement classElement;
+
+        @Getter(lazy = true)
+        private final ModifierSet classModifiers = modifiersOf(classElement()).retain(PRIVATE_PROTECTED_PUBLIC);
+
+        @Getter(lazy = true)
+        private final Name classSimpleName = classElement().getSimpleName();
+
+        @Getter(lazy = true)
+        private final DeclaredType classType = (DeclaredType) classElement().asType();
+
+        @Getter(lazy = true)
+        private final boolean isInterfaceType = isInterface(classElement());
 
         @Getter(lazy = true)
         private final PackageElement packageElement = elements().getPackageOf(classElement());
@@ -204,33 +232,24 @@ public final class AnnotationProcessor extends AbstractProcessor {
         @Getter(lazy = true)
         private final Name packageName = packageElement().getQualifiedName();
 
-        private final TypeElement classElement;
-
         @Getter(lazy = true)
-        private final DeclaredType classType = (DeclaredType) classElement().asType();
-
-        @Getter(lazy = true)
-        private final Name classSimpleName = classElement().getSimpleName();
-
-        @Getter(lazy = true)
-        private final boolean isInterfaceType = isInterface(classElement());
+        private final boolean mustBeAbstract =
+                allInjectionTargets(classType()).anyMatch(e ->
+                        hasVoidReturnType(e) || hasAnnotation(e, Lookup.class) || hasPrimitiveReturnType(e));
 
         Consumer<Output> forAllModuleMethods(ClassVisitor v) {
             return forAllModuleMethods0().andThen(out -> out.forAllProviderMethods(v));
         }
 
         Consumer<Output> forAllModuleMethods0() {
-            return out -> forAllInjectableMethods(classType())
-                    .filter(this::isNotPrimitiveReturnType)
+            return out -> filteredInjectionTargets(classType())
+                    // HC SVNT DRACONES!
+                    .filter(e -> !hasAnnotation(e, Lookup.class))
+                    .filter(AnnotationProcessor.this::hasNotPrimitiveReturnType)
                     .map(e -> hasParameters(e)
                             ? newFactoryMethod(e).apply(new DisabledCachingVisitor())
                             : newProviderMethod(e).apply(methodVisitor(e)))
                     .forEach(c -> c.accept(out));
-        }
-
-        private boolean isNotPrimitiveReturnType(ExecutableElement e) {
-            return !isPrimitive(e.getReturnType())
-                    || error("Cannot implement this method because it has a primitive return type.", e);
         }
 
         @Override
@@ -336,8 +355,8 @@ public final class AnnotationProcessor extends AbstractProcessor {
             }
 
             Consumer<Output> forAllAccessorMethods() {
-                return out -> forAllInjectableMethods(makeType())
-                        .filter(this::hasNoParameters)
+                return out -> filteredInjectionTargets(makeType())
+                        .filter(AnnotationProcessor.this::hasNoParameters)
                         .map(e -> {
                             val method = newAccessorMethod(e);
                             return method.apply(method.isCachingDisabled()
@@ -345,11 +364,6 @@ public final class AnnotationProcessor extends AbstractProcessor {
                                     : methodVisitor(e));
                         })
                         .forEach(c -> c.accept(out));
-            }
-
-            private boolean hasNoParameters(ExecutableElement e) {
-                return !hasParameters(e)
-                        || error("Cannot implement accessor methods with parameters.", e);
             }
 
             AccessorMethod newAccessorMethod(ExecutableElement e) {
@@ -369,7 +383,7 @@ public final class AnnotationProcessor extends AbstractProcessor {
                 private final Optional<Tuple2<TypeElement, Element>> accessedElement = resolveAccessedElement();
 
                 private Optional<Tuple2<TypeElement, Element>> resolveAccessedElement() {
-                    if (isParameterAccess()) {
+                    if (isParameterRef()) {
                         return Optional.empty();
                     } else {
                         val element = resolveAccessedElement(classElement());
@@ -416,35 +430,32 @@ public final class AnnotationProcessor extends AbstractProcessor {
                 private final String accessedElementRef = resolveAccessedElementRef();
 
                 private String resolveAccessedElementRef() {
-                    return isParameterAccess()
+                    return isParameterRef()
                             ? moduleParamName().toString()
-                            : accessedElement()
-                            .map(Tuple2::t1)
-                            .orElseGet(ModuleClass.this::classElement)
-                            .getSimpleName()
-                            + (isStaticAccess() ? "$" : "$.this")
-                            + (isTypeAccess() ? "" : "." + (isMethodAccess() ? moduleMethodName() + "()" : moduleFieldName() + ""));
+                            : accessedElement().map(Tuple2::t1).orElseGet(ModuleClass.this::classElement).getSimpleName()
+                            + (isStaticRef() ? "$" : "$.this")
+                            + (isModuleRef() ? "" : "." + (isMethodRef() ? moduleMethodName() + "()" : moduleFieldName() + ""));
                 }
 
                 @Getter(lazy = true)
                 private final boolean isCachingDisabled =
-                        isParameterAccess() || isTypeAccess() || accessedElement()
+                        isParameterRef() || isModuleRef() || accessedElement()
                                 .map(Tuple2::t2)
                                 .filter(Utils::isFinal)
                                 .filter(Utils::isField)
                                 .isPresent();
 
                 @Getter(lazy = true)
-                private final boolean isFieldAccess =
+                private final boolean isFieldRef =
                         accessedElement().map(Tuple2::t2).filter(Utils::isField).isPresent();
 
                 @Override
-                boolean resolveIsMethodAccess() {
+                boolean resolveIsMethodRef() {
                     return accessedElement().map(Tuple2::t2).filter(Utils::isMethod).isPresent();
                 }
 
                 @Getter(lazy = true)
-                private final boolean isParameterAccess =
+                private final boolean isParameterRef =
                         ModuleMethod
                                 .this
                                 .methodParameters()
@@ -452,11 +463,11 @@ public final class AnnotationProcessor extends AbstractProcessor {
                                 .anyMatch(variable -> moduleParamName().equals(variable.getSimpleName()));
 
                 @Getter(lazy = true)
-                private final boolean isStaticAccess =
+                private final boolean isStaticRef =
                         accessedElement().map(Tuple2::t2).filter(Utils::isStatic).isPresent();
 
                 @Getter(lazy = true)
-                private final boolean isTypeAccess =
+                private final boolean isModuleRef =
                         accessedElement().map(Tuple2::t2).filter(Utils::isType).isPresent();
 
                 @Override
@@ -501,9 +512,9 @@ public final class AnnotationProcessor extends AbstractProcessor {
         abstract class Method implements Function<MethodVisitor, Consumer<Output>> {
 
             @Getter(lazy = true)
-            private final boolean isMethodAccess = resolveIsMethodAccess();
+            private final boolean isMethodRef = resolveIsMethodRef();
 
-            boolean resolveIsMethodAccess() {
+            boolean resolveIsMethodRef() {
                 return false;
             }
 
