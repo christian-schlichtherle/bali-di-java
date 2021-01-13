@@ -428,7 +428,7 @@ public final class AnnotationProcessor extends AbstractProcessor {
 
                 @Getter(lazy = true)
                 private final boolean isCachingDisabled =
-                        isParameterAccess() || accessedElement()
+                        isParameterAccess() || isTypeAccess() || accessedElement()
                                 .map(Tuple2::t2)
                                 .filter(Utils::isFinal)
                                 .filter(Utils::isField)
