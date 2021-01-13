@@ -15,8 +15,6 @@
  */
 package bali.sample.metric;
 
-import bali.sample.counter.HasCounter;
-
 @FunctionalInterface
 public interface Metric extends HasCounter {
 

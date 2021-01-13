@@ -16,23 +16,12 @@
 package bali.sample.metric;
 
 import bali.Cache;
-import bali.Module;
 
-import static java.lang.System.out;
+import java.util.concurrent.atomic.AtomicInteger;
 
-@Module
-public interface MetricApp extends HasCounter, Runnable {
+@FunctionalInterface
+public interface HasCounter {
 
     @Cache
-    Metric metric();
-
-    @Override
-    default void run() {
-        out.printf("Count: %d\n", metric().incrementCounter());
-        out.printf("Count: %d\n", metric().incrementCounter());
-    }
-
-    static void main(String... args) {
-        MetricApp$.new$().run();
-    }
+    AtomicInteger counter();
 }
