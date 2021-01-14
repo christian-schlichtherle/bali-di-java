@@ -210,9 +210,8 @@ public class AnnotationProcessor extends AbstractProcessor {
     }
 
     @SuppressWarnings("SameParameterValue")
-    private boolean warn(CharSequence message, Element e) {
+    private void warn(CharSequence message, Element e) {
         messager().printMessage(WARNING, message, e);
-        return true;
     }
 
     private boolean hasNoParameters(ExecutableElement e) {
