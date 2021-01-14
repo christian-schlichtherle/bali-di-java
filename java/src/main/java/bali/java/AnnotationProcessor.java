@@ -354,7 +354,7 @@ public class AnnotationProcessor extends AbstractProcessor {
                         .makeType(methodElement())
                         .flatMap(this::deriveMakeType)
                         .filter(t -> isSubTypeOf(t, methodReturnType(), methodElement()))
-                        .orElse((DeclaredType) methodReturnType());
+                        .orElseGet(() -> (DeclaredType) methodReturnType());
             }
 
             private Optional<DeclaredType> deriveMakeType(final TypeMirror makeType) {
