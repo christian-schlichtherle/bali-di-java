@@ -13,10 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package bali.sample.modular.greeting;
+package bali.sample.modular1.greeting;
 
-@FunctionalInterface
-public interface Greeting {
+import bali.sample.modular1.formatter.Formatter;
 
-    String message(String entity);
+public interface RealGreeting extends Greeting {
+
+    Formatter formatter();
+
+    @Override
+    default String message(String entity) {
+        return formatter().format(entity);
+    }
 }

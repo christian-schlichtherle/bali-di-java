@@ -13,10 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package bali.sample.modular.formatter;
+package bali.sample.modular1.formatter;
 
-@FunctionalInterface
-public interface Formatter {
+public interface RealFormatter extends Formatter {
 
-    String format(Object... args);
+    String format();
+
+    @Override
+    default String format(Object... args) {
+        return String.format(format(), args);
+    }
 }

@@ -13,14 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package bali.sample.modular.formatter;
+package bali.sample.modular1;
 
-public interface RealFormatter extends Formatter {
+import bali.Module;
+import bali.sample.modular1.formatter.FormatterModule;
+import bali.sample.modular1.greeting.GreetingModule;
 
-    String format();
+import static java.lang.System.out;
+
+@Module
+public interface ModularApp extends FormatterModule, GreetingModule, Runnable {
+
+    default String format() {
+        return "Hello %s!";
+    }
 
     @Override
-    default String format(Object... args) {
-        return String.format(format(), args);
+    default void run() {
+        out.println(greeting().message("world"));
+    }
+
+    static void main(String... args) {
+        ModularApp$.new$().run();
     }
 }
