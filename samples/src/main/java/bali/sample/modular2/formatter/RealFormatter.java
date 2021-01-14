@@ -13,21 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package bali.sample.tuple;
+package bali.sample.modular2.formatter;
 
-import java.util.function.Function;
+interface RealFormatter extends Formatter {
 
-interface AbstractTuple2<T1, T2> extends Tuple2<T1, T2> {
-
-    TupleFactory factory();
+    String format();
 
     @Override
-    default <R> Tuple2<R, T2> mapT1(Function<T1, R> f) {
-        return factory().tuple(f.apply(getT1()), getT2());
-    }
-
-    @Override
-    default <R> Tuple2<T1, R> mapT2(Function<T2, R> f) {
-        return factory().tuple(getT1(), f.apply(getT2()));
+    default String format(Object... args) {
+        return String.format(format(), args);
     }
 }

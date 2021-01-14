@@ -37,8 +37,6 @@ final class Utils {
 
     static final ModifierSet PRIVATE_PROTECTED_PUBLIC = ModifierSet.of(Modifier.PRIVATE, Modifier.PROTECTED, Modifier.PUBLIC);
 
-    static final ModifierSet STATIC = ModifierSet.of(Modifier.STATIC);
-
     private static final String VOID_CLASSNAME = Void.class.getName();
 
     static <A extends Annotation> Optional<A> getAnnotation(AnnotatedConstruct c, Class<A> k) {

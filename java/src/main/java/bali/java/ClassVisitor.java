@@ -28,18 +28,15 @@ final class ClassVisitor {
         return out -> {
             out
                     .ad("package ").ad(c.packageName()).ad(";").nl()
-                    .nl();
-            if (c.mustBeAbstract()) {
-                out.ad(c.classModifiers().add(ABSTRACT)).ad("class ").ad(c.classSimpleName()).ad("$ ").ad(c.isInterfaceType() ? "implements " : "extends ").ad(c.classType()).ad(" {").nl();
-            } else {
+                    .nl()
+                    .ad(c.generated()).nl()
+                    .ad(c.classModifiers()).ad("class ").ad(c.classSimpleName()).ad("$ ").ad(c.isInterfaceType() ? "implements " : "extends ").ad(c.classType()).ad(" {").nl();
+            if (!c.hasAbstractMethods()) {
                 out
-                        .ad("final class ").ad(c.classSimpleName()).ad("$ ").ad(c.isInterfaceType() ? "implements " : "extends ").ad(c.classType()).ad(" {").nl()
                         .nl()
                         .ad("    static ").ad(c.classType()).ad(" new$() {").nl()
-                        .ad("        return new ").ad(c.classSimpleName()).ad("$();").nl()
-                        .ad("    }").nl()
-                        .nl()
-                        .ad("    private ").ad(c.classSimpleName()).ad("$() {").nl()
+                        .ad("        return new ").ad(c.classSimpleName()).ad("$() {").nl()
+                        .ad("        };").nl()
                         .ad("    }").nl();
             }
             c.forAllModuleMethods(this).accept(out);

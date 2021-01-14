@@ -16,6 +16,7 @@
 package bali.java;
 
 import bali.*;
+import bali.Module;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.Accessors;
@@ -24,13 +25,11 @@ import lombok.val;
 import javax.annotation.processing.*;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.*;
-import javax.lang.model.type.DeclaredType;
-import javax.lang.model.type.ExecutableType;
-import javax.lang.model.type.TypeKind;
-import javax.lang.model.type.TypeMirror;
+import javax.lang.model.type.*;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
 import java.io.IOException;
+import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -46,7 +45,7 @@ import static javax.tools.Diagnostic.Kind.WARNING;
 @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
 @Accessors(fluent = true)
 @SupportedAnnotationTypes("bali.*")
-public final class AnnotationProcessor extends AbstractProcessor {
+public class AnnotationProcessor extends AbstractProcessor {
 
     @Getter(lazy = true)
     private final Elements elements = processingEnv.getElementUtils();
@@ -66,6 +65,10 @@ public final class AnnotationProcessor extends AbstractProcessor {
     @Getter(lazy = true)
     private final Types types = processingEnv.getTypeUtils();
 
+    private int round;
+    private List<Element> todo = new LinkedList<>();
+    private boolean save;
+
     @Override
     public final SourceVersion getSupportedSourceVersion() {
         // Suppress the following warning from the Java compiler, where X < Y:
@@ -74,21 +77,28 @@ public final class AnnotationProcessor extends AbstractProcessor {
     }
 
     @Override
-    public final boolean process(final Set<? extends TypeElement> annotations, final RoundEnvironment roundEnv) {
+    public boolean process(final Set<? extends TypeElement> annotations, final RoundEnvironment roundEnv) {
+        round++;
+
+        val list = todo;
+        todo = new LinkedList<>();
+        list.forEach(this::processElement);
+
         annotations
                 .stream()
                 .filter(a -> moduleAnnotationName().equals(a.getQualifiedName()))
-                .forEach(a -> roundEnv.getElementsAnnotatedWith(a).forEach(this::process));
+                .forEach(a -> roundEnv.getElementsAnnotatedWith(a).forEach(this::processElement));
+
         return true;
     }
 
-    void process(final Element e) {
+    private void processElement(final Element e) {
         if (e instanceof TypeElement) {
-            process((TypeElement) e);
+            processTypeElement((TypeElement) e);
         }
     }
 
-    private void process(final TypeElement e) {
+    private void processTypeElement(final TypeElement e) {
         if (e.getNestingKind().isNested()) {
             if (e.getModifiers().contains(Modifier.STATIC)) {
                 if (!isExperimentalWarningSuppressed(e)) {
@@ -99,15 +109,41 @@ public final class AnnotationProcessor extends AbstractProcessor {
                 return;
             }
         }
+        processCheckedTypeElement(e);
+    }
 
+    private void processCheckedTypeElement(final TypeElement e) {
         val out = new Output();
-        new ModuleClass(e).accept(out);
-        val sourceCode = out.toString();
-        try (val w = filer().createSourceFile(elements().getBinaryName(e) + "$", e).openWriter()) {
-            w.write(sourceCode);
-        } catch (IOException x) {
-            error("Failed to process:\n" + x, e);
+        save = true;
+        new ModuleClass(e).accept(out); // may set save = false as side effect
+        if (save) {
+            try {
+                val jfo = filer().createSourceFile(elements().getBinaryName(e) + "$", e);
+                try (val w = jfo.openWriter()) {
+                    w.write(out.toString());
+                }
+            } catch (IOException x) {
+                error("Failed to process:\n" + x, e);
+            }
+        } else {
+            todo.add(e);
         }
+    }
+
+    private Optional<TypeMirror> makeType(ExecutableElement e) {
+        return e.getAnnotationMirrors()
+                .stream()
+                .filter(mirror -> makeAnnotationName().equals(qualifiedNameOf(mirror)))
+                .findAny()
+                .flatMap(mirror -> mirror
+                        .getElementValues()
+                        .values()
+                        .stream()
+                        .findFirst()
+                        .map(AnnotationValue::getValue)
+                        // If the make type is a module then defer its processing to the next round because it's not available yet.
+                        .filter(v -> v instanceof TypeMirror || (save = false))
+                        .map(TypeMirror.class::cast));
     }
 
     private MethodVisitor methodVisitor(final ExecutableElement e) {
@@ -134,31 +170,12 @@ public final class AnnotationProcessor extends AbstractProcessor {
         return cache.map(Cache::value);
     }
 
-    private Optional<TypeMirror> makeType(ExecutableElement e) {
-        return e.getAnnotationMirrors()
-                .stream()
-                .filter(mirror -> makeAnnotationName().equals(qualifiedNameOf(mirror)))
-                .findAny()
-                .flatMap(mirror -> mirror
-                        .getElementValues()
-                        .values()
-                        .stream()
-                        .findFirst()
-                        .map(AnnotationValue::getValue)
-                        .filter(v -> v instanceof TypeMirror || error("Cannot resolve make type.", e))
-                        .map(TypeMirror.class::cast));
-    }
-
-    private TypeElement typeElement(TypeMirror t) {
-        return (TypeElement) types().asElement(t);
-    }
-
-    private Stream<ExecutableElement> filteredInjectionTargets(final TypeMirror t) {
+    private Stream<ExecutableElement> filteredAbstractMethods(final TypeMirror t) {
         val element = typeElement(t);
-        val list = allInjectionTargets(t)
+        val list = allAbstractMethods(t)
                 .filter(this::hasNotVoidReturnType)
                 .collect(Collectors.toList());
-        return allInjectionTargets(t)
+        return allAbstractMethods(t)
                 .filter(e1 -> list
                         .stream()
                         .filter(e2 -> e1 != e2)
@@ -174,13 +191,17 @@ public final class AnnotationProcessor extends AbstractProcessor {
                         }));
     }
 
-    private Stream<ExecutableElement> allInjectionTargets(TypeMirror t) {
+    private Stream<ExecutableElement> allAbstractMethods(TypeMirror t) {
         return elements()
                 .getAllMembers(typeElement(t))
                 .stream()
                 .filter(Utils::isAbstract)
                 .filter(Utils::isMethod)
                 .map(ExecutableElement.class::cast);
+    }
+
+    private TypeElement typeElement(TypeMirror t) {
+        return (TypeElement) types().asElement(t);
     }
 
     private boolean error(final CharSequence message, final Element e) {
@@ -215,13 +236,26 @@ public final class AnnotationProcessor extends AbstractProcessor {
         private final TypeElement classElement;
 
         @Getter(lazy = true)
-        private final ModifierSet classModifiers = modifiersOf(classElement()).retain(PRIVATE_PROTECTED_PUBLIC);
+        private final ModifierSet classModifiers =
+                modifiersOf(classElement()).retain(PRIVATE_PROTECTED_PUBLIC).add(ABSTRACT);
 
         @Getter(lazy = true)
         private final Name classSimpleName = classElement().getSimpleName();
 
         @Getter(lazy = true)
         private final DeclaredType classType = (DeclaredType) classElement().asType();
+
+        String generated() {
+            return String.format(Locale.ENGLISH,
+                    "/*\n" +
+                            "@javax.annotation.Generated(\n" +
+                            "    comments = \"round=%d\",\n" +
+                            "    date = \"%s\",\n" +
+                            "    value = \"%s\"\n" +
+                            ")\n" +
+                            "*/",
+                    round, OffsetDateTime.now(), AnnotationProcessor.class.getName());
+        }
 
         @Getter(lazy = true)
         private final boolean isInterfaceType = isInterface(classElement());
@@ -233,19 +267,24 @@ public final class AnnotationProcessor extends AbstractProcessor {
         private final Name packageName = packageElement().getQualifiedName();
 
         @Getter(lazy = true)
-        private final boolean mustBeAbstract =
-                allInjectionTargets(classType()).anyMatch(e ->
-                        hasVoidReturnType(e) || hasAnnotation(e, Lookup.class) || hasPrimitiveReturnType(e));
+        private final boolean hasAbstractMethods =
+                allAbstractMethods(classType()).anyMatch(e ->
+                        hasVoidReturnType(e)
+                                || hasAnnotation(e, Lookup.class)
+                                || hasPrimitiveReturnType(e)
+                                || hasAnnotation(e, Make.class) && !makeType(e).isPresent()
+                );
 
         Consumer<Output> forAllModuleMethods(ClassVisitor v) {
             return forAllModuleMethods0().andThen(out -> out.forAllProviderMethods(v));
         }
 
         Consumer<Output> forAllModuleMethods0() {
-            return out -> filteredInjectionTargets(classType())
+            return out -> filteredAbstractMethods(classType())
                     // HC SVNT DRACONES!
                     .filter(e -> !hasAnnotation(e, Lookup.class))
                     .filter(AnnotationProcessor.this::hasNotPrimitiveReturnType)
+                    .filter(e -> !hasAnnotation(e, Make.class) || makeType(e).isPresent())
                     .map(e -> hasParameters(e)
                             ? newFactoryMethod(e).apply(new DisabledCachingVisitor())
                             : newProviderMethod(e).apply(methodVisitor(e)))
@@ -355,7 +394,7 @@ public final class AnnotationProcessor extends AbstractProcessor {
             }
 
             Consumer<Output> forAllAccessorMethods() {
-                return out -> filteredInjectionTargets(makeType())
+                return out -> filteredAbstractMethods(makeType())
                         .filter(AnnotationProcessor.this::hasNoParameters)
                         .map(e -> {
                             val method = newAccessorMethod(e);
