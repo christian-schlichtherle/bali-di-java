@@ -13,16 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package bali.sample.modular.greeting;
+package bali.sample.metric;
 
-import bali.sample.modular.formatter.Formatter;
+import bali.Cache;
 
-public interface RealGreeting extends Greeting {
+import java.util.concurrent.atomic.AtomicInteger;
 
-    Formatter formatter();
+@FunctionalInterface
+public interface HasCounter {
 
-    @Override
-    default String message(String entity) {
-        return formatter().format(entity);
-    }
+    @Cache
+    AtomicInteger counter();
 }

@@ -13,14 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package bali.sample.modular.formatter;
+package bali.sample.modular2.greeting;
 
 import bali.Cache;
+import bali.Lookup;
 import bali.Make;
+import bali.Module;
+import bali.sample.modular2.formatter.Formatter;
 
-public interface FormatterModule {
+@Module
+public interface GreetingModule {
+
+    @Lookup
+    Formatter formatter();
 
     @Cache
-    @Make(RealFormatter.class)
-    Formatter formatter();
+    @Make(RealGreeting.class)
+    Greeting greeting();
 }

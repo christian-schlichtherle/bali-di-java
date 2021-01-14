@@ -13,18 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package bali;
+package bali.sample.modular2.formatter;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.Target;
+import bali.Cache;
+import bali.Lookup;
+import bali.Make;
+import bali.Module;
 
-import static java.lang.annotation.ElementType.METHOD;
-import static java.lang.annotation.ElementType.TYPE;
-import static java.lang.annotation.RetentionPolicy.SOURCE;
+@Module
+public interface FormatterModule {
 
-@Retention(SOURCE)
-@Target({TYPE, METHOD})
-public @interface Cache {
+    @Lookup
+    String format();
 
-    CachingStrategy value() default CachingStrategy.THREAD_SAFE;
+    @Cache
+    @Make(RealFormatter.class)
+    Formatter formatter();
 }

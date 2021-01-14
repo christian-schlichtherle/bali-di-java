@@ -13,21 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package bali.sample.tuple;
+package bali;
 
-import java.util.function.Function;
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
 
-interface AbstractTuple2<T1, T2> extends Tuple2<T1, T2> {
+import static java.lang.annotation.ElementType.METHOD;
+import static java.lang.annotation.ElementType.TYPE;
+import static java.lang.annotation.RetentionPolicy.SOURCE;
 
-    TupleFactory factory();
+@Retention(SOURCE)
+@Target(METHOD)
+public @interface Lookup {
 
-    @Override
-    default <R> Tuple2<R, T2> mapT1(Function<T1, R> f) {
-        return factory().tuple(f.apply(t1()), t2());
-    }
+    String field() default "";
 
-    @Override
-    default <R> Tuple2<T1, R> mapT2(Function<T2, R> f) {
-        return factory().tuple(t1(), f.apply(t2()));
-    }
+    String method() default "";
+
+    String param() default "";
+
+    String value() default "";
 }

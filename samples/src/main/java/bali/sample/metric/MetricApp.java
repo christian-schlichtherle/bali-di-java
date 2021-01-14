@@ -17,7 +17,6 @@ package bali.sample.metric;
 
 import bali.Cache;
 import bali.Module;
-import bali.sample.counter.HasCounter;
 
 import static java.lang.System.out;
 

@@ -13,18 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package bali;
+package bali.java;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.Target;
+import lombok.Value;
+import lombok.experimental.Accessors;
 
-import static java.lang.annotation.ElementType.METHOD;
-import static java.lang.annotation.ElementType.TYPE;
-import static java.lang.annotation.RetentionPolicy.SOURCE;
+@Accessors(fluent = true)
+@Value
+class Tuple2<T1, T2> {
 
-@Retention(SOURCE)
-@Target({TYPE, METHOD})
-public @interface Cache {
-
-    CachingStrategy value() default CachingStrategy.THREAD_SAFE;
+    T1 t1;
+    T2 t2;
 }

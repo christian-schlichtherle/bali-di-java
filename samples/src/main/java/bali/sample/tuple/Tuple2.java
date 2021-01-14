@@ -19,9 +19,9 @@ import java.util.function.Function;
 
 public interface Tuple2<T1, T2> {
 
-    T1 t1();
+    T1 getT1();
 
-    T2 t2();
+    T2 getT2();
 
     <R> Tuple2<R, T2> mapT1(Function<T1, R> f);
 

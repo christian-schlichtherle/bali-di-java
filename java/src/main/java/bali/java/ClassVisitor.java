@@ -20,6 +20,8 @@ import bali.java.AnnotationProcessor.ModuleClass.ProviderMethod;
 
 import java.util.function.Consumer;
 
+import static bali.java.Utils.ABSTRACT;
+
 final class ClassVisitor {
 
     Consumer<Output> visitModuleClass(ModuleClass c) {
@@ -27,14 +29,16 @@ final class ClassVisitor {
             out
                     .ad("package ").ad(c.packageName()).ad(";").nl()
                     .nl()
-                    .ad("final class ").ad(c.classSimpleName()).ad("$ ").ad(c.isInterfaceType() ? "implements " : "extends ").ad(c.classType()).ad(" {").nl()
-                    .nl()
-                    .ad("    static ").ad(c.classType()).ad(" new$() {").nl()
-                    .ad("        return new ").ad(c.classSimpleName()).ad("$();").nl()
-                    .ad("    }").nl()
-                    .nl()
-                    .ad("    private ").ad(c.classSimpleName()).ad("$() {").nl()
-                    .ad("    }").nl();
+                    .ad(c.generated()).nl()
+                    .ad(c.classModifiers()).ad("class ").ad(c.classSimpleName()).ad("$ ").ad(c.isInterfaceType() ? "implements " : "extends ").ad(c.classType()).ad(" {").nl();
+            if (!c.hasAbstractMethods()) {
+                out
+                        .nl()
+                        .ad("    static ").ad(c.classType()).ad(" new$() {").nl()
+                        .ad("        return new ").ad(c.classSimpleName()).ad("$() {").nl()
+                        .ad("        };").nl()
+                        .ad("    }").nl();
+            }
             c.forAllModuleMethods(this).accept(out);
             out.ad("}").nl();
         };

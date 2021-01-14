@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package bali.sample.modular.formatter;
+package bali.sample.modular1.greeting;
 
 @FunctionalInterface
-public interface Formatter {
+public interface Greeting {
 
-    String format(Object... args);
+    String message(String entity);
 }

@@ -13,18 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package bali;
+package bali.sample.modular2;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.Target;
+import bali.Cache;
+import bali.Make;
+import bali.Module;
+import bali.sample.modular2.main.MainModule;
+import bali.sample.modular2.main.MainModule$;
 
-import static java.lang.annotation.ElementType.METHOD;
-import static java.lang.annotation.ElementType.TYPE;
-import static java.lang.annotation.RetentionPolicy.SOURCE;
+import static java.lang.System.out;
 
-@Retention(SOURCE)
-@Target({TYPE, METHOD})
-public @interface Cache {
+@Cache
+@Module
+public interface AppModule extends Runnable {
 
-    CachingStrategy value() default CachingStrategy.THREAD_SAFE;
+    @Make(MainModule$.class)
+    MainModule mainModule();
+
+    @Override
+    default void run() {
+        out.println(mainModule().greeting().message("world"));
+    }
+
+    static void main(String... args) {
+        AppModule$.new$().run();
+    }
 }

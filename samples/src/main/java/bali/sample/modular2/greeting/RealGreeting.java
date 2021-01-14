@@ -13,18 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package bali;
+package bali.sample.modular2.greeting;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.Target;
+import bali.sample.modular2.formatter.Formatter;
 
-import static java.lang.annotation.ElementType.METHOD;
-import static java.lang.annotation.ElementType.TYPE;
-import static java.lang.annotation.RetentionPolicy.SOURCE;
+interface RealGreeting extends Greeting {
 
-@Retention(SOURCE)
-@Target({TYPE, METHOD})
-public @interface Cache {
+    Formatter formatter();
 
-    CachingStrategy value() default CachingStrategy.THREAD_SAFE;
+    @Override
+    default String message(String entity) {
+        return formatter().format(entity);
+    }
 }

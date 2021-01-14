@@ -13,18 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package bali;
+package bali.sample.modular1.greeting;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.Target;
+import bali.Cache;
+import bali.Make;
 
-import static java.lang.annotation.ElementType.METHOD;
-import static java.lang.annotation.ElementType.TYPE;
-import static java.lang.annotation.RetentionPolicy.SOURCE;
+public interface GreetingModule {
 
-@Retention(SOURCE)
-@Target({TYPE, METHOD})
-public @interface Cache {
-
-    CachingStrategy value() default CachingStrategy.THREAD_SAFE;
+    @Cache
+    @Make(RealGreeting.class)
+    Greeting greeting();
 }

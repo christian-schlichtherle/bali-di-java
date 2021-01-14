@@ -13,18 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package bali;
+package bali.sample.modular1
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.Target;
+import org.scalatest.matchers.should.Matchers._
+import org.scalatest.wordspec.AnyWordSpec
 
-import static java.lang.annotation.ElementType.METHOD;
-import static java.lang.annotation.ElementType.TYPE;
-import static java.lang.annotation.RetentionPolicy.SOURCE;
+class ModularAppSpec extends AnyWordSpec {
 
-@Retention(SOURCE)
-@Target({TYPE, METHOD})
-public @interface Cache {
+  "The modular app" should {
+    val app = ModularApp$.new$
+    import app._
 
-    CachingStrategy value() default CachingStrategy.THREAD_SAFE;
+    "cache the formatter" in {
+      formatter shouldBe theSameInstanceAs(formatter)
+    }
+
+    "cache the greeting" in {
+      greeting shouldBe theSameInstanceAs(greeting)
+    }
+
+    "produce 'Hello world!'" in {
+      greeting.message("world") shouldBe "Hello world!"
+    }
+  }
 }
