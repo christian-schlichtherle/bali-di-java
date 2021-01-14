@@ -17,6 +17,8 @@
 import sbtrelease.ReleasePlugin.autoImport._
 import sbtrelease.ReleaseStateTransformations._
 
+val ScalaTest: ModuleID = "org.scalatest" %% "scalatest" % "3.2.3"
+
 inThisBuild(Seq(
   autoScalaLibrary := false,
   compileOrder := CompileOrder.JavaThenScala,
@@ -82,7 +84,7 @@ lazy val java: Project = project
   .settings(
     javacOptions ++= Seq("-processor", "lombok.launch.AnnotationProcessorHider$AnnotationProcessor,lombok.launch.AnnotationProcessorHider$ClaimingProcessor"),
     libraryDependencies += "org.projectlombok" % "lombok" % "1.18.16" % Provided,
-    libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.3" % Test,
+    libraryDependencies += ScalaTest % Test,
     name := "Bali DI for Java",
     normalizedName := "bali-java",
   )
@@ -110,8 +112,9 @@ lazy val parent: Project = project
   )
 
 lazy val samples: Project = project
-  .dependsOn(java % "compile; provided -> provided; test -> test")
+  .dependsOn(java)
   .settings(
+    libraryDependencies += ScalaTest % Test,
     name := "Bali DI Samples",
     normalizedName := "bali-samples",
   )
