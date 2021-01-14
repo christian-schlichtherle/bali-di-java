@@ -24,7 +24,6 @@ import bali.sample.modular2.formatter.Formatter;
 @Module
 public interface GreetingModule {
 
-    @SuppressWarnings("experimental")
     @Lookup
     Formatter formatter();
 

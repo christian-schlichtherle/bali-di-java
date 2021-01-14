@@ -515,10 +515,7 @@ public class AnnotationProcessor extends AbstractProcessor {
                 }
 
                 @Getter(lazy = true)
-                private final Optional<Lookup> lookup =
-                        getAnnotation(methodElement(), Lookup.class)
-                                .filter(l -> isExperimentalWarningSuppressed(methodElement())
-                                        || warn("Support for lookup names is experimental.", methodElement()));
+                private final Optional<Lookup> lookup = getAnnotation(methodElement(), Lookup.class);
 
                 @Getter(lazy = true)
                 private final Name moduleFieldName = resolveName(Lookup::field);

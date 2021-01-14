@@ -23,7 +23,6 @@ import bali.Module;
 @Module
 public interface FormatterModule {
 
-    @SuppressWarnings("experimental")
     @Lookup
     String format();
 

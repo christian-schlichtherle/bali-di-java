@@ -20,7 +20,6 @@ import bali.Lookup;
 import java.util.Objects;
 import java.util.function.Function;
 
-@SuppressWarnings("experimental")
 abstract class ImmutableTuple2<T1, T2> implements Tuple2<T1, T2> {
 
     @Lookup("t1")
