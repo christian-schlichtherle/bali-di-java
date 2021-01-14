@@ -32,7 +32,7 @@ public interface TupleFactory {
 
     String t1 = "t1";
 
-    default String t2() {
+    default String getT2() {
         return "t2";
     }
 }
