@@ -85,24 +85,27 @@ In contrast to this, Bali DI is completely different:
 
 There are many features and benefits resulting from this approach:
 
-+ Quick trouble-shooting
-  => if a dependency is missing, or doesn't have a compatible type, the compiler will tell you.
-+ Completely type-safe, including generics
-  => a `Map<User, List<Order>>` never gets assigned to a `Map<String, String>`.
-+ Dependencies are identified by name, not just type
-  => a `String username()` is different from a `String password()` without the need for any qualifier annotations.
-+ All dependency access is inherently lazy
-  => dependencies are created and - if desired - cached just-in-time without unsolicited overhead in memory size or
-  runtime complexity.
-+ Quick application startup
-  => no need to scan the byte code of your app to figure the wiring of your components.
-+ No reflection
-  => it's not just quicker, but also avoids problems with byte code analysis or obfuscation tools.
-+ No runtime dependency
-  => no need to worry about the diamond dependency problem, large dependencies or dependency management at all.
-+ Tailor-made code generation
-  => you can inspect, test and debug the generated source code which exactly matches the requirements of your project
-  without unsolicited overhead in memory size or runtime complexity.
+<dl>
+<dt>Quick trouble-shooting
+<dd>If a dependency is missing, or doesn't have a compatible type, the compiler will tell you.
+<dt>Completely type-safe, including generics
+<dd>A <code>Map&lt;User, List&lt;Order&gt;&gt;</code> never gets assigned to a <code>Map&lt;String, String&gt;</code>.
+<dt>Dependencies are identified by name, not just type
+<dd>A <code>String username()</code> is different from a <code>String password()</code> without the need for any
+    qualifier annotations.
+<dt>All dependency access is inherently lazy
+<dd>Dependencies are created and, if desired, cached just-in-time without unsolicited overhead in memory size or
+    runtime complexity.
+<dt>Quick application startup
+<dd>No need to scan the byte code of your app to figure the wiring of your components.
+<dt>No reflection
+<dd>It's not just faster without reflection, but also avoids problems with byte code analysis or obfuscation tools.
+<dt>No runtime dependency
+<dd>No need to worry about the diamond dependency problem, large dependencies or dependency management at all.
+<dt>Tailor-made code generation
+<dd>You can inspect, test and debug the generated source code which exactly matches the requirements of your project
+    without unsolicited overhead in memory size or runtime complexity.
+</dl>
 
 ## Quick Demo
 
@@ -182,21 +185,25 @@ public abstract class GenericClockApp$ implements GenericClockApp {
 
 You may recognize that the code is a blend of the following design patterns:
 
-+ Abstract Factory:
-  The interface `GenericClockApp` is an abstract factory because clients get access to the clock by calling the
-  abstract method `Callable<Date> clock()` without knowing the implementation class.
-  The same is true for the method `Date date()`.
-+ Factory Method:
-  The class `GenericClock$` implements these factory methods to create - and in case of
-  `Callable<Date> clock()` also cache - the singleton clock and its current time.
-  The class is abstract and provides a static method constructor to control access to instances while at the same time
-  still allowing for subclassing - this gets exploited for advanced scenarios like modular apps.
-+ Template Method:
-  The interface `Callable<T>` uses the template method `T call() throws Exception` to return a completely generic
-  instance `T`, whereby it may terminate with an exception instead of a result.
-+ Mediator:
-  The inner class `Callable$1` holds an implicit reference to its enclosing class `GenericApp$`.
-  It uses this reference to obtain the current Date when calling its method `Date call() throws Exception`.
+<dl>
+<dt>Abstract Factory
+<dd>The interface <code>GenericClockApp</code> is an abstract factory because clients get access to the clock by calling
+    the abstract method <code>Callable&lt;Date&gt; clock()</code> without knowing the implementation class.
+    The same is true for the method <code>Date date()</code>.
+<dt>Factory Method
+<dd>The class <code>GenericClockApp$</code> implements these factory methods to create, and in case of
+    <code>Callable&lt;Date&gt; clock()</code> also cache, the singleton clock and its current time.
+    The class is abstract and provides a static method constructor in order to control its instantiation and inhibit the
+    uncontrolled proliferation of its type while still allowing for subclassing - the latter feature is required for
+    advanced scenarios like modular apps.
+<dt>Template Method
+<dd>The interface <code>Callable&lt;T&gt;</code> defines the template method <code>T call() throws Exception</code> to
+    return a completely generic instance <code>T</code>, whereby it may terminate with an exception instead of a result.
+<dt>Mediator
+<dd>The inner class <code>Callable$1</code> holds an implicit reference to its enclosing class
+    <code>GenericClockApp$</code>.
+    It uses this reference to obtain the current Date when calling its method <code>Date call() throws Exception</code>.
+</dl>
 
 If there were more dependencies, these patterns would be repeatedly applied to the abstract methods of these types.
 
