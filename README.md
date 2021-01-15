@@ -211,10 +211,14 @@ If there were more dependencies, these patterns would be repeatedly applied to t
 
 The [sample code](samples) also showcases the following advanced features: 
 
-+ Abstract factory methods in `@Module` types to use their parameters as dependencies.
-+ Caching all return values by applying `@Cache` to types instead of methods.
++ Abstract factory methods in [`@Module`](annotations/src/main/java/bali/Module.java) types to use their parameters as
+  dependencies.
++ Caching all return values by applying [`@Cache`](annotations/src/main/java/bali/Cache.java) to types instead of
+  methods.
 + Thread-local caching by applying `@Cache(THREAD_LOCAL)` to types or methods.
-+ Taking advantage of interface segregation by applying `@Make(MyImplementation.class)` to methods returning
-  `MyInterface`, where `MyImplementation` is a subtype of `MyInterface`. 
-+ Specifying the name of accessed methods, fields or parameters by applying `@Lookup("myname")` to accessor methods.
++ Taking advantage of interface segregation by applying
+  [`@Make(MyImplementation.class)`](annotations/src/main/java/bali/Make.java) to methods returning `MyInterface`, where
+  `MyImplementation` is a subtype of `MyInterface`. 
++ Specifying the name of accessed methods, fields or parameters by applying
+  [`@Lookup("myname")`](annotations/src/main/java/bali/Lookup.java) to accessor methods.
 + Re-using modules by inheritance or composition for multi-module applications.
