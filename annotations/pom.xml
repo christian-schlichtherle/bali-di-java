@@ -20,7 +20,7 @@
     <parent>
         <groupId>global.namespace.bali</groupId>
         <artifactId>bali-parent</artifactId>
-        <version>0.5.0</version>
+        <version>0.5.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>bali-annotations</artifactId>
