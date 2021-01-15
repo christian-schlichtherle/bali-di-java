@@ -50,6 +50,8 @@ import static javax.tools.Diagnostic.Kind.WARNING;
 @SupportedAnnotationTypes("bali.*")
 public final class AnnotationProcessor extends AbstractProcessor {
 
+    private static final ResourceBundle bundle = ResourceBundle.getBundle(AnnotationProcessor.class.getName());
+
     @Getter(lazy = true)
     private final Elements elements = processingEnv.getElementUtils();
 
@@ -255,12 +257,12 @@ public final class AnnotationProcessor extends AbstractProcessor {
             return String.format(Locale.ENGLISH,
                     "/*\n" +
                             "@javax.annotation.Generated(\n" +
-                            "    comments = \"round=%d\",\n" +
+                            "    comments = \"round=%d, version=%s\",\n" +
                             "    date = \"%s\",\n" +
                             "    value = \"%s\"\n" +
                             ")\n" +
                             "*/",
-                    round, OffsetDateTime.now(), AnnotationProcessor.class.getName());
+                    round, bundle.getString("version"), OffsetDateTime.now(), AnnotationProcessor.class.getName());
         }
 
         @Getter(lazy = true)
