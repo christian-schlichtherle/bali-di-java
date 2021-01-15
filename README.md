@@ -95,8 +95,8 @@ There are many features and benefits resulting from this approach:
 <dd>A <code>String username()</code> is different from a <code>String password()</code> without the need for any
     qualifier annotations.
 <dt>All dependency access is inherently lazy
-<dd>Dependencies are created and, if desired, cached just-in-time without unsolicited overhead in memory size or
-    runtime complexity.
+<dd>Dependencies are created and, if desired, cached just-in-time when they are accessed without unsolicited overhead in
+    memory size or runtime complexity.
     If you follow this through, it results in a more responsive behavior of your app than if everything is done in an
     eager fashion.
 <dt>Quick application startup
