@@ -16,10 +16,8 @@
 package bali.sample.modular2;
 
 import bali.Cache;
-import bali.Make;
 import bali.Module;
 import bali.sample.modular2.main.MainModule;
-import bali.sample.modular2.main.MainModule$;
 
 import static java.lang.System.out;
 
@@ -27,7 +25,6 @@ import static java.lang.System.out;
 @Module
 public interface AppModule extends Runnable {
 
-    @Make(MainModule$.class)
     MainModule mainModule();
 
     @Override

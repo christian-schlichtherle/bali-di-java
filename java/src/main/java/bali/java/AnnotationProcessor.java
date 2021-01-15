@@ -15,8 +15,8 @@
  */
 package bali.java;
 
-import bali.*;
 import bali.Module;
+import bali.*;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.Accessors;
@@ -25,7 +25,10 @@ import lombok.val;
 import javax.annotation.processing.*;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.*;
-import javax.lang.model.type.*;
+import javax.lang.model.type.DeclaredType;
+import javax.lang.model.type.ExecutableType;
+import javax.lang.model.type.TypeKind;
+import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
 import java.io.IOException;
@@ -45,7 +48,7 @@ import static javax.tools.Diagnostic.Kind.WARNING;
 @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
 @Accessors(fluent = true)
 @SupportedAnnotationTypes("bali.*")
-public class AnnotationProcessor extends AbstractProcessor {
+public final class AnnotationProcessor extends AbstractProcessor {
 
     @Getter(lazy = true)
     private final Elements elements = processingEnv.getElementUtils();
@@ -70,7 +73,7 @@ public class AnnotationProcessor extends AbstractProcessor {
     private boolean save;
 
     @Override
-    public final SourceVersion getSupportedSourceVersion() {
+    public SourceVersion getSupportedSourceVersion() {
         // Suppress the following warning from the Java compiler, where X < Y:
         // Supported source version 'RELEASE_<X>' from annotation processor 'global.namespace.neuron.di.internal.<*>' less than -source '<Y>'
         return SourceVersion.latest();
@@ -185,9 +188,9 @@ public class AnnotationProcessor extends AbstractProcessor {
                             val t1 = (ExecutableType) types.asMemberOf((DeclaredType) t, e1);
                             val t2 = (ExecutableType) types.asMemberOf((DeclaredType) t, e2);
                             return (types.isSubsignature(t1, t2) || types.isSubsignature(t2, t1))
-                                    && !error("Cannot implement this " + (isInterface(element) ? "interface" : "class") + " ...", element)
-                                    && !error("... because this method ...", e1)
-                                    && !error("... clashes with this method => remove or override these methods.", e2);
+                                    && !error("Cannot implement this " + (isInterface(element) ? "interface" : "class") + " because ...", element)
+                                    && !error("... this method clashes with ...", e1)
+                                    && !error("... this method => remove or override these methods.", e2);
                         }));
     }
 
@@ -212,6 +215,10 @@ public class AnnotationProcessor extends AbstractProcessor {
     @SuppressWarnings("SameParameterValue")
     private void warn(CharSequence message, Element e) {
         messager().printMessage(WARNING, message, e);
+    }
+
+    private static String moduleImplementationName(TypeElement e) {
+        return e.getQualifiedName() + "$";
     }
 
     private boolean hasNoParameters(ExecutableElement e) {
@@ -349,12 +356,26 @@ public class AnnotationProcessor extends AbstractProcessor {
             private final DeclaredType makeType = resolveMakeType();
 
             private DeclaredType resolveMakeType() {
-                return AnnotationProcessor
+                val makeType = AnnotationProcessor
                         .this
                         .makeType(methodElement())
                         .flatMap(this::deriveMakeType)
-                        .filter(t -> isSubTypeOf(t, methodReturnType(), methodElement()))
-                        .orElseGet(() -> (DeclaredType) methodReturnType());
+                        .filter(t -> isSubTypeOf(t, methodReturnType(), methodElement()));
+                if (makeType.isPresent()) {
+                    return makeType.get();
+                }
+                val methodReturnElement = typeElement(methodReturnType());
+                if (getAnnotation(methodReturnElement, Module.class).isPresent()) {
+                    val moduleType = Optional
+                            .ofNullable(elements().getTypeElement(moduleImplementationName(methodReturnElement)))
+                            .map(Element::asType)
+                            .flatMap(this::deriveMakeType);
+                    if (moduleType.isPresent()) {
+                        return moduleType.get();
+                    }
+                    save = false;
+                }
+                return (DeclaredType) methodReturnType();
             }
 
             private Optional<DeclaredType> deriveMakeType(final TypeMirror makeType) {
@@ -426,7 +447,15 @@ public class AnnotationProcessor extends AbstractProcessor {
                     } else {
                         val element = resolveAccessedElement(classElement());
                         if (!element.isPresent()) {
-                            error("Missing dependency: There is no parameter, method or field matching the name of this accessor method and the type of the module is not assignable to its return type.", methodElement());
+                            val enclosingElement = (TypeElement) methodElement().getEnclosingElement();
+                            if (getAnnotation(enclosingElement, Module.class).isPresent()) {
+                                assert null == elements().getTypeElement(moduleImplementationName(enclosingElement))
+                                        : "The module implementation class should not yet be known by the compiler in this round of annotation processing.";
+                                save = false;
+                            } else {
+                                error("Cannot implement this module " + (isInterfaceType() ? "interface" : "class") + " because it doesn't provide the dependency required by ...", classElement());
+                                error("... this accessor method.", methodElement());
+                            }
                         }
                         return element;
                     }

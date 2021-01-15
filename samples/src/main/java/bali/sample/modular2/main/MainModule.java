@@ -16,14 +16,11 @@
 package bali.sample.modular2.main;
 
 import bali.Cache;
-import bali.Make;
 import bali.Module;
 import bali.sample.modular2.formatter.Formatter;
 import bali.sample.modular2.formatter.FormatterModule;
-import bali.sample.modular2.formatter.FormatterModule$;
 import bali.sample.modular2.greeting.Greeting;
 import bali.sample.modular2.greeting.GreetingModule;
-import bali.sample.modular2.greeting.GreetingModule$;
 
 @Cache
 @Module
@@ -37,13 +34,11 @@ public interface MainModule {
         return formatterModule().formatter();
     }
 
-    @Make(FormatterModule$.class)
     FormatterModule formatterModule();
 
     default Greeting greeting() {
         return greetingModule().greeting();
     }
 
-    @Make(GreetingModule$.class)
     GreetingModule greetingModule();
 }
