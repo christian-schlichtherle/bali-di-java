@@ -455,7 +455,7 @@ public final class AnnotationProcessor extends AbstractProcessor {
                                         : "The module implementation class should not yet be known by the compiler in this round of annotation processing.";
                                 save = false;
                             } else {
-                                error("Cannot implement this module " + (isInterfaceType() ? "interface" : "class") + " because it doesn't provide the dependency required by ...", classElement());
+                                error("Cannot implement this module " + (isInterfaceType() ? "interface" : "class") + " because it doesn't provide a dependency required by ...", classElement());
                                 error("... this accessor method.", methodElement());
                             }
                         }
