@@ -71,7 +71,7 @@ public final class AnnotationProcessor extends AbstractProcessor {
     private final Types types = processingEnv.getTypeUtils();
 
     private int round;
-    private List<Element> todo = new LinkedList<>();
+    private List<Name> todo = new LinkedList<>();
     private boolean save;
 
     @Override
@@ -87,7 +87,7 @@ public final class AnnotationProcessor extends AbstractProcessor {
 
         val list = todo;
         todo = new LinkedList<>();
-        list.forEach(this::processElement);
+        list.stream().map(elements()::getTypeElement).forEach(this::processElement);
 
         annotations
                 .stream()
@@ -131,7 +131,7 @@ public final class AnnotationProcessor extends AbstractProcessor {
                 error("Failed to process:\n" + x, e);
             }
         } else {
-            todo.add(e);
+            todo.add(e.getQualifiedName());
         }
     }
 
