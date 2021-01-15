@@ -24,8 +24,8 @@ class GenericClockAppSpec extends AnyWordSpec {
     val app = GenericClockApp$.new$
     import app._
 
-    "not cache the clock" in {
-      get shouldNot be theSameInstanceAs get
+    "cache the clock" in {
+      clock shouldBe theSameInstanceAs(clock)
     }
 
     "not cache the time" in {
@@ -33,7 +33,7 @@ class GenericClockAppSpec extends AnyWordSpec {
     }
 
     "not cache the time of the clock" in {
-      get.call shouldNot be theSameInstanceAs get.call
+      clock.call shouldNot be theSameInstanceAs clock.call
     }
   }
 }

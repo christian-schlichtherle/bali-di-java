@@ -15,19 +15,24 @@
  */
 package bali.sample.genericclock;
 
+import bali.Cache;
 import bali.Module;
 
 import java.util.Date;
 import java.util.concurrent.Callable;
-import java.util.function.Supplier;
 
 import static java.lang.System.out;
 
 @Module
-public interface GenericClockApp extends Supplier<Callable<Date>>, Callable<Date> {
+public interface GenericClockApp {
+
+    @Cache
+    Callable<Date> clock();
+
+    Date call() throws Exception;
 
     default void run() throws Exception {
-        out.printf("It is now %s.\n", get().call());
+        out.printf("It is now %s.\n", clock().call());
     }
 
     static void main(String... args) throws Exception {
