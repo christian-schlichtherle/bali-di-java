@@ -9,8 +9,8 @@ Bali DI is a Java code generator for dependency injection. As a pure annotation 
 compiler which is compliant to Java 8 or later.
 
 > Bali is also an [island](https://en.wikipedia.org/wiki/Bali) between Java and Lombok in Indonesia.
-> For disambiguation, the name of this project is "Bali DI", not just "Bali", where DI is an acronym for dependency
-> injection.
+> For disambiguation, the name of this project is "Bali DI", not just "Bali", where DI is an acronym for [_dependency
+> injection_](https://en.wikipedia.org/wiki/Dependency_injection).
 > In code however, the term "DI" is dropped because there is no ambiguity in this context.
 
 # Getting Started
@@ -62,8 +62,9 @@ And then, if something is not working because you forgot to sprinkle your code w
 discriminate two dependencies of the same type but with different semantics (say, a `String` representing a username and
 a password - yeah, don't do that), then you may spend a lot of time debugging and analyzing this problem.
 
-> By the way, good luck with debugging IOC containers: If your code is not called because you forgot to add an
-> annotation somewhere then debugging it is pointless because... as I said, it's not called.
+> By the way, good luck with debugging [IOC](https://en.wikipedia.org/wiki/Inversion_of_control) containers:
+> If your code is not called because you forgot to add an annotation somewhere then debugging it is pointless because...
+> as I said, it's not called.
 
 For worse, dependency injection at runtime is not even type-safe when it comes to generic classes due to the type
 erasure. For example, your component may get a list of strings injected when it actually needs a list of user objects.
@@ -96,6 +97,8 @@ There are many features and benefits resulting from this approach:
 <dt>All dependency access is inherently lazy
 <dd>Dependencies are created and, if desired, cached just-in-time without unsolicited overhead in memory size or
     runtime complexity.
+    If you follow this through, it results in a more responsive behavior of your app than if everything is done in an
+    eager fashion.
 <dt>Quick application startup
 <dd>No need to scan the byte code of your app to figure out how to wire your components.
 <dt>No reflection
