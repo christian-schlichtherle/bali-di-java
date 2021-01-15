@@ -57,7 +57,7 @@ By deferring the dependency resolution to runtime, you need to compile, unit-tes
 up your app first. But chances are that no matter what your test coverage is, you may still find out that your app is
 not working properly or not even starting up because something is wrong with its dependency graph. Spring is well-known
 for being slow to start-up because it needs to scan the entire byte code of your app for its annotations. Of course, you
-can avoid that by going into XML configuration hell - oh my!
+can avoid that by going down XML configuration hell - oh my!
 And then, if something is not working because you forgot to sprinkle your code with a qualifier annotation in order to
 discriminate two dependencies of the same type but with different semantics (say, a `String` representing a username and
 a password - yeah, don't do that), then you may spend a lot of time debugging and analyzing this problem.
@@ -66,12 +66,12 @@ a password - yeah, don't do that), then you may spend a lot of time debugging an
 > annotation somewhere then debugging it is pointless because... as I said, it's not called.
 
 For worse, dependency injection at runtime is not even type-safe when it comes to generic classes due to the type
-erasure. For example, your component may get a list of strings injected when it actually wanted a list of user objects.
+erasure. For example, your component may get a list of strings injected when it actually needs a list of user objects.
 
 Last but not least, all of these tools (even Macwire, which is for Scala) support dependency injection into
-constructors, methods and fields. For Java, this means you either have to write a lot of boiler plate code, i.e. the
-constructors plus the fields if you want to use constructor injection - which is the most preferable of the three
-options - or your code gets hardwired to your DI tool by sprinkling it with even more annotations, e.g. `@Autowired` if
+constructors, methods and fields. For Java, this means you either have to write a lot of boiler plate code, for example
+the constructor plus the fields if you want to use constructor injection (which is the least bad of the three options),
+or your code gets hardwired to your DI tool by sprinkling it with even more annotations, for example `@Autowired` if
 you're using Spring.
 
 ## A New Approach
@@ -97,7 +97,7 @@ There are many features and benefits resulting from this approach:
 <dd>Dependencies are created and, if desired, cached just-in-time without unsolicited overhead in memory size or
     runtime complexity.
 <dt>Quick application startup
-<dd>No need to scan the byte code of your app to figure the wiring of your components.
+<dd>No need to scan the byte code of your app to figure out how to wire your components.
 <dt>No reflection
 <dd>It's not just faster without reflection, but also avoids problems with byte code analysis or obfuscation tools.
 <dt>No runtime dependency
