@@ -13,8 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package bali.sample.param;
+package bali.sample.echo;
 
+import bali.Lookup;
 import bali.Module;
 
 import java.util.Arrays;
@@ -22,13 +23,14 @@ import java.util.List;
 
 import static java.lang.System.out;
 
-public abstract class ParamApp implements Runnable {
+public abstract class EchoApp implements Runnable {
 
-    abstract List<String> args();
+    @Lookup("args")
+    abstract List<String> getArgs();
 
     @Override
     public void run() {
-        out.println(String.join(" ", args()));
+        out.println(String.join(" ", getArgs()));
     }
 
     public static void main(String... args) {
@@ -40,6 +42,6 @@ public abstract class ParamApp implements Runnable {
 
         BootLoader INSTANCE = BootLoader$.new$();
 
-        ParamApp app(List<String> args);
+        EchoApp app(List<String> args);
     }
 }
