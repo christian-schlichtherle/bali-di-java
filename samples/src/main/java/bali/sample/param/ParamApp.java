@@ -13,32 +13,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package bali.sample.nested;
+package bali.sample.param;
 
 import bali.Module;
 
-import java.util.function.Supplier;
+import java.util.Arrays;
+import java.util.List;
 
 import static java.lang.System.out;
 
-public final class NestedApp {
+public abstract class ParamApp implements Runnable {
+
+    abstract List<String> args();
+
+    @Override
+    public void run() {
+        out.println(String.join(" ", args()));
+    }
 
     public static void main(String... args) {
-        StaticModule.INSTANCE.run();
+        BootLoader.INSTANCE.app(Arrays.asList(args)).run();
     }
 
     @Module
-    interface StaticModule extends Runnable {
+    interface BootLoader {
 
-        StaticModule INSTANCE = StaticModule$.new$();
+        BootLoader INSTANCE = BootLoader$.new$();
 
-        String get = "Hello world!";
-
-        Supplier<String> message();
-
-        @Override
-        default void run() {
-            out.println(message().get());
-        }
+        ParamApp app(List<String> args);
     }
 }

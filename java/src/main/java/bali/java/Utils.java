@@ -15,13 +15,10 @@
  */
 package bali.java;
 
-import lombok.val;
-
 import javax.lang.model.AnnotatedConstruct;
 import javax.lang.model.element.*;
 import javax.lang.model.type.TypeMirror;
 import java.lang.annotation.Annotation;
-import java.util.Arrays;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -36,6 +33,8 @@ final class Utils {
     static final ModifierSet PROTECTED_PUBLIC = ModifierSet.of(Modifier.PROTECTED, Modifier.PUBLIC);
 
     static final ModifierSet PRIVATE_PROTECTED_PUBLIC = ModifierSet.of(Modifier.PRIVATE, Modifier.PROTECTED, Modifier.PUBLIC);
+
+    static final ModifierSet STATIC = ModifierSet.of(Modifier.STATIC);
 
     private static final String VOID_CLASSNAME = Void.class.getName();
 
@@ -61,19 +60,6 @@ final class Utils {
 
     static boolean isAbstract(Element e) {
         return e.getModifiers().contains(Modifier.ABSTRACT);
-    }
-
-    static boolean isExperimentalWarningSuppressed(Element e) {
-        for (; e != null; e = e.getEnclosingElement()) {
-            val w = getAnnotation(e, SuppressWarnings.class);
-            if (w.map(SuppressWarnings::value)
-                    .map(Arrays::asList)
-                    .filter(l -> l.contains("experimental"))
-                    .isPresent()) {
-                return true;
-            }
-        }
-        return false;
     }
 
     static boolean isField(Element e) {

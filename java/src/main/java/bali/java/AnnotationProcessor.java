@@ -15,7 +15,6 @@
  */
 package bali.java;
 
-import bali.Module;
 import bali.*;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -43,7 +42,6 @@ import static bali.CachingStrategy.DISABLED;
 import static bali.java.Utils.*;
 import static java.util.Collections.unmodifiableList;
 import static javax.tools.Diagnostic.Kind.ERROR;
-import static javax.tools.Diagnostic.Kind.WARNING;
 
 @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
 @Accessors(fluent = true)
@@ -105,12 +103,12 @@ public final class AnnotationProcessor extends AbstractProcessor {
 
     private void processTypeElement(final TypeElement e) {
         if (e.getNestingKind().isNested()) {
-            if (e.getModifiers().contains(Modifier.STATIC)) {
-                if (!isExperimentalWarningSuppressed(e)) {
-                    warn("Support for static nested classes is experimental.", e);
-                }
-            } else {
+            val modifiers = ModifierSet.of(e.getModifiers());
+            if (modifiers.retain(STATIC).isEmpty()) {
                 error("Inner modules are not supported.", e);
+                return;
+            } else if (!modifiers.retain(PRIVATE_PROTECTED_PUBLIC).isEmpty()) {
+                error("Static nested modules must be package-local.", e);
                 return;
             }
         }
@@ -212,11 +210,6 @@ public final class AnnotationProcessor extends AbstractProcessor {
     private boolean error(final CharSequence message, final Element e) {
         messager().printMessage(ERROR, message, e);
         return false;
-    }
-
-    @SuppressWarnings("SameParameterValue")
-    private void warn(CharSequence message, Element e) {
-        messager().printMessage(WARNING, message, e);
     }
 
     private static String moduleImplementationName(TypeElement e) {
@@ -455,7 +448,7 @@ public final class AnnotationProcessor extends AbstractProcessor {
                                         : "The module implementation class should not yet be known by the compiler in this round of annotation processing.";
                                 save = false;
                             } else {
-                                error("Cannot implement this module " + (isInterfaceType() ? "interface" : "class") + " because it doesn't provide a dependency required by ...", classElement());
+                                error("Cannot implement this module " + (isInterfaceType() ? "interface" : "class") + " because it doesn't provide the dependency returned by ...", classElement());
                                 error("... this accessor method.", methodElement());
                             }
                         }
