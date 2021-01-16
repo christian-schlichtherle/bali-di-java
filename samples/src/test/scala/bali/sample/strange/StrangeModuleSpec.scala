@@ -47,5 +47,9 @@ class StrangeModuleSpec extends AnyWordSpec {
     "produce 'Hello Christian!' using the supplier from the factory method" in {
       supplier("Hello Christian!").get shouldBe "Hello Christian!"
     }
+
+    "cache the message from the provider method" in {
+      get shouldBe theSameInstanceAs(get)
+    }
   }
 }

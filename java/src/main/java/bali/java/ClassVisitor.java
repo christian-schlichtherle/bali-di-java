@@ -29,7 +29,9 @@ final class ClassVisitor {
             out
                     .ad("package ").ad(c.packageName()).ad(";").nl()
                     .nl()
+                    .ad("/*").nl()
                     .ad(c.generated()).nl()
+                    .ad("*/").nl()
                     .ad(c.classModifiers()).ad("class ").ad(c.classSimpleName()).ad("$ ").ad(c.isInterfaceType() ? "implements " : "extends ").ad(c.classType()).ad(" {").nl();
             if (!c.hasAbstractMethods()) {
                 out

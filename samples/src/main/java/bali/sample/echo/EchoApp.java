@@ -15,6 +15,7 @@
  */
 package bali.sample.echo;
 
+import bali.Cache;
 import bali.Lookup;
 import bali.Module;
 
@@ -30,7 +31,12 @@ public abstract class EchoApp implements Runnable {
 
     @Override
     public void run() {
-        out.println(String.join(" ", getArgs()));
+        out.println(message());
+    }
+
+    @Cache
+    String message() {
+        return String.join(" ", getArgs());
     }
 
     public static void main(String... args) {

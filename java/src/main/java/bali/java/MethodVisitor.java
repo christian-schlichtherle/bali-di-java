@@ -57,7 +57,12 @@ interface MethodVisitor {
                     .andThen(visitMethodBegin(m, "    "))
                     .andThen(visitModuleCacheBegin(m, "    "))
                     .accept(out);
-            out.ad("new ").ad(out.makeTypeName(m)).ad("()");
+            if (m.isSuperRef()) {
+                out.ad(m.classSimpleName()).ad(".super.").ad(m.methodName());
+            } else {
+                out.ad("new ").ad(out.makeTypeName(m));
+            }
+            out.ad("()");
             visitModuleCacheEnd(m, "    ")
                     .andThen(visitMethodEnd(m, "    "))
                     .accept(out);
@@ -69,22 +74,16 @@ interface MethodVisitor {
     Consumer<Output> visitDependencyField(Method m, String in);
 
     default Consumer<Output> visitMethodBegin(Method m, String in) {
-        return out -> {
-            out
-                    .nl()
-                    .ad(in).ad("@Override").nl()
-                    .ad(in).ad(m.methodModifiers()).ad(mkString(m.methodTypeParameters(), "<", ", ", "> ")).ad(m.methodReturnType()).ad(" ").ad(m.methodName()).ad("(")
-                    .ad(m
-                            .methodParameters()
-                            .stream()
-                            .map(var -> var.asType() + " " + var)
-                            .collect(Collectors.joining(", ")))
-                    .ad(") ");
-            if (m.isMethodRef()) {
-                out.ad(mkString(m.methodThrownTypes(), "throws ", ", ", " "));
-            }
-            out.ad("{").nl();
-        };
+        return out -> out
+                .nl()
+                .ad(in).ad("@Override").nl()
+                .ad(in).ad(m.methodModifiers()).ad(mkString(m.methodTypeParameters(), "<", ", ", "> ")).ad(m.methodReturnType()).ad(" ").ad(m.methodName()).ad("(")
+                .ad(m
+                        .methodParameters()
+                        .stream()
+                        .map(var -> var.asType() + " " + var)
+                        .collect(Collectors.joining(", ")))
+                .ad(") ").ad(mkString(m.methodThrownTypes(), "throws ", ", ", " ")).ad("{").nl();
     }
 
     Consumer<Output> visitModuleCacheBegin(Method m, String in);

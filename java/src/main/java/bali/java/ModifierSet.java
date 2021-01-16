@@ -22,6 +22,7 @@ import java.util.Collection;
 import java.util.EnumSet;
 
 import static java.util.EnumSet.copyOf;
+import static java.util.EnumSet.noneOf;
 
 final class ModifierSet {
 
@@ -30,7 +31,7 @@ final class ModifierSet {
     }
 
     static ModifierSet of(Collection<Modifier> modifiers) {
-        return new ModifierSet(copyOf(modifiers));
+        return new ModifierSet(modifiers.isEmpty() ? noneOf(Modifier.class) : copyOf(modifiers));
     }
 
     private final EnumSet<Modifier> modifiers;

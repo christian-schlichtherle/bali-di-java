@@ -31,9 +31,9 @@ final class NotThreadSafeCachingVisitor implements MethodVisitor {
     @Override
     public Consumer<Output> visitModuleCacheBegin(Method m, String in) {
         return out -> out
-                .ad(in).ad("    ").ad(m.methodReturnType()).ad(" ").ad(m.methodName()).ad(";").nl()
-                .ad(in).ad("    if (null == (").ad(m.methodName()).ad(" = this.").ad(m.methodName()).ad(")) {").nl()
-                .ad(in).ad("        this.").ad(m.methodName()).ad(" = ").ad(m.methodName()).ad(" = ");
+                .ad(in).ad("    ").ad(m.methodReturnType()).ad(" value;").nl()
+                .ad(in).ad("    if (null == (value = this.").ad(m.methodName()).ad(")) {").nl()
+                .ad(in).ad("        this.").ad(m.methodName()).ad(" = value = ");
     }
 
     @Override
@@ -41,7 +41,7 @@ final class NotThreadSafeCachingVisitor implements MethodVisitor {
         return out -> out
                 .ad(";").nl()
                 .ad(in).ad("    }").nl()
-                .ad(in).ad("    return ").ad(m.methodName()).ad(";").nl();
+                .ad(in).ad("    return value;").nl();
     }
 
     @Override

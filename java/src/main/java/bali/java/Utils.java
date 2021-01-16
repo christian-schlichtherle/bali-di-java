@@ -15,6 +15,10 @@
  */
 package bali.java;
 
+import bali.Cache;
+import bali.CachingStrategy;
+import bali.Module;
+
 import javax.lang.model.AnnotatedConstruct;
 import javax.lang.model.element.*;
 import javax.lang.model.type.TypeMirror;
@@ -24,6 +28,8 @@ import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
+import static bali.CachingStrategy.DISABLED;
+import static javax.lang.model.type.TypeKind.DECLARED;
 import static javax.lang.model.type.TypeKind.VOID;
 
 final class Utils {
@@ -38,6 +44,14 @@ final class Utils {
 
     private static final String VOID_CLASSNAME = Void.class.getName();
 
+    static Optional<CachingStrategy> cachingStrategy(final ExecutableElement e) {
+        Optional<Cache> cache = getAnnotation(e, Cache.class);
+        if (!cache.isPresent()) {
+            cache = Optional.ofNullable(e.getEnclosingElement()).flatMap(e2 -> getAnnotation(e2, Cache.class));
+        }
+        return cache.map(Cache::value);
+    }
+
     static <A extends Annotation> Optional<A> getAnnotation(AnnotatedConstruct c, Class<A> k) {
         return Optional.ofNullable(c.getAnnotation(k));
     }
@@ -50,8 +64,8 @@ final class Utils {
         return !e.getParameters().isEmpty() || !e.getTypeParameters().isEmpty();
     }
 
-    static boolean hasPrimitiveReturnType(ExecutableElement e) {
-        return isPrimitive(e.getReturnType());
+    static boolean hasDeclaredReturnType(ExecutableElement e) {
+        return e.getReturnType().getKind() == DECLARED;
     }
 
     static boolean hasVoidReturnType(ExecutableElement e) {
@@ -60,6 +74,10 @@ final class Utils {
 
     static boolean isAbstract(Element e) {
         return e.getModifiers().contains(Modifier.ABSTRACT);
+    }
+
+    static boolean isCaching(Element e) {
+        return getAnnotation(e, Cache.class).filter(c -> !DISABLED.equals(c.value())).isPresent();
     }
 
     static boolean isField(Element e) {
@@ -78,8 +96,8 @@ final class Utils {
         return ElementKind.METHOD.equals(e.getKind());
     }
 
-    static boolean isPrimitive(TypeMirror e) {
-        return e.getKind().isPrimitive();
+    static boolean isModule(Element e) {
+        return hasAnnotation(e, Module.class);
     }
 
     static boolean isStatic(Element e) {

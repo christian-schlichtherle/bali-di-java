@@ -21,6 +21,8 @@ import bali.Make;
 import java.util.concurrent.Callable;
 import java.util.function.Supplier;
 
+import static bali.CachingStrategy.DISABLED;
+
 @Cache
 public interface SuperStrangeModule {
 
@@ -34,5 +36,6 @@ public interface SuperStrangeModule {
         throw new Exception("That's an error.");
     }
 
-    String get = "Hello world!";
+    @Cache
+    default String get() { return new String("Hello world!"); }
 }

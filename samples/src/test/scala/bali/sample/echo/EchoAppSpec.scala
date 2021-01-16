@@ -13,32 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package bali.sample.cache;
+package bali.sample.echo
 
-import bali.Cache;
-import bali.Module;
+import org.scalatest.matchers.should.Matchers._
+import org.scalatest.wordspec.AnyWordSpec
 
-import java.util.Date;
+import java.util
 
-import static bali.CachingStrategy.*;
+class EchoAppSpec extends AnyWordSpec {
 
-@Cache // == @Cache(THREAD_SAFE)
-@Module
-public interface CacheModule {
+  "The echo app" should {
+    val app = EchoApp.BootLoader.INSTANCE.app(util.Arrays.asList("Hello", "world!"))
+    import app._
 
-    @Cache(DISABLED)
-    Date disabled();
-
-    @Cache(NOT_THREAD_SAFE)
-    Date notThreadSafe();
-
-    Date threadSafe();
-
-    @Cache(THREAD_LOCAL)
-    Date threadLocal();
-
-    @Cache
-    default Date fixed() {
-        return new Date();
+    "cache the message" in {
+      message shouldBe theSameInstanceAs(message)
     }
+
+    "produce 'Hello world!'" in {
+      message shouldBe "Hello world!"
+    }
+  }
 }

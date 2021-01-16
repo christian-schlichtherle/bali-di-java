@@ -50,5 +50,9 @@ class CacheModuleSpec extends AnyWordSpec {
 
       a1 shouldNot be theSameInstanceAs b1
     }
+
+    "cache the time (fixed)" in {
+      fixed shouldBe theSameInstanceAs(fixed)
+    }
   }
 }
