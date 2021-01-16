@@ -20,7 +20,7 @@
     <parent>
         <groupId>global.namespace.parent-pom</groupId>
         <artifactId>parent-pom</artifactId>
-        <version>10</version>
+        <version>12</version>
     </parent>
 
     <groupId>global.namespace.bali</groupId>
@@ -33,20 +33,6 @@
 
     <url>https://github.com/christian-schlichtherle/bali-di</url>
     <inceptionYear>2021</inceptionYear>
-    <developers>
-        <developer>
-            <name>Christian Schlichtherle</name>
-            <email>christian AT schlichtherle DOT de</email>
-            <organization>Schlichtherle IT Services</organization>
-            <timezone>2</timezone>
-            <roles>
-                <role>owner</role>
-            </roles>
-            <properties>
-                <picUrl>http://www.gravatar.com/avatar/e2f69ddc944f8891566fc4b18518e4e6.png</picUrl>
-            </properties>
-        </developer>
-    </developers>
     <issueManagement>
         <system>Github</system>
         <url>https://github.com/christian-schlichtherle/bali-di/issues</url>
@@ -61,10 +47,6 @@
     <properties>
         <maven.compiler.showDeprecation>true</maven.compiler.showDeprecation>
         <maven.compiler.showWarnings>true</maven.compiler.showWarnings>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <scala.version>2.13.4</scala.version>
-        <scalatest.version>3.2.3</scalatest.version>
-        <tagNameFormat>v@{project.version}</tagNameFormat>
     </properties>
 
     <modules>
@@ -73,34 +55,6 @@
         <module>samples</module>
     </modules>
 
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>org.projectlombok</groupId>
-                <artifactId>lombok</artifactId>
-                <version>1.18.16</version>
-                <scope>provided</scope>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
-
-    <build>
-        <pluginManagement>
-            <plugins>
-                <plugin>
-                    <groupId>net.alchim31.maven</groupId>
-                    <artifactId>scala-maven-plugin</artifactId>
-                    <version>4.4.0</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.scalatest</groupId>
-                    <artifactId>scalatest-maven-plugin</artifactId>
-                    <version>2.0.2</version>
-                </plugin>
-            </plugins>
-        </pluginManagement>
-    </build>
-
     <profiles>
         <profile>
             <id>lint</id>
@@ -108,7 +62,6 @@
                 <pluginManagement>
                     <plugins>
                         <plugin>
-                            <groupId>org.apache.maven.plugins</groupId>
                             <artifactId>maven-compiler-plugin</artifactId>
                             <configuration>
                                 <compilerArgs>
