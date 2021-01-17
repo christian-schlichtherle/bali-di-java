@@ -20,8 +20,6 @@ import bali.java.AnnotationProcessor.ModuleClass.ProviderMethod;
 
 import java.util.function.Consumer;
 
-import static bali.java.Utils.ABSTRACT;
-
 final class ClassVisitor {
 
     Consumer<Output> visitModuleClass(ModuleClass c) {

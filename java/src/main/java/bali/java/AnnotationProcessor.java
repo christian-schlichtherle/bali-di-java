@@ -15,7 +15,9 @@
  */
 package bali.java;
 
-import bali.*;
+import bali.Lookup;
+import bali.Make;
+import bali.Module;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.Accessors;
@@ -92,6 +94,13 @@ public final class AnnotationProcessor extends AbstractProcessor {
                 .stream()
                 .filter(a -> moduleAnnotationName().equals(a.getQualifiedName()))
                 .forEach(a -> roundEnv.getElementsAnnotatedWith(a).forEach(this::processElement));
+
+        if (roundEnv.processingOver()) {
+            todo
+                    .stream()
+                    .map(elements()::getTypeElement)
+                    .forEach(e -> error("Failed to generate code for this module type.", e));
+        }
 
         return true;
     }
@@ -352,7 +361,9 @@ public final class AnnotationProcessor extends AbstractProcessor {
             @Getter(lazy = true)
             private final Name makeSimpleName = makeElement().getSimpleName();
 
-            String superElementRef() { return (isInterfaceType() ? classSimpleName() + "." : "") + "super"; }
+            String superElementRef() {
+                return (isInterfaceType() ? classSimpleName() + "." : "") + "super";
+            }
 
             @Override
             public Consumer<Output> apply(MethodVisitor v) {
@@ -459,7 +470,7 @@ public final class AnnotationProcessor extends AbstractProcessor {
                 private final Optional<Tuple2<TypeElement, Element>> accessedElement = resolveAccessedElement();
 
                 private Optional<Tuple2<TypeElement, Element>> resolveAccessedElement() {
-                    if (isParameterRef()) {
+                    if (isParameterRef() || isSuperRef()) {
                         return Optional.empty();
                     } else {
                         val element = resolveAccessedElement(classElement());
