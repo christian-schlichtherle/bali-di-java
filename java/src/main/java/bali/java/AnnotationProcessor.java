@@ -277,6 +277,9 @@ public final class AnnotationProcessor extends AbstractProcessor {
                 modifiersOf(classElement()).retain(PRIVATE_PROTECTED_PUBLIC).add(ABSTRACT);
 
         @Getter(lazy = true)
+        private final Name classQualifiedName = classElement().getQualifiedName();
+
+        @Getter(lazy = true)
         private final Name classSimpleName = classElement().getSimpleName();
 
         @Getter(lazy = true)
@@ -359,11 +362,7 @@ public final class AnnotationProcessor extends AbstractProcessor {
         abstract class ProviderMethod extends ModuleMethod {
 
             @Getter(lazy = true)
-            private final Name makeSimpleName = makeElement().getSimpleName();
-
-            String superElementRef() {
-                return (isInterfaceType() ? classSimpleName() + "." : "") + "super";
-            }
+            private final String superElementRef = (isInterfaceType() ? classQualifiedName() + "." : "") + "super";
 
             @Override
             public Consumer<Output> apply(MethodVisitor v) {
@@ -381,6 +380,12 @@ public final class AnnotationProcessor extends AbstractProcessor {
 
             @Getter(lazy = true)
             private final TypeElement makeElement = typeElement(makeType());
+
+            @Getter(lazy = true)
+            private final Name makeQualifiedName = makeElement().getQualifiedName();
+
+            @Getter(lazy = true)
+            private final Name makeSimpleName = makeElement().getSimpleName();
 
             @Getter(lazy = true)
             private final DeclaredType makeType = resolveMakeType();
@@ -521,7 +526,7 @@ public final class AnnotationProcessor extends AbstractProcessor {
                     return isParameterRef()
                             ? moduleParamName().toString()
                             : isSuperRef()
-                            ? (isInterface(makeElement()) ? makeElement().getSimpleName() + "." : "") + "super." + methodName() + "()"
+                            ? (isInterface(makeElement()) ? makeQualifiedName() + "." : "") + "super." + methodName() + "()"
                             : accessedElement().map(Tuple2::t1).orElseGet(ModuleClass.this::classElement).getSimpleName()
                             + (isStaticRef() ? "$" : "$.this")
                             + (isModuleRef() ? "" : "." + (isFieldRef() ? moduleFieldName() + "" : moduleMethodName() + "()"));
