@@ -56,29 +56,32 @@ so I think the answer is "yes, please"!
 Most of these tools try to resolve dependencies at runtime, which is already the first mistake:
 By deferring the dependency resolution to runtime, you need to compile, unit-test, integration-test, package and start
 up your app first. But chances are that no matter what your test coverage is, you may still find out that your app is
-not working properly or not even starting up because something is wrong with its dependency graph. Spring is well-known
-for being slow to start-up because it needs to scan the entire byte code of your app for its annotations. Of course, you
-can avoid that by going down XML configuration hell - oh my!
-And then, if something is not working because you forgot to sprinkle your code with a qualifier annotation in order to
+not working properly or not even starting up because something is wrong with its dependency graph.
+
+Furthermore, Spring is well-known for being slow to start-up because it typically scans the entire byte code of your
+app for its annotations.
+Of course, you can avoid that entirely by going down XML configuration hell - oh my!
+
+Then again, if something is not working because you forgot to sprinkle your code with a qualifier annotation in order to
 discriminate two dependencies of the same type but with different semantics (say, a `String` representing a username and
 a password - yeah, don't do that), then you may spend a lot of time debugging and analyzing this problem.
 
-> By the way, good luck with debugging [IOC](https://en.wikipedia.org/wiki/Inversion_of_control) containers:
-> If your code is not called because you forgot to add an annotation somewhere then debugging it is pointless because...
-> as I said, it's not called.
+By the way, good luck with debugging [IOC](https://en.wikipedia.org/wiki/Inversion_of_control) containers:
+If your code is not called because you forgot to add an annotation somewhere then debugging it is pointless because...
+as I said, it's not called.
 
-For worse, dependency injection at runtime is not even type-safe when it comes to generic classes due to the type
-erasure. For example, your component may get a list of strings injected when it actually needs a list of user objects.
+For worse, dependency injection at runtime is not even type-safe when it comes to generic classes due to type erasure.
+For example, your component may get a `List<String>` injected when it actually wants a `List<User>`.
 
 Last but not least, all of these tools (even Macwire, which is for Scala) support dependency injection into
 constructors, methods and fields. For Java, this means you either have to write a lot of boiler plate code, for example
 the constructor plus the fields if you want to use constructor injection (which is the least bad of the three options),
-or your code gets hardwired to your DI tool by sprinkling it with even more annotations, for example `@Autowired` if
-you're using Spring.
+or your code gets hardwired to your DI tool by sprinkling it with even more annotations, for example Spring's
+`@Autowired` on fields (again - don't do that).
 
 ## A New Approach
 
-In contrast to this, Bali DI is completely different:
+To resolve these issues, Bali DI employs a completely different approach:
 
 1. Dependency resolution happens at compile-time by an annotation processor which generates Java source code to wire up
    your components.
