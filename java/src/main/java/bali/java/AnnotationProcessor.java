@@ -352,7 +352,7 @@ public final class AnnotationProcessor extends AbstractProcessor {
             @Getter(lazy = true)
             private final Name makeSimpleName = makeElement().getSimpleName();
 
-            Name classSimpleName() { return classElement().getSimpleName(); }
+            String superElementRef() { return (isInterfaceType() ? classSimpleName() + "." : "") + "super"; }
 
             @Override
             public Consumer<Output> apply(MethodVisitor v) {
@@ -510,7 +510,7 @@ public final class AnnotationProcessor extends AbstractProcessor {
                     return isParameterRef()
                             ? moduleParamName().toString()
                             : isSuperRef()
-                            ? "super." + methodName() + "()"
+                            ? (isInterface(makeElement()) ? makeElement().getSimpleName() + "." : "") + "super." + methodName() + "()"
                             : accessedElement().map(Tuple2::t1).orElseGet(ModuleClass.this::classElement).getSimpleName()
                             + (isStaticRef() ? "$" : "$.this")
                             + (isModuleRef() ? "" : "." + (isFieldRef() ? moduleFieldName() + "" : moduleMethodName() + "()"));

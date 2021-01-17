@@ -23,8 +23,9 @@ import java.util
 class EchoAppSpec extends AnyWordSpec {
 
   "The echo app" should {
-    val app = EchoApp.BootLoader.INSTANCE.app(util.Arrays.asList("Hello", "world!"))
-    import app._
+    val app = EchoApp.INSTANCE
+    val echo = app.echo(util.Arrays.asList("Hello", "world!"))
+    import echo._
 
     "cache the message" in {
       message shouldBe theSameInstanceAs(message)

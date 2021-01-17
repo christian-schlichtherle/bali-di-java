@@ -37,36 +37,32 @@ interface MethodVisitor {
     }
 
     default Consumer<Output> visitFactoryMethod(FactoryMethod m) {
-        return out -> {
-            visitModuleField(m, "    ")
-                    .andThen(visitMethodBegin(m, "    "))
-                    .andThen(visitModuleCacheBegin(m, "    "))
-                    .accept(out);
-            out.ad("new ").ad(m.makeType()).ad("() {").nl();
-            m.forAllAccessorMethods().accept(out);
-            out.ad("        }");
-            visitModuleCacheEnd(m, "    ")
-                    .andThen(visitMethodEnd(m, "    "))
-                    .accept(out);
-        };
+        return visitModuleField(m, "    ")
+                .andThen(visitMethodBegin(m, "    "))
+                .andThen(visitModuleCacheBegin(m, "    "))
+                .andThen(out -> {
+                    out.ad("new ").ad(m.makeType()).ad("() {").nl();
+                    m.forAllAccessorMethods().accept(out);
+                    out.ad("        }");
+                })
+                .andThen(visitModuleCacheEnd(m, "    "))
+                .andThen(visitMethodEnd(m, "    "));
     }
 
     default Consumer<Output> visitProviderMethod(ProviderMethod m) {
-        return out -> {
-            visitModuleField(m, "    private ")
-                    .andThen(visitMethodBegin(m, "    "))
-                    .andThen(visitModuleCacheBegin(m, "    "))
-                    .accept(out);
-            if (m.isSuperRef()) {
-                out.ad(m.classSimpleName()).ad(".super.").ad(m.methodName());
-            } else {
-                out.ad("new ").ad(out.makeTypeName(m));
-            }
-            out.ad("()");
-            visitModuleCacheEnd(m, "    ")
-                    .andThen(visitMethodEnd(m, "    "))
-                    .accept(out);
-        };
+        return visitModuleField(m, "    private ")
+                .andThen(visitMethodBegin(m, "    "))
+                .andThen(visitModuleCacheBegin(m, "    "))
+                .andThen(out -> {
+                    if (m.isSuperRef()) {
+                        out.ad(m.superElementRef()).ad(".").ad(m.methodName());
+                    } else {
+                        out.ad("new ").ad(out.makeTypeName(m));
+                    }
+                    out.ad("()");
+                })
+                .andThen(visitModuleCacheEnd(m, "    "))
+                .andThen(visitMethodEnd(m, "    "));
     }
 
     Consumer<Output> visitModuleField(Method m, String in);

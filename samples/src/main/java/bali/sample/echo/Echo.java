@@ -15,19 +15,25 @@
  */
 package bali.sample.echo;
 
-import bali.Module;
+import bali.Cache;
+import bali.Lookup;
 
-import java.util.Arrays;
 import java.util.List;
 
-@Module
-interface EchoApp {
+import static java.lang.System.out;
 
-    EchoApp INSTANCE = EchoApp$.new$();
+public interface Echo extends Runnable {
 
-    Echo echo(List<String> args);
+    @Lookup("args")
+    List<String> getArgs();
 
-    static void main(String... args) {
-        INSTANCE.echo(Arrays.asList(args)).run();
+    @Override
+    default void run() {
+        out.println(message());
+    }
+
+    @Cache
+    default String message() {
+        return String.join(" ", getArgs());
     }
 }
