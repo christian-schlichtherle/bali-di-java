@@ -51,8 +51,6 @@ import static javax.tools.Diagnostic.Kind.WARNING;
 @SupportedAnnotationTypes("bali.*")
 public final class AnnotationProcessor extends AbstractProcessor {
 
-    private static final ResourceBundle bundle = ResourceBundle.getBundle(AnnotationProcessor.class.getName());
-
     @Getter(lazy = true)
     private final Elements elements = processingEnv.getElementUtils();
 
@@ -253,10 +251,6 @@ public final class AnnotationProcessor extends AbstractProcessor {
         messager().printMessage(WARNING, message, e);
     }
 
-    private static String moduleImplementationName(TypeElement e) {
-        return e.getQualifiedName() + "$";
-    }
-
     private boolean checkNoParameters(ExecutableElement e) {
         return !hasParameters(e) || error("Dependency accessor methods cannot have parameters.", e);
     }
@@ -348,7 +342,8 @@ public final class AnnotationProcessor extends AbstractProcessor {
                             "    date = \"%s\",\n" +
                             "    value = \"%s\"\n" +
                             ")",
-                    round, bundle.getString("version"), OffsetDateTime.now(), AnnotationProcessor.class.getName());
+                    round, RESOURCE_BUNDLE.getString("version"), OffsetDateTime.now(),
+                    AnnotationProcessor.class.getName());
         }
 
         abstract class FactoryMethod extends ModuleMethod {
@@ -533,12 +528,18 @@ public final class AnnotationProcessor extends AbstractProcessor {
                 }
 
                 @Getter(lazy = true)
-                private final boolean isCachingDisabled =
-                        isParameterRef() || isModuleRef() || accessedElement()
-                                .map(Tuple2::t2)
-                                .filter(Utils::isFinal)
-                                .filter(Utils::isField)
-                                .isPresent();
+                private final boolean isCachingDisabled = resolveIsCachingDisabled();
+
+                private boolean resolveIsCachingDisabled() {
+                    val element = accessedElement().map(Tuple2::t2);
+                    return isParameterRef()
+                            || isModuleRef()
+                            || element.filter(Utils::isFinal).filter(Utils::isField).isPresent()
+                            || element
+                            .flatMap(Utils::cachingStrategy)
+                            .flatMap(s1 -> cachingStrategy(methodElement()).filter(s1::equals))
+                            .isPresent();
+                }
 
                 @Getter(lazy = true)
                 private final boolean isFieldRef =

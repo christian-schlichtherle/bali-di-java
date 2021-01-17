@@ -25,6 +25,7 @@ import javax.lang.model.type.TypeMirror;
 import java.lang.annotation.Annotation;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.ResourceBundle;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
@@ -33,6 +34,8 @@ import static javax.lang.model.type.TypeKind.DECLARED;
 import static javax.lang.model.type.TypeKind.VOID;
 
 final class Utils {
+
+    static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle(Utils.class.getPackage().getName() + ".bundle");
 
     static final ModifierSet ABSTRACT = ModifierSet.of(Modifier.ABSTRACT);
 
@@ -44,9 +47,9 @@ final class Utils {
 
     private static final String VOID_CLASSNAME = Void.class.getName();
 
-    static Optional<CachingStrategy> cachingStrategy(final ExecutableElement e) {
+    static Optional<CachingStrategy> cachingStrategy(final Element e) {
         Optional<Cache> cache = getAnnotation(e, Cache.class);
-        if (!cache.isPresent()) {
+        if (!cache.isPresent() && e.getModifiers().contains(Modifier.ABSTRACT)) {
             cache = Optional.ofNullable(e.getEnclosingElement()).flatMap(e2 -> getAnnotation(e2, Cache.class));
         }
         return cache.map(Cache::value);
@@ -114,6 +117,10 @@ final class Utils {
 
     static ModifierSet modifiersOf(Element e) {
         return ModifierSet.of(e.getModifiers());
+    }
+
+    static String moduleImplementationName(TypeElement e) {
+        return e.getQualifiedName() + "$";
     }
 
     static Name qualifiedNameOf(AnnotationMirror m) {
