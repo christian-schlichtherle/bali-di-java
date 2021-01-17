@@ -116,6 +116,8 @@ The following simple app uses a generic clock to print the current date and time
 Again, please excuse me for not picking a less contrived example:
 
 ```java
+package bali.sample.genericclock;
+
 import bali.Cache;
 import bali.Module;
 
@@ -142,44 +144,49 @@ public interface GenericClockApp {
 }
 ```
 
-This results in the annotation processor to generate the following code for you (edited to take advantage of import 
-statements):
+This results in the annotation processor to generate the following code for you:
 
 ```java
-import java.util.Date;
-import java.util.concurrent.Callable;
+package bali.sample.genericclock;
 
-public abstract class GenericClockApp$ implements GenericClockApp {
+/*
+@javax.annotation.Generated(
+    comments = "round=1, version=0.6.0",
+    date = "2021-01-17T20:21:06.023+01:00",
+    value = "bali.java.AnnotationProcessor"
+)
+*/
+public abstract class GenericClockApp$ implements bali.sample.genericclock.GenericClockApp {
 
-    static GenericClockApp new$() {
+    static bali.sample.genericclock.GenericClockApp new$() {
         return new GenericClockApp$() {
         };
     }
 
-    private volatile Callable<Date> clock;
+    private volatile java.util.concurrent.Callable<java.util.Date> clock;
 
     @Override
-    public Callable<Date> clock() {
-        Callable<Date> clock;
-        if (null == (clock = this.clock)) {
+    public java.util.concurrent.Callable<java.util.Date> clock() {
+        java.util.concurrent.Callable<java.util.Date> value;
+        if (null == (value = this.clock)) {
             synchronized (this) {
-                if (null == (clock = this.clock)) {
-                    this.clock = clock = new Callable$1();
+                if (null == (value = this.clock)) {
+                    this.clock = value = new Callable$1();
                 }
             }
         }
-        return clock;
+        return value;
     }
 
     @Override
-    public Date call() {
-        return new Date();
+    public java.util.Date call() throws java.lang.Exception {
+        return new java.util.Date();
     }
 
-    private final class Callable$1 implements Callable<Date> {
-
+    private final class Callable$1 implements java.util.concurrent.Callable<java.util.Date> {
+        
         @Override
-        public Date call() throws Exception {
+        public java.util.Date call() throws java.lang.Exception {
             return GenericClockApp$.this.call();
         }
     }
