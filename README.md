@@ -22,7 +22,8 @@ following dependency to your project:
 <dependency>
     <groupId>global.namespace.bali</groupId>
     <artifactId>bali-java</artifactId>
-    <version>0.6.0</version> <!-- see https://github.com/christian-schlichtherle/bali-di/releases/latest -->
+    <!-- see https://github.com/christian-schlichtherle/bali-di/releases/latest -->
+    <version>0.6.0</version>
     <scope>provided</scope>
 </dependency>
 ```
@@ -221,11 +222,15 @@ If there were more dependencies, these patterns would be repeatedly applied to t
 
 The [sample code](samples) also showcases the following advanced features: 
 
-+ Abstract factory methods in [`@Module`](annotations/src/main/java/bali/Module.java) types to use their parameters as
-  dependencies.
-+ Caching all return values by applying [`@Cache`](annotations/src/main/java/bali/Cache.java) to types instead of
-  methods.
-+ Thread-local caching by applying `@Cache(THREAD_LOCAL)` to types or methods.
++ Abstract factory methods in types annotated with [`@Module`](annotations/src/main/java/bali/Module.java) to use their
+  (possible generic) parameters as dependencies.
++ Caching the return value of parameterless, overridable methods in a module or dependency type by applying the
+  [`@Cache`](annotations/src/main/java/bali/Cache.java) annotation to the method.
++ Selecting a caching strategy by applying one of `@Cache(DISABLED)`, `@Cache(NOT_THREAD_SAFE)`, `@Cache(THREAD_SAFE)`
+  or `@Cache(THREAD_LOCAL)`.
+  The default value of the `@Cache` annotation is the thread-safe caching strategy.
++ Specifying a default caching strategy for all abstract, parameterless methods in a module or dependency type by
+  applying the `@Cache` annotation to the type.
 + Taking advantage of interface segregation by applying
   [`@Make(MyImplementation.class)`](annotations/src/main/java/bali/Make.java) to methods returning `MyInterface`, where
   `MyImplementation` is a subtype of `MyInterface`. 
