@@ -29,7 +29,7 @@ following dependency to your project:
 
 Note that this is a compile-time-only dependency - there is no runtime dependency of your code on Bali DI!
 
-# Sample Code
+## Sample Code
 
 This project uses a modular build. The module [`bali-samples`](samples) provides lots of sample code showing how to use
 the annotations and generated source code.
