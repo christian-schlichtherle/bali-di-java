@@ -22,7 +22,7 @@ following dependency to your project:
 <dependency>
     <groupId>global.namespace.bali</groupId>
     <artifactId>bali-java</artifactId>
-    <version>0.5.0</version> <!-- see https://github.com/christian-schlichtherle/bali-di/releases/latest -->
+    <version>0.6.0</version> <!-- see https://github.com/christian-schlichtherle/bali-di/releases/latest -->
     <scope>provided</scope>
 </dependency>
 ```
