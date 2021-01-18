@@ -13,27 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package bali.sample.modular2.main
+package bali.sample.modular2;
 
-import org.scalatest.matchers.should.Matchers._
-import org.scalatest.wordspec.AnyWordSpec
+import bali.Cache;
+import bali.Module;
+import bali.sample.modular2.main.MainModule;
 
-class MainModuleSpec extends AnyWordSpec {
+import static java.lang.System.out;
 
-  "The modular app" should {
-    val app = MainModule$.new$
-    import app._
+@Cache
+@Module
+public interface ModularApp extends MainModule, Runnable {
 
-    "cache the formatter" in {
-      formatter shouldBe theSameInstanceAs(formatter)
+    @Override
+    default void run() {
+        out.println(greeting().message("world"));
     }
 
-    "cache the greeting" in {
-      greeting shouldBe theSameInstanceAs(greeting)
+    static void main(String... args) {
+        ModularApp$.new$().run();
     }
-
-    "produce 'Hello world!'" in {
-      greeting.message("world") shouldBe "Hello world!"
-    }
-  }
 }

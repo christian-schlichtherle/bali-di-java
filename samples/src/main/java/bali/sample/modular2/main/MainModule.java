@@ -23,7 +23,6 @@ import bali.sample.modular2.greeting.Greeting;
 import bali.sample.modular2.greeting.GreetingModule;
 
 @Cache
-@Module
 public interface MainModule {
 
     default String format() {
