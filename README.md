@@ -197,7 +197,7 @@ public abstract class GenericClockApp$ implements bali.sample.genericclock.Gener
 }
 ```
 
-You may recognize that the code is a blend of the following design patterns:
+You may recognize that the generated code is a blend of the following design patterns:
 
 <dl>
 <dt>Abstract Factory
