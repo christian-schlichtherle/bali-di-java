@@ -114,7 +114,7 @@ There are many features and benefits resulting from this approach:
     without unsolicited overhead in memory size or runtime complexity.
 </dl>
 
-## Quick Demo
+# Quick Demo
 
 The following simple app uses a generic clock to print the current date and time.
 Again, please excuse me for not picking a less contrived example:
@@ -221,7 +221,7 @@ You may recognize that the code is a blend of the following design patterns:
 
 If there were more dependencies, these patterns would be repeatedly applied to the abstract methods of these types.
 
-## Advanced Features
+# Advanced Features
 
 The [sample code](samples) also showcases the following advanced features: 
 
