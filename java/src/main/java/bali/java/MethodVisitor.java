@@ -94,7 +94,7 @@ interface MethodVisitor {
         return out -> out.ad(in).ad("}").nl();
     }
 
-    static <T> String mkString(Collection<T> c, String prefix, String delimiter, String suffix) {
+    static String mkString(Collection<?> c, String prefix, String delimiter, String suffix) {
         return c.isEmpty()
                 ? ""
                 : c.stream().map(Objects::toString).collect(Collectors.joining(delimiter, prefix, suffix));
