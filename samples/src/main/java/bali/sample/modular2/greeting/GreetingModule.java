@@ -21,13 +21,13 @@ import bali.Make;
 import bali.Module;
 import bali.sample.modular2.formatter.Formatter;
 
+@Cache
 @Module
 public interface GreetingModule {
 
     @Lookup
     Formatter formatter();
 
-    @Cache
     @Make(RealGreeting.class)
     Greeting greeting();
 }

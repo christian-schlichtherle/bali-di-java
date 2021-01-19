@@ -15,12 +15,15 @@
  */
 package bali.sample.modular2.formatter;
 
+import bali.Lookup;
+
 interface RealFormatter extends Formatter {
 
-    String format();
+    @Lookup("format")
+    String getFormat();
 
     @Override
     default String format(Object... args) {
-        return String.format(format(), args);
+        return String.format(getFormat(), args);
     }
 }

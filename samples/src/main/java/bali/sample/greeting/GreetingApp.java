@@ -25,7 +25,7 @@ import static java.lang.System.out;
 @Module
 public interface GreetingApp extends Runnable {
 
-    String format = "Hello %s!";
+    String FORMAT = "Hello %s!";
 
     @Make(RealFormatter.class)
     Formatter formatter();

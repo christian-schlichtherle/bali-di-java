@@ -24,9 +24,7 @@ import static java.lang.System.out;
 @Module
 public interface ModularApp extends FormatterModule, GreetingModule, Runnable {
 
-    default String format() {
-        return "Hello %s!";
-    }
+    String FORMAT = "Hello %s!";
 
     @Override
     default void run() {

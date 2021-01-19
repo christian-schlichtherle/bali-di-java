@@ -17,16 +17,16 @@ package bali.sample.modular2;
 
 import bali.Cache;
 import bali.Module;
-import bali.sample.modular2.main.MainModule;
+import bali.sample.modular2.main.MainModule$;
 
 import static java.lang.System.out;
 
 @Cache
 @Module
-public interface ModularApp extends MainModule, Runnable {
+public abstract class ModularApp extends MainModule$ implements Runnable {
 
     @Override
-    default void run() {
+    public void run() {
         out.println(greeting().message("world"));
     }
 

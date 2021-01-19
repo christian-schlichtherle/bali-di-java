@@ -20,13 +20,13 @@ import bali.Lookup;
 import bali.Make;
 import bali.Module;
 
+@Cache
 @Module
 public interface FormatterModule {
 
-    @Lookup
+    @Lookup(field = "FORMAT")
     String format();
 
-    @Cache
     @Make(RealFormatter.class)
     Formatter formatter();
 }

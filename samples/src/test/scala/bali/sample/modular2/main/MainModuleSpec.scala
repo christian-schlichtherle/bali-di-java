@@ -13,16 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package bali.sample.modular2
+package bali.sample.modular2.main
 
 import org.scalatest.matchers.should.Matchers._
 import org.scalatest.wordspec.AnyWordSpec
 
-class ModularAppSpec extends AnyWordSpec {
+class MainModuleSpec extends AnyWordSpec {
 
-  "The modular app" should {
-    val app = ModularApp$.new$
-    import app._
+  "The main module" should {
+    val module = MainModule$.new$
+    import module._
 
     "cache the formatter" in {
       formatter shouldBe theSameInstanceAs(formatter)
