@@ -23,10 +23,12 @@ import javax.lang.model.AnnotatedConstruct;
 import javax.lang.model.element.*;
 import javax.lang.model.type.TypeMirror;
 import java.lang.annotation.Annotation;
+import java.util.Collection;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static bali.CachingStrategy.DISABLED;
@@ -137,5 +139,11 @@ final class Utils {
     }
 
     private Utils() {
+    }
+
+    static String mkString(Collection<?> c, String prefix, String delimiter, String suffix) {
+        return c.isEmpty()
+                ? ""
+                : c.stream().map(Objects::toString).collect(Collectors.joining(delimiter, prefix, suffix));
     }
 }

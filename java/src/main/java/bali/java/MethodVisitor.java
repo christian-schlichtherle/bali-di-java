@@ -20,8 +20,6 @@ import bali.java.AnnotationProcessor.ModuleClass.Method;
 import bali.java.AnnotationProcessor.ModuleClass.ModuleMethod.AccessorMethod;
 import bali.java.AnnotationProcessor.ModuleClass.ProviderMethod;
 
-import java.util.Collection;
-import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -73,13 +71,13 @@ interface MethodVisitor {
         return out -> out
                 .nl()
                 .ad(in).ad("@Override").nl()
-                .ad(in).ad(m.methodModifiers()).ad(mkString(m.methodTypeParameters(), "<", ", ", "> ")).ad(m.methodReturnType()).ad(" ").ad(m.methodName()).ad("(")
+                .ad(in).ad(m.methodModifiers()).ad(Utils.mkString(m.methodTypeParameters(), "<", ", ", "> ")).ad(m.methodReturnType()).ad(" ").ad(m.methodName()).ad("(")
                 .ad(m
                         .methodParameters()
                         .stream()
                         .map(var -> var.asType() + " " + var)
                         .collect(Collectors.joining(", ")))
-                .ad(") ").ad(mkString(m.methodThrownTypes(), "throws ", ", ", " ")).ad("{").nl();
+                .ad(") ").ad(Utils.mkString(m.methodThrownTypes(), "throws ", ", ", " ")).ad("{").nl();
     }
 
     Consumer<Output> visitModuleCacheBegin(Method m, String in);
@@ -92,11 +90,5 @@ interface MethodVisitor {
 
     default Consumer<Output> visitMethodEnd(Method m, String in) {
         return out -> out.ad(in).ad("}").nl();
-    }
-
-    static String mkString(Collection<?> c, String prefix, String delimiter, String suffix) {
-        return c.isEmpty()
-                ? ""
-                : c.stream().map(Objects::toString).collect(Collectors.joining(delimiter, prefix, suffix));
     }
 }
