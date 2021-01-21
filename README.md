@@ -85,8 +85,8 @@ To resolve these issues, Bali DI employs a completely different approach:
 
 1. Dependency resolution happens at compile-time by an annotation processor which generates Java source code to wire up
    your components.
-2. Dependencies are created and - if desired - cached in modules, which are auto-generated, abstract classes.
-3. Dependencies are made accessible to your components by calling abstract, parameterless methods.
+2. Dependencies are made accessible to your components by calling abstract, parameterless methods.
+3. Dependencies are created lazily and - if desired - cached in modules, which are auto-generated, abstract classes.
 
 There are many features and benefits resulting from this approach:
 
