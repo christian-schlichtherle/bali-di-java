@@ -1,7 +1,7 @@
 [![Release Notes](https://img.shields.io/github/release/christian-schlichtherle/bali-di.svg)](https://github.com/christian-schlichtherle/bali-di/releases/latest)
 [![Maven Central](https://img.shields.io/maven-central/v/global.namespace.bali/bali-annotations)](https://search.maven.org/artifact/global.namespace.bali/bali-annotations)
 [![Apache License 2.0](https://img.shields.io/github/license/christian-schlichtherle/bali-di.svg)](https://www.apache.org/licenses/LICENSE-2.0)
-[![Git Maven Workflow](https://img.shields.io/github/workflow/status/christian-schlichtherle/bali-di/Java%20CI%20with%20Maven)](https://github.com/christian-schlichtherle/bali-di/actions?query=workflow%3A%22Java+CI+with+Maven%22)
+[![Test Workflow](https://github.com/christian-schlichtherle/bali-di/workflows/test/badge.svg)](https://github.com/christian-schlichtherle/bali-di/actions?query=workflow%3Atest)
 
 # Bali DI
 
