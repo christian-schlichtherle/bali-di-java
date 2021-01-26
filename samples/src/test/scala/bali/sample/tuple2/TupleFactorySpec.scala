@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package bali.sample.tuple
+package bali.sample.tuple2
 
 import org.scalatest.matchers.should.Matchers._
 import org.scalatest.wordspec.AnyWordSpec
@@ -21,7 +21,7 @@ import org.scalatest.wordspec.AnyWordSpec
 class TupleFactorySpec extends AnyWordSpec {
 
   "The tuple factory" should {
-    val factory = TupleFactory$.new$
+    val factory = TupleFactory$.new$[String, String]
     import factory._
 
     "Create a tuple with the given values" in {

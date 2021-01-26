@@ -110,10 +110,7 @@ public final class AnnotationProcessor extends AbstractProcessor {
     }
 
     private void processTypeElement(final TypeElement e) {
-        if (!e.getTypeParameters().isEmpty()) {
-            error("Generic module types are not supported.", e);
-            return;
-        } else if (e.getNestingKind().isNested()) {
+        if (e.getNestingKind().isNested()) {
             val modifiers = ModifierSet.of(e.getModifiers());
             if (modifiers.retain(STATIC).isEmpty()) {
                 error("Inner modules are not supported.", e);
@@ -256,6 +253,17 @@ public final class AnnotationProcessor extends AbstractProcessor {
                 || error("Provider or factory methods in modules must return class or interface types.", e);
     }
 
+    private String typeParametersDecl(Parameterizable parameterizable) {
+        return mkString(parameterizable.getTypeParameters().stream().map(p ->
+                        p + mkString(p.getBounds().stream().filter(t -> !isObject(t)),
+                                " extends ", " & ", "")),
+                "<", ", ", "> ");
+    }
+
+    private boolean isSubtype(TypeMirror a, TypeMirror b, Element e) {
+        return types().isSubtype(a, b) || error(a + " is not a subtype of " + b + ".", e);
+    }
+
     @RequiredArgsConstructor
     @Getter
     final class ModuleClass implements Consumer<Output> {
@@ -290,6 +298,9 @@ public final class AnnotationProcessor extends AbstractProcessor {
                         .filter(Utils::isAbstract)
                         .anyMatch(e ->
                                 hasVoidReturnType(e) || hasAnnotation(e, Lookup.class) || !hasDeclaredReturnType(e));
+
+        @Getter(lazy = true)
+        private final String classTypeParametersDecl = typeParametersDecl(classElement());
 
         Consumer<Output> forAllModuleMethods(ClassVisitor v) {
             return forAllModuleMethods0().andThen(out -> out.forAllProviderMethods(v));
@@ -386,7 +397,7 @@ public final class AnnotationProcessor extends AbstractProcessor {
                         .this
                         .makeType(methodElement())
                         .flatMap(this::parameterizedReturnType)
-                        .filter(t -> isSubTypeOf(t, methodReturnType(), methodElement()))
+                        .filter(t -> isSubtype(t, methodReturnType(), methodElement()))
                         .map(TypeMirror.class::cast);
                 final TypeMirror declaredReturnType = declaredMakeType.orElseGet(this::methodReturnType);
                 val declaredReturnElement = typeElement(declaredReturnType);
@@ -404,24 +415,29 @@ public final class AnnotationProcessor extends AbstractProcessor {
 
             private Optional<DeclaredType> parameterizedReturnType(final TypeMirror makeType) {
                 val makeElement = typeElement(makeType);
-                val methodTypeVariables = methodType()
-                        .getTypeVariables()
-                        .stream()
-                        .collect(Collectors.toMap(v -> v.asElement().getSimpleName(), v -> v));
                 final List<? extends TypeMirror> methodReturnTypeArguments = methodReturnType() instanceof DeclaredType
                         ? ((DeclaredType) methodReturnType()).getTypeArguments()
                         : Collections.emptyList();
-                val nonVariableMethodReturnTypeArguments = methodReturnTypeArguments
-                        .stream()
-                        .filter(t -> t.getKind() != TypeKind.TYPEVAR)
-                        .collect(Collectors.toCollection(LinkedList::new));
-                val makeTypeParameters = makeElement.getTypeParameters();
-                val makeTypeArgs = makeTypeParameters
+                val partitionedMethodReturnTypeArguments =
+                        methodReturnTypeArguments
+                                .stream()
+                                .collect(Collectors.partitioningBy(t -> t.getKind() == TypeKind.TYPEVAR,
+                                        Collectors.<TypeMirror, LinkedList<TypeMirror>>toCollection(LinkedList::new)));
+                val variableMethodReturnTypeArguments =
+                        partitionedMethodReturnTypeArguments
+                                .get(true)
+                                .stream()
+                                .collect(Collectors.toMap(t -> types().asElement(t).getSimpleName(), t -> t));
+                val nonVariableMethodReturnTypeArguments =
+                        partitionedMethodReturnTypeArguments
+                                .get(false);
+                val makeTypeArgs = makeElement
+                        .getTypeParameters()
                         .stream()
                         .map(Element::getSimpleName)
                         .flatMap(n -> Utils
                                 .streamOfNonNull(
-                                        () -> methodTypeVariables.get(n),
+                                        () -> variableMethodReturnTypeArguments.get(n),
                                         nonVariableMethodReturnTypeArguments::poll)
                                 .limit(1))
                         .collect(Collectors.toList());
@@ -431,10 +447,6 @@ public final class AnnotationProcessor extends AbstractProcessor {
                     error("Incompatible type parameters.", methodElement());
                     return Optional.empty();
                 }
-            }
-
-            private boolean isSubTypeOf(TypeMirror a, TypeMirror b, Element e) {
-                return types().isSubtype(a, b) || error(a + " is not a subtype of " + b + ".", e);
             }
 
             Consumer<Output> forAllAccessorMethods() {
@@ -633,13 +645,7 @@ public final class AnnotationProcessor extends AbstractProcessor {
             }
 
             @Getter(lazy = true)
-            private final String methodTypeParametersDecl =
-                    mkString(methodElement()
-                                    .getTypeParameters()
-                                    .stream()
-                                    .map(e -> e + mkString(e.getBounds().stream().filter(t -> !isObject(t)),
-                                            " extends ", " & ", "")),
-                            "<", ", ", "> ");
+            private final String methodTypeParametersDecl = typeParametersDecl(methodElement());
 
             @Getter(lazy = true)
             private final String methodParametersDecl =

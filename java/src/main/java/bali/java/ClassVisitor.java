@@ -30,11 +30,11 @@ final class ClassVisitor {
                     .ad("/*").nl()
                     .ad(c.generated()).nl()
                     .ad("*/").nl()
-                    .ad(c.classModifiers()).ad("class ").ad(c.classSimpleName()).ad("$ ").ad(c.isInterfaceType() ? "implements " : "extends ").ad(c.classType()).ad(" {").nl();
+                    .ad(c.classModifiers()).ad("class ").ad(c.classSimpleName()).ad(c.classTypeParametersDecl().isEmpty() ? "$ " : "$").ad(c.classTypeParametersDecl()).ad(c.isInterfaceType() ? "implements " : "extends ").ad(c.classType()).ad(" {").nl();
             if (!c.hasAbstractMethods()) {
                 out
                         .nl()
-                        .ad("    static ").ad(c.classType()).ad(" new$() {").nl()
+                        .ad("    static ").ad(c.classTypeParametersDecl()).ad(c.classType()).ad(" new$() {").nl()
                         .ad("        return new ").ad(c.classSimpleName()).ad("$() {").nl()
                         .ad("        };").nl()
                         .ad("    }").nl();

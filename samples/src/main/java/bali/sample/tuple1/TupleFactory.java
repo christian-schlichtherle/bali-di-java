@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package bali.sample.tuple;
+package bali.sample.tuple1;
 
 import bali.Make;
 import bali.Module;
