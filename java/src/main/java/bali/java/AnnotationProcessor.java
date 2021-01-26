@@ -626,10 +626,6 @@ public final class AnnotationProcessor extends AbstractProcessor {
             private final TypeMirror methodReturnType = methodType().getReturnType();
 
             @Getter(lazy = true)
-            private final List<? extends TypeMirror> methodThrownTypes =
-                    unmodifiableList(methodType().getThrownTypes());
-
-            @Getter(lazy = true)
             private final ExecutableType methodType = resolveMethodType();
 
             ExecutableType resolveMethodType() {
@@ -637,8 +633,22 @@ public final class AnnotationProcessor extends AbstractProcessor {
             }
 
             @Getter(lazy = true)
-            private final List<? extends TypeParameterElement> methodTypeParameters =
-                    unmodifiableList(methodElement().getTypeParameters());
+            private final String methodTypeParametersDecl =
+                    mkString(methodElement()
+                                    .getTypeParameters()
+                                    .stream()
+                                    .map(e -> e + mkString(e.getBounds().stream().filter(t -> !isObject(t)),
+                                            " extends ", " & ", "")),
+                            "<", ", ", "> ");
+
+            @Getter(lazy = true)
+            private final String methodParametersDecl =
+                    mkString(methodParameters().stream().map(var -> var.asType() + " " + var),
+                            "", ", ", "");
+
+            @Getter(lazy = true)
+            private final String methodThrownTypesDecl =
+                    mkString(methodType().getThrownTypes(), "throws ", ", ", " ");
         }
     }
 }

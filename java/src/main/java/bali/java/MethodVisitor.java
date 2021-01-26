@@ -71,13 +71,7 @@ interface MethodVisitor {
         return out -> out
                 .nl()
                 .ad(in).ad("@Override").nl()
-                .ad(in).ad(m.methodModifiers()).ad(Utils.mkString(m.methodTypeParameters(), "<", ", ", "> ")).ad(m.methodReturnType()).ad(" ").ad(m.methodName()).ad("(")
-                .ad(m
-                        .methodParameters()
-                        .stream()
-                        .map(var -> var.asType() + " " + var)
-                        .collect(Collectors.joining(", ")))
-                .ad(") ").ad(Utils.mkString(m.methodThrownTypes(), "throws ", ", ", " ")).ad("{").nl();
+                .ad(in).ad(m.methodModifiers()).ad(m.methodTypeParametersDecl()).ad(m.methodReturnType()).ad(" ").ad(m.methodName()).ad("(").ad(m.methodParametersDecl()).ad(") ").ad(m.methodThrownTypesDecl()).ad("{").nl();
     }
 
     Consumer<Output> visitModuleCacheBegin(Method m, String in);

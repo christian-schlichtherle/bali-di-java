@@ -47,6 +47,8 @@ final class Utils {
 
     static final ModifierSet STATIC = ModifierSet.of(Modifier.STATIC);
 
+    private static final String OBJECT_CLASSNAME = Object.class.getName();
+
     private static final String VOID_CLASSNAME = Void.class.getName();
 
     static Optional<CachingStrategy> cachingStrategy(final Element e) {
@@ -113,6 +115,10 @@ final class Utils {
         return e instanceof TypeElement;
     }
 
+    static boolean isObject(TypeMirror t) {
+        return OBJECT_CLASSNAME.equals(t.toString());
+    }
+
     static boolean isVoid(TypeMirror t) {
         return VOID.equals(t.getKind()) || VOID_CLASSNAME.equals(t.toString());
     }
@@ -141,9 +147,12 @@ final class Utils {
     private Utils() {
     }
 
-    static String mkString(Collection<?> c, String prefix, String delimiter, String suffix) {
-        return c.isEmpty()
-                ? ""
-                : c.stream().map(Objects::toString).collect(Collectors.joining(delimiter, prefix, suffix));
+    static String mkString(Collection<?> collection, String prefix, String delimiter, String suffix) {
+        return mkString(collection.stream(), prefix, delimiter, suffix);
+    }
+
+    static String mkString(final Stream<?> stream, final String prefix, final String delimiter, final String suffix) {
+        final String string = stream.map(Objects::toString).collect(Collectors.joining(delimiter));
+        return string.isEmpty() ? "" : prefix + string + suffix;
     }
 }
