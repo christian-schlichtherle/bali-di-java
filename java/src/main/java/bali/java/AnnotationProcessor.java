@@ -251,10 +251,6 @@ public final class AnnotationProcessor extends AbstractProcessor {
         messager().printMessage(WARNING, message, e);
     }
 
-    private boolean checkNoParameters(ExecutableElement e) {
-        return !hasParameters(e) || error("Dependency accessor methods cannot have parameters.", e);
-    }
-
     private boolean checkDeclaredReturnType(ExecutableElement e) {
         return hasDeclaredReturnType(e)
                 || error("Provider or factory methods in modules must return class or interface types.", e);
@@ -443,7 +439,7 @@ public final class AnnotationProcessor extends AbstractProcessor {
 
             Consumer<Output> forAllAccessorMethods() {
                 return out -> filteredOverridableMethods(makeElement())
-                        .filter(AnnotationProcessor.this::checkNoParameters)
+                        .filter(e -> !hasParameters(e))
                         .map(e -> {
                             val method = newAccessorMethod(e);
                             return method.apply(method.isCachingDisabled()
