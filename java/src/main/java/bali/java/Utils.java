@@ -135,15 +135,6 @@ final class Utils {
         return ((QualifiedNameable) m.getAnnotationType().asElement()).getQualifiedName();
     }
 
-    @SafeVarargs
-    static <T> Stream<T> streamOfNonNull(Supplier<? extends T>... suppliers) {
-        return Stream
-                .of(suppliers)
-                .map(Supplier::get)
-                .filter(Objects::nonNull)
-                .map(t -> (T) t);
-    }
-
     private Utils() {
     }
 

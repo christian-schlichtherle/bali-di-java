@@ -37,6 +37,7 @@ import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -435,10 +436,13 @@ public final class AnnotationProcessor extends AbstractProcessor {
                         .getTypeParameters()
                         .stream()
                         .map(Element::getSimpleName)
-                        .flatMap(n -> Utils
-                                .streamOfNonNull(
+                        .flatMap(n -> Stream
+                                .<Supplier<TypeMirror>>of(
                                         () -> variableMethodReturnTypeArguments.get(n),
-                                        nonVariableMethodReturnTypeArguments::poll)
+                                        nonVariableMethodReturnTypeArguments::poll
+                                )
+                                .map(Supplier::get)
+                                .filter(Objects::nonNull)
                                 .limit(1))
                         .collect(Collectors.toList());
                 try {
