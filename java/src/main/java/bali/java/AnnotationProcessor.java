@@ -357,6 +357,11 @@ public final class AnnotationProcessor extends AbstractProcessor {
         abstract class FactoryMethod extends ModuleMethod {
 
             @Override
+            boolean resolveIsNonNull() {
+                return true;
+            }
+
+            @Override
             public Consumer<Output> apply(MethodVisitor v) {
                 return v.visitFactoryMethod(this);
             }
@@ -367,8 +372,10 @@ public final class AnnotationProcessor extends AbstractProcessor {
             @Getter(lazy = true)
             private final String superElementRef = (isInterfaceType() ? classQualifiedName() + "." : "") + "super";
 
-            @Getter(lazy = true)
-            private final boolean isNonNull = isAbstract(methodElement());
+            @Override
+            boolean resolveIsNonNull() {
+                return isAbstract(methodElement());
+            }
 
             @Override
             public Consumer<Output> apply(MethodVisitor v) {
@@ -581,9 +588,10 @@ public final class AnnotationProcessor extends AbstractProcessor {
                 private final boolean isModuleRef =
                         accessedElement().map(Tuple2::t2).filter(Utils::isType).isPresent();
 
-                @Getter(lazy = true)
-                private final boolean isNonNull =
-                        accessedElement().map(Tuple2::t2).filter(Utils::isAbstract).isPresent();
+                @Override
+                boolean resolveIsNonNull() {
+                    return accessedElement().map(Tuple2::t2).filter(Utils::isAbstract).isPresent();
+                }
 
                 @Override
                 ExecutableType resolveMethodType() {
@@ -629,6 +637,11 @@ public final class AnnotationProcessor extends AbstractProcessor {
             boolean resolveIsMethodRef() {
                 return false;
             }
+
+            @Getter(lazy = true)
+            private final boolean isNonNull = resolveIsNonNull();
+
+            abstract boolean resolveIsNonNull();
 
             @Getter(lazy = true)
             private final boolean isSuperRef = !isAbstract(methodElement());

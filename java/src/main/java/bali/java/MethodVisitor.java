@@ -25,31 +25,26 @@ import java.util.function.Consumer;
 interface MethodVisitor {
 
     default Consumer<Output> visitAccessorMethod(AccessorMethod m, String in) {
-        return (m.isNonNull() ? visitNonNullField(m, in) : visitNullableField(m, in))
+        return visitField(m, in)
                 .andThen(visitMethodBegin(m, in))
-                .andThen(m.isNonNull() ? visitNonNullMethodBegin(m, in) : visitNullableMethodBegin(m, in))
                 .andThen(out -> out.ad(m.accessedElementRef()))
-                .andThen(m.isNonNull() ? visitNonNullMethodEnd(m, in) : visitNullableMethodEnd(m, in))
                 .andThen(visitMethodEnd(m, in));
     }
 
     default Consumer<Output> visitFactoryMethod(FactoryMethod m) {
-        return visitNonNullField(m, "    ")
+        return visitField(m, "    ")
                 .andThen(visitMethodBegin(m, "    "))
-                .andThen(visitNonNullMethodBegin(m, "    "))
                 .andThen(out -> {
                     out.ad("new ").ad(m.makeType()).ad("() {").nl();
                     m.forAllAccessorMethods().accept(out);
                     out.ad("        }");
                 })
-                .andThen(visitNonNullMethodEnd(m, "    "))
                 .andThen(visitMethodEnd(m, "    "));
     }
 
     default Consumer<Output> visitProviderMethod(ProviderMethod m) {
-        return (m.isNonNull() ? visitNonNullField(m, "    private ") : visitNullableField(m, "    private "))
+        return visitField(m, "    private ")
                 .andThen(visitMethodBegin(m, "    "))
-                .andThen(m.isNonNull() ? visitNonNullMethodBegin(m, "    ") : visitNullableMethodBegin(m, "    "))
                 .andThen(out -> {
                     if (m.isSuperRef()) {
                         out.ad(m.superElementRef()).ad(".").ad(m.methodName());
@@ -58,30 +53,43 @@ interface MethodVisitor {
                     }
                     out.ad("()");
                 })
-                .andThen(m.isNonNull() ? visitNonNullMethodEnd(m, "    ") : visitNullableMethodEnd(m, "    "))
                 .andThen(visitMethodEnd(m, "    "));
     }
 
+    default Consumer<Output> visitField(Method m, String in) {
+        return m.isNonNull() ? visitNonNullField(m, in) : visitNullableField(m, in);
+    }
+
+    Consumer<Output> visitNonNullField(Method m, String in);
+
+    Consumer<Output> visitNullableField(Method m, String in);
+
     default Consumer<Output> visitMethodBegin(Method m, String in) {
+        return visitMethodBegin0(m, in)
+                .andThen(m.isNonNull() ? visitNonNullMethodBegin(m, in) : visitNullableMethodBegin(m, in));
+    }
+
+    default Consumer<Output> visitMethodBegin0(Method m, String in) {
         return out -> out
                 .nl()
                 .ad(in).ad("@Override").nl()
                 .ad(in).ad(m.methodModifiers()).ad(m.methodTypeParametersDecl()).ad(m.methodReturnType()).ad(" ").ad(m.methodName()).ad("(").ad(m.methodParametersDecl()).ad(") ").ad(m.methodThrownTypesDecl()).ad("{").nl();
     }
 
+    Consumer<Output> visitNonNullMethodBegin(Method m, String in);
+
+    Consumer<Output> visitNullableMethodBegin(Method m, String in);
+
     default Consumer<Output> visitMethodEnd(Method m, String in) {
+        return (m.isNonNull() ? visitNonNullMethodEnd(m, in) : visitNullableMethodEnd(m, in))
+                .andThen(visitMethodEnd0(m, in));
+    }
+
+    default Consumer<Output> visitMethodEnd0(Method m, String in) {
         return out -> out.ad(in).ad("}").nl();
     }
 
-    Consumer<Output> visitNonNullField(Method m, String in);
-
-    Consumer<Output> visitNonNullMethodBegin(Method m, String in);
-
     Consumer<Output> visitNonNullMethodEnd(Method m, String in);
-
-    Consumer<Output> visitNullableField(Method m, String in);
-
-    Consumer<Output> visitNullableMethodBegin(Method m, String in);
 
     Consumer<Output> visitNullableMethodEnd(Method m, String in);
 }
