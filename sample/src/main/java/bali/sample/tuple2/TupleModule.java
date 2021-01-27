@@ -15,15 +15,12 @@
  */
 package bali.sample.tuple2;
 
-import java.util.function.Function;
+import bali.Module;
 
-public interface Tuple2<T1, T2> {
+@Module
+public interface TupleModule {
 
-    T1 getT1();
+    TupleModule INSTANCE = TupleModule$.new$();
 
-    T2 getT2();
-
-    <R> Tuple2<R, T2> mapT1(Function<T1, R> f);
-
-    <R> Tuple2<T1, R> mapT2(Function<T2, R> f);
+    <T1, T2> TupleFactory<T1, T2> factory(T1 t1, T2 t2);
 }

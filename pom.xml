@@ -25,7 +25,7 @@
 
     <groupId>global.namespace.bali</groupId>
     <artifactId>bali-parent</artifactId>
-    <version>0.7.3-SNAPSHOT</version>
+    <version>0.8.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Bali DI Parent</name>
@@ -50,9 +50,9 @@
     </properties>
 
     <modules>
-        <module>annotations</module>
+        <module>annotation</module>
         <module>java</module>
-        <module>samples</module>
+        <module>sample</module>
     </modules>
 
     <profiles>
@@ -66,6 +66,7 @@
                             <configuration>
                                 <compilerArgs>
                                     <arg>-Xlint</arg>
+                                    <arg>-Xlint:unchecked</arg>
                                 </compilerArgs>
                             </configuration>
                         </plugin>

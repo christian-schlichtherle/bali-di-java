@@ -13,22 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package bali.sample.tuple2;
-
-import bali.Lookup;
+package bali.sample.tuple1;
 
 import java.util.Objects;
 import java.util.function.Function;
 
 abstract class ImmutableTuple2<T1, T2> implements Tuple2<T1, T2> {
-
-    @Lookup("t1")
-    @Override
-    public abstract T1 getT1();
-
-    @Lookup(param = "t2")
-    @Override
-    public abstract T2 getT2();
 
     abstract TupleFactory factory();
 
