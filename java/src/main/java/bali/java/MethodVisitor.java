@@ -21,36 +21,35 @@ import bali.java.AnnotationProcessor.ModuleClass.ModuleMethod.AccessorMethod;
 import bali.java.AnnotationProcessor.ModuleClass.ProviderMethod;
 
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 interface MethodVisitor {
 
     default Consumer<Output> visitAccessorMethod(AccessorMethod m, String in) {
         return visitDependencyField(m, in)
                 .andThen(visitMethodBegin(m, in))
-                .andThen(visitDependencyCacheBegin(m, in))
+                .andThen(visitNullableCacheBegin(m, in))
                 .andThen(out -> out.ad(m.accessedElementRef()))
-                .andThen(visitDependencyCacheEnd(m, in))
+                .andThen(visitNullableCacheEnd(m, in))
                 .andThen(visitMethodEnd(m, in));
     }
 
     default Consumer<Output> visitFactoryMethod(FactoryMethod m) {
         return visitModuleField(m, "    ")
                 .andThen(visitMethodBegin(m, "    "))
-                .andThen(visitModuleCacheBegin(m, "    "))
+                .andThen(visitNonNullCacheBegin(m, "    "))
                 .andThen(out -> {
                     out.ad("new ").ad(m.makeType()).ad("() {").nl();
                     m.forAllAccessorMethods().accept(out);
                     out.ad("        }");
                 })
-                .andThen(visitModuleCacheEnd(m, "    "))
+                .andThen(visitNonNullCacheEnd(m, "    "))
                 .andThen(visitMethodEnd(m, "    "));
     }
 
     default Consumer<Output> visitProviderMethod(ProviderMethod m) {
         return visitModuleField(m, "    private ")
                 .andThen(visitMethodBegin(m, "    "))
-                .andThen(visitModuleCacheBegin(m, "    "))
+                .andThen(visitNonNullCacheBegin(m, "    "))
                 .andThen(out -> {
                     if (m.isSuperRef()) {
                         out.ad(m.superElementRef()).ad(".").ad(m.methodName());
@@ -59,13 +58,9 @@ interface MethodVisitor {
                     }
                     out.ad("()");
                 })
-                .andThen(visitModuleCacheEnd(m, "    "))
+                .andThen(visitNonNullCacheEnd(m, "    "))
                 .andThen(visitMethodEnd(m, "    "));
     }
-
-    Consumer<Output> visitModuleField(Method m, String in);
-
-    Consumer<Output> visitDependencyField(Method m, String in);
 
     default Consumer<Output> visitMethodBegin(Method m, String in) {
         return out -> out
@@ -74,15 +69,19 @@ interface MethodVisitor {
                 .ad(in).ad(m.methodModifiers()).ad(m.methodTypeParametersDecl()).ad(m.methodReturnType()).ad(" ").ad(m.methodName()).ad("(").ad(m.methodParametersDecl()).ad(") ").ad(m.methodThrownTypesDecl()).ad("{").nl();
     }
 
-    Consumer<Output> visitModuleCacheBegin(Method m, String in);
-
-    Consumer<Output> visitModuleCacheEnd(Method m, String in);
-
-    Consumer<Output> visitDependencyCacheBegin(Method m, String in);
-
-    Consumer<Output> visitDependencyCacheEnd(Method m, String in);
-
     default Consumer<Output> visitMethodEnd(Method m, String in) {
         return out -> out.ad(in).ad("}").nl();
     }
+
+    Consumer<Output> visitModuleField(Method m, String in);
+
+    Consumer<Output> visitDependencyField(Method m, String in);
+
+    Consumer<Output> visitNonNullCacheBegin(Method m, String in);
+
+    Consumer<Output> visitNonNullCacheEnd(Method m, String in);
+
+    Consumer<Output> visitNullableCacheBegin(Method m, String in);
+
+    Consumer<Output> visitNullableCacheEnd(Method m, String in);
 }

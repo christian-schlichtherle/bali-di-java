@@ -29,22 +29,6 @@ final class ThreadLocalCachingVisitor implements MethodVisitor {
     }
 
     @Override
-    public Consumer<Output> visitModuleCacheBegin(Method m, String in) {
-        return out -> out
-                .ad(in).ad("    ").ad(m.methodReturnType()).ad(" value;").nl()
-                .ad(in).ad("    if (null == (value = this.").ad(m.methodName()).ad(".get())) {").nl()
-                .ad(in).ad("        this.").ad(m.methodName()).ad(".set(value = ");
-    }
-
-    @Override
-    public Consumer<Output> visitModuleCacheEnd(Method m, String in) {
-        return out -> out
-                .ad(");").nl()
-                .ad(in).ad("    }").nl()
-                .ad(in).ad("    return value;").nl();
-    }
-
-    @Override
     public Consumer<Output> visitDependencyField(Method m, String in) {
         return out -> out
                 .nl()
@@ -52,7 +36,23 @@ final class ThreadLocalCachingVisitor implements MethodVisitor {
     }
 
     @Override
-    public Consumer<Output> visitDependencyCacheBegin(Method m, String in) {
+    public Consumer<Output> visitNonNullCacheBegin(Method m, String in) {
+        return out -> out
+                .ad(in).ad("    ").ad(m.methodReturnType()).ad(" value;").nl()
+                .ad(in).ad("    if (null == (value = this.").ad(m.methodName()).ad(".get())) {").nl()
+                .ad(in).ad("        this.").ad(m.methodName()).ad(".set(value = ");
+    }
+
+    @Override
+    public Consumer<Output> visitNonNullCacheEnd(Method m, String in) {
+        return out -> out
+                .ad(");").nl()
+                .ad(in).ad("    }").nl()
+                .ad(in).ad("    return value;").nl();
+    }
+
+    @Override
+    public Consumer<Output> visitNullableCacheBegin(Method m, String in) {
         return out -> out
                 .ad(in).ad("    java.util.function.Supplier<").ad(m.methodReturnType()).ad("> supplier;").nl()
                 .ad(in).ad("    if (null == (supplier = this.").ad(m.methodName()).ad(".get())) {").nl()
@@ -60,7 +60,7 @@ final class ThreadLocalCachingVisitor implements MethodVisitor {
     }
 
     @Override
-    public Consumer<Output> visitDependencyCacheEnd(Method m, String in) {
+    public Consumer<Output> visitNullableCacheEnd(Method m, String in) {
         return out -> out
                 .ad(";").nl()
                 .ad(in).ad("        this.").ad(m.methodName()).ad(".set(supplier = () -> value);").nl()

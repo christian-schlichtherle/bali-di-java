@@ -27,28 +27,28 @@ final class DisabledCachingVisitor implements MethodVisitor {
     }
 
     @Override
-    public Consumer<Output> visitModuleCacheBegin(Method m, String in) {
-        return visitDependencyCacheBegin(m, in);
-    }
-
-    @Override
-    public Consumer<Output> visitModuleCacheEnd(Method m, String in) {
-        return visitDependencyCacheEnd(m, in);
-    }
-
-    @Override
     public Consumer<Output> visitDependencyField(Method m, String in) {
         return out -> {
         };
     }
 
     @Override
-    public Consumer<Output> visitDependencyCacheBegin(Method m, String in) {
+    public Consumer<Output> visitNonNullCacheBegin(Method m, String in) {
+        return visitNullableCacheBegin(m, in);
+    }
+
+    @Override
+    public Consumer<Output> visitNonNullCacheEnd(Method m, String in) {
+        return visitNullableCacheEnd(m, in);
+    }
+
+    @Override
+    public Consumer<Output> visitNullableCacheBegin(Method m, String in) {
         return out -> out.ad(in).ad("    return ");
     }
 
     @Override
-    public Consumer<Output> visitDependencyCacheEnd(Method m, String in) {
+    public Consumer<Output> visitNullableCacheEnd(Method m, String in) {
         return out -> out.ad(";").nl();
     }
 }
