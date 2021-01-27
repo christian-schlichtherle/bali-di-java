@@ -25,7 +25,7 @@
 
     <groupId>global.namespace.bali</groupId>
     <artifactId>bali-parent</artifactId>
-    <version>0.8.0-SNAPSHOT</version>
+    <version>0.8.0</version>
     <packaging>pom</packaging>
 
     <name>Bali DI Parent</name>
@@ -41,7 +41,7 @@
         <connection>scm:git:https://github.com/christian-schlichtherle/bali-di.git</connection>
         <developerConnection>scm:git:git@github.com:christian-schlichtherle/bali-di.git</developerConnection>
         <url>https://github.com/christian-schlichtherle/bali-di</url>
-        <tag>HEAD</tag>
+        <tag>v0.8.0</tag>
     </scm>
 
     <properties>

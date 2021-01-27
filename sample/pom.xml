@@ -20,7 +20,7 @@
     <parent>
         <groupId>global.namespace.bali</groupId>
         <artifactId>bali-parent</artifactId>
-        <version>0.8.0-SNAPSHOT</version>
+        <version>0.8.0</version>
     </parent>
 
     <artifactId>bali-sample</artifactId>
@@ -36,7 +36,7 @@
         <dependency>
             <groupId>global.namespace.bali</groupId>
             <artifactId>bali-java</artifactId>
-            <version>0.8.0-SNAPSHOT</version>
+            <version>0.8.0</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
