@@ -578,6 +578,10 @@ public final class AnnotationProcessor extends AbstractProcessor {
                 private final boolean isModuleRef =
                         accessedElement().map(Tuple2::t2).filter(Utils::isType).isPresent();
 
+                @Getter(lazy = true)
+                private final boolean isNonNull =
+                        accessedElement().map(Tuple2::t2).filter(Utils::isAbstract).isPresent();
+
                 @Override
                 ExecutableType resolveMethodType() {
                     return (ExecutableType) types().asMemberOf(makeType(), methodElement());

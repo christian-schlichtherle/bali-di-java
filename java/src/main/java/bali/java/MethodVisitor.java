@@ -27,9 +27,9 @@ interface MethodVisitor {
     default Consumer<Output> visitAccessorMethod(AccessorMethod m, String in) {
         return visitDependencyField(m, in)
                 .andThen(visitMethodBegin(m, in))
-                .andThen(visitNullableCacheBegin(m, in))
+                .andThen(m.isNonNull() ? visitNonNullCacheBegin(m, in) : visitNullableCacheBegin(m, in))
                 .andThen(out -> out.ad(m.accessedElementRef()))
-                .andThen(visitNullableCacheEnd(m, in))
+                .andThen(m.isNonNull() ? visitNonNullCacheEnd(m, in) : visitNullableCacheEnd(m, in))
                 .andThen(visitMethodEnd(m, in));
     }
 
