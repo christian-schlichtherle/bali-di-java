@@ -367,6 +367,9 @@ public final class AnnotationProcessor extends AbstractProcessor {
             @Getter(lazy = true)
             private final String superElementRef = (isInterfaceType() ? classQualifiedName() + "." : "") + "super";
 
+            @Getter(lazy = true)
+            private final boolean isNonNull = isAbstract(methodElement());
+
             @Override
             public Consumer<Output> apply(MethodVisitor v) {
                 return v.visitProviderMethod(this);
