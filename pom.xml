@@ -29,7 +29,7 @@
     <packaging>pom</packaging>
 
     <name>Bali DI Parent</name>
-    <description>Bali DI is a code generator for dependency injection.</description>
+    <description>Bali DI is a Java code generator for dependency injection.</description>
 
     <url>https://github.com/christian-schlichtherle/bali-di</url>
     <inceptionYear>2021</inceptionYear>
@@ -55,6 +55,26 @@
         <module>sample</module>
     </modules>
 
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>net.alchim31.maven</groupId>
+                    <artifactId>scala-maven-plugin</artifactId>
+                    <configuration>
+                        <args>
+                            <arg>-deprecation</arg>
+                            <arg>-feature</arg>
+                            <arg>-unchecked</arg>
+                        </args>
+                        <compileOrder>JavaThenScala</compileOrder>
+                        <sendJavaToScalac>false</sendJavaToScalac>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+
     <profiles>
         <profile>
             <id>lint</id>
@@ -66,7 +86,6 @@
                             <configuration>
                                 <compilerArgs>
                                     <arg>-Xlint</arg>
-                                    <arg>-Xlint:unchecked</arg>
                                 </compilerArgs>
                             </configuration>
                         </plugin>
