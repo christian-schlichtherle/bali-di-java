@@ -19,17 +19,46 @@ final class Output {
 
     private final StringBuilder out = new StringBuilder();
 
+    private int indentation;
+    private boolean nl;
+
+    Output in() {
+        return in(1);
+    }
+
+    Output in(final int n) {
+        indentation += n;
+        return this;
+    }
+
+    Output out() {
+        return out(1);
+    }
+
+    Output out(final int n) {
+        indentation -= n;
+        return this;
+    }
+
     Output ad(Object obj) {
         return ad(String.valueOf(obj));
     }
 
-    Output ad(String str) {
+    Output ad(final String str) {
+        if (nl) {
+            nl = false;
+            for (int i = 0; i < indentation; i++) {
+                out.append("    ");
+            }
+        }
         out.append(str);
         return this;
     }
 
     Output nl() {
-        return ad("\n");
+        nl = true;
+        out.append('\n');
+        return this;
     }
 
     @Override

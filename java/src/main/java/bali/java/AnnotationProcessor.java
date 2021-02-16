@@ -126,7 +126,7 @@ public final class AnnotationProcessor extends AbstractProcessor {
     private void processCheckedTypeElement(final TypeElement e) {
         val out = new Output();
         save = true;
-        new ModuleType(e).accept(out); // may set save = false as side effect
+        new ModuleType(e).apply(new TypeVisitor()).accept(out); // may set save = false as side effect
         if (save) {
             try {
                 val jfo = getFiler().createSourceFile(getElements().getBinaryName(e) + "$", e);
@@ -266,7 +266,7 @@ public final class AnnotationProcessor extends AbstractProcessor {
 
     @RequiredArgsConstructor
     @Getter
-    final class ModuleType implements Consumer<Output> {
+    final class ModuleType implements Function<TypeVisitor, Consumer<Output>> {
 
         private final TypeElement typeElement;
 
@@ -324,11 +324,6 @@ public final class AnnotationProcessor extends AbstractProcessor {
             };
         }
 
-        @Override
-        public void accept(Output out) {
-            new TypeVisitor().visitModuleType(this).accept(out);
-        }
-
         String generated() {
             return String.format(Locale.ENGLISH,
                     "@javax.annotation.Generated(\n" +
@@ -338,6 +333,11 @@ public final class AnnotationProcessor extends AbstractProcessor {
                             ")",
                     round, RESOURCE_BUNDLE.getString("version"), OffsetDateTime.now(),
                     AnnotationProcessor.class.getName());
+        }
+
+        @Override
+        public Consumer<Output> apply(TypeVisitor v) {
+            return v.visitModuleType(this);
         }
 
         abstract class ModuleMethod extends Method {
@@ -593,8 +593,7 @@ public final class AnnotationProcessor extends AbstractProcessor {
 
                 @Override
                 public Consumer<Output> apply(MethodVisitor v) {
-                    return v.visitAccessorMethod(this,
-                            ModuleMethod.this.getMethodParameters().isEmpty() ? "        " : "            ");
+                    return v.visitAccessorMethod(this);
                 }
             }
         }

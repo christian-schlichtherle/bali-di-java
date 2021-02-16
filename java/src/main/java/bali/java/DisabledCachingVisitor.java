@@ -22,33 +22,33 @@ import java.util.function.Consumer;
 final class DisabledCachingVisitor implements MethodVisitor {
 
     @Override
-    public Consumer<Output> visitNonNullField(Method m, String in) {
-        return visitNullableField(m, in);
+    public Consumer<Output> visitNonNullField(Method m, String prefix) {
+        return visitNullableField(m, prefix);
     }
 
     @Override
-    public Consumer<Output> visitNonNullMethodBegin(Method m, String in) {
-        return visitNullableMethodBegin(m, in);
-    }
-
-    @Override
-    public Consumer<Output> visitNonNullMethodEnd(Method m, String in) {
-        return visitNullableMethodEnd(m, in);
-    }
-
-    @Override
-    public Consumer<Output> visitNullableField(Method m, String in) {
+    public Consumer<Output> visitNullableField(Method m, String prefix) {
         return out -> {
         };
     }
 
     @Override
-    public Consumer<Output> visitNullableMethodBegin(Method m, String in) {
-        return out -> out.ad(in).ad("    return ");
+    public Consumer<Output> visitNonNullMethodBegin(Method m) {
+        return visitNullableMethodBegin(m);
     }
 
     @Override
-    public Consumer<Output> visitNullableMethodEnd(Method m, String in) {
+    public Consumer<Output> visitNonNullMethodEnd(Method m) {
+        return visitNullableMethodEnd(m);
+    }
+
+    @Override
+    public Consumer<Output> visitNullableMethodBegin(Method m) {
+        return out -> out.ad("return ");
+    }
+
+    @Override
+    public Consumer<Output> visitNullableMethodEnd(Method m) {
         return out -> out.ad(";").nl();
     }
 }

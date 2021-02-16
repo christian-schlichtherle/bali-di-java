@@ -29,17 +29,18 @@ final class TypeVisitor {
                     .ad("/*").nl()
                     .ad(c.generated()).nl()
                     .ad("*/").nl()
-                    .ad(c.getTypeModifiers()).ad("class ").ad(c.getTypeSimpleName()).ad(c.getTypeParametersDecl().isEmpty() ? "$ " : "$").ad(c.getTypeParametersDecl()).ad(c.isInterfaceType() ? "implements " : "extends ").ad(c.getDeclaredType()).ad(" {").nl();
+                    .ad(c.getTypeModifiers()).ad("class ").ad(c.getTypeSimpleName()).ad(c.getTypeParametersDecl().isEmpty() ? "$ " : "$").ad(c.getTypeParametersDecl()).ad(c.isInterfaceType() ? "implements " : "extends ").ad(c.getDeclaredType()).ad(" {").nl()
+                    .in();
             if (!c.hasAbstractMethods()) {
                 out
                         .nl()
-                        .ad("    static ").ad(c.getTypeParametersDecl()).ad(c.getDeclaredType()).ad(" new$() {").nl()
-                        .ad("        return new ").ad(c.getTypeSimpleName()).ad("$() {").nl()
-                        .ad("        };").nl()
-                        .ad("    }").nl();
+                        .ad("static ").ad(c.getTypeParametersDecl()).ad(c.getDeclaredType()).ad(" new$() {").nl()
+                        .ad("    return new ").ad(c.getTypeSimpleName()).ad("$() {").nl()
+                        .ad("    };").nl()
+                        .ad("}").nl();
             }
             c.forAllModuleMethods().accept(out);
-            out.ad("}").nl();
+            out.out().ad("}").nl();
         };
     }
 }
