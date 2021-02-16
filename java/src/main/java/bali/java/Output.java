@@ -15,18 +15,9 @@
  */
 package bali.java;
 
-import bali.java.AnnotationProcessor.ModuleType.ProviderMethod;
-
-import java.util.AbstractMap.SimpleImmutableEntry;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Map.Entry;
-
 final class Output {
 
     private final StringBuilder out = new StringBuilder();
-    private final Map<String, Entry<ProviderMethod, String>> providerMethods = new LinkedHashMap<>();
-    private int counter;
 
     Output ad(Object obj) {
         return ad(String.valueOf(obj));
@@ -39,22 +30,6 @@ final class Output {
 
     Output nl() {
         return ad("\n");
-    }
-
-    public void forAllProviderMethods(TypeVisitor v) {
-        providerMethods
-                .values()
-                .forEach(entry -> v.visitProviderMethod(entry.getKey(), entry.getValue()).accept(this));
-    }
-
-    String makeTypeName(ProviderMethod m) {
-        final String name = m.getMakeType().toString();
-        return m.isMakeTypeAbstract()
-                ? providerMethods
-                .computeIfAbsent(name, k ->
-                        new SimpleImmutableEntry<>(m, m.getMakeSimpleName() + "$" + ++counter))
-                .getValue()
-                : name;
     }
 
     @Override

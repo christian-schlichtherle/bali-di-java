@@ -15,10 +15,9 @@
  */
 package bali.java;
 
-import bali.java.AnnotationProcessor.ModuleType.FactoryMethod;
+import bali.java.AnnotationProcessor.ModuleType.ModuleMethod;
 import bali.java.AnnotationProcessor.ModuleType.Method;
 import bali.java.AnnotationProcessor.ModuleType.ModuleMethod.AccessorMethod;
-import bali.java.AnnotationProcessor.ModuleType.ProviderMethod;
 
 import java.util.function.Consumer;
 
@@ -31,27 +30,20 @@ interface MethodVisitor {
                 .andThen(visitMethodEnd(m, in));
     }
 
-    default Consumer<Output> visitFactoryMethod(FactoryMethod m) {
-        return visitField(m, "    ")
-                .andThen(visitMethodBegin(m, "    "))
-                .andThen(out -> {
-                    out.ad("new ").ad(m.getMakeType()).ad("() {").nl();
-                    m.forAllAccessorMethods().accept(out);
-                    out.ad("        }");
-                })
-                .andThen(visitMethodEnd(m, "    "));
-    }
-
-    default Consumer<Output> visitProviderMethod(ProviderMethod m) {
+    default Consumer<Output> visitModuleMethod(ModuleMethod m) {
         return visitField(m, "    private ")
                 .andThen(visitMethodBegin(m, "    "))
                 .andThen(out -> {
                     if (m.isSuperRef()) {
-                        out.ad(m.getSuperElementRef()).ad(".").ad(m.getMethodName());
+                        out.ad(m.getSuperElementRef()).ad(".").ad(m.getMethodName()).ad("()");
                     } else {
-                        out.ad("new ").ad(out.makeTypeName(m));
+                        out.ad("new ").ad(m.getMakeType()).ad("()");
+                        if (m.isAbstractMakeType()) {
+                            out.ad(" {").nl();
+                            m.forAllAccessorMethods().accept(out);
+                            out.ad("        }");
+                        }
                     }
-                    out.ad("()");
                 })
                 .andThen(visitMethodEnd(m, "    "));
     }

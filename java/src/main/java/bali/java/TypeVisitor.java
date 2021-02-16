@@ -16,7 +16,6 @@
 package bali.java;
 
 import bali.java.AnnotationProcessor.ModuleType;
-import bali.java.AnnotationProcessor.ModuleType.ProviderMethod;
 
 import java.util.function.Consumer;
 
@@ -39,18 +38,8 @@ final class TypeVisitor {
                         .ad("        };").nl()
                         .ad("    }").nl();
             }
-            c.forAllModuleMethods(this).accept(out);
+            c.forAllModuleMethods().accept(out);
             out.ad("}").nl();
-        };
-    }
-
-    Consumer<Output> visitProviderMethod(ProviderMethod m, String makeTypeSimpleName) {
-        return out -> {
-            out
-                    .nl()
-                    .ad("    private final class ").ad(makeTypeSimpleName).ad(" ").ad(m.isMakeTypeInterface() ? "implements " : "extends ").ad(m.getMakeType()).ad(" {").nl();
-            m.forAllAccessorMethods().accept(out);
-            out.ad("    }").nl();
         };
     }
 }

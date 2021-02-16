@@ -303,33 +303,19 @@ public final class AnnotationProcessor extends AbstractProcessor {
         @Getter(lazy = true)
         private final String typeParametersDecl = typeParametersDecl(getTypeElement());
 
-        Consumer<Output> forAllModuleMethods(TypeVisitor v) {
-            return forAllModuleMethods0().andThen(out -> out.forAllProviderMethods(v));
-        }
-
-        Consumer<Output> forAllModuleMethods0() {
+        Consumer<Output> forAllModuleMethods() {
             return out -> filteredOverridableMethods(getTypeElement())
                     // HC SVNT DRACONES!
                     .filter(e -> !hasAnnotation(e, Lookup.class))
                     .filter(AnnotationProcessor.this::checkDeclaredReturnType)
-                    .map(e -> hasParameters(e)
-                            ? newFactoryMethod(e).apply(new DisabledCachingVisitor())
-                            : newProviderMethod(e).apply(methodVisitor(e)))
+                    .map(e -> newModuleMethod(e).apply(hasParameters(e)
+                            ? new DisabledCachingVisitor()
+                            : methodVisitor(e)))
                     .forEach(c -> c.accept(out));
         }
 
-        FactoryMethod newFactoryMethod(ExecutableElement e) {
-            return new FactoryMethod() {
-
-                @Override
-                ExecutableElement methodElement() {
-                    return e;
-                }
-            };
-        }
-
-        ProviderMethod newProviderMethod(ExecutableElement e) {
-            return new ProviderMethod() {
+        ModuleMethod newModuleMethod(ExecutableElement e) {
+            return new ModuleMethod() {
 
                 @Override
                 ExecutableElement methodElement() {
@@ -354,42 +340,21 @@ public final class AnnotationProcessor extends AbstractProcessor {
                     AnnotationProcessor.class.getName());
         }
 
-        abstract class FactoryMethod extends ModuleMethod {
-
-            @Override
-            boolean resolveIsNonNull() {
-                return true;
-            }
-
-            @Override
-            public Consumer<Output> apply(MethodVisitor v) {
-                return v.visitFactoryMethod(this);
-            }
-        }
-
-        abstract class ProviderMethod extends ModuleMethod {
+        abstract class ModuleMethod extends Method {
 
             @Getter(lazy = true)
             private final String superElementRef = (isInterfaceType() ? getTypeQualifiedName() + "." : "") + "super";
 
             @Override
-            boolean resolveIsNonNull() {
+            boolean resolveNonNull() {
                 return isAbstract(methodElement());
             }
 
-            @Override
-            public Consumer<Output> apply(MethodVisitor v) {
-                return v.visitProviderMethod(this);
-            }
-        }
-
-        abstract class ModuleMethod extends Method {
+            @Getter(lazy = true)
+            private final boolean abstractMakeType = isAbstract(getMakeElement());
 
             @Getter(lazy = true)
-            private final boolean makeTypeAbstract = isAbstract(getMakeElement());
-
-            @Getter(lazy = true)
-            private final boolean makeTypeInterface = isInterface(getMakeElement());
+            private final boolean interfaceMakeType = isInterface(getMakeElement());
 
             @Getter(lazy = true)
             private final TypeElement makeElement = typeElement(getMakeType());
@@ -485,6 +450,11 @@ public final class AnnotationProcessor extends AbstractProcessor {
                 };
             }
 
+            @Override
+            public Consumer<Output> apply(MethodVisitor v) {
+                return v.visitModuleMethod(this);
+            }
+
             abstract class AccessorMethod extends Method {
 
                 @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
@@ -550,9 +520,9 @@ public final class AnnotationProcessor extends AbstractProcessor {
                 }
 
                 @Getter(lazy = true)
-                private final boolean isCachingDisabled = resolveIsCachingDisabled();
+                private final boolean cachingDisabled = resolveCachingDisabled();
 
-                private boolean resolveIsCachingDisabled() {
+                private boolean resolveCachingDisabled() {
                     val element = getAccessedElement().map(Tuple2::getT2);
                     return isParameterRef()
                             || isModuleRef()
@@ -568,7 +538,7 @@ public final class AnnotationProcessor extends AbstractProcessor {
                         getAccessedElement().map(Tuple2::getT2).filter(Utils::isField).isPresent();
 
                 @Override
-                boolean resolveIsMethodRef() {
+                boolean resolveMethodRef() {
                     return getAccessedElement().map(Tuple2::getT2).filter(Utils::isMethod).isPresent();
                 }
 
@@ -589,7 +559,7 @@ public final class AnnotationProcessor extends AbstractProcessor {
                         getAccessedElement().map(Tuple2::getT2).filter(Utils::isType).isPresent();
 
                 @Override
-                boolean resolveIsNonNull() {
+                boolean resolveNonNull() {
                     return getAccessedElement().map(Tuple2::getT2).filter(Utils::isAbstract).isPresent();
                 }
 
@@ -632,16 +602,16 @@ public final class AnnotationProcessor extends AbstractProcessor {
         abstract class Method implements Function<MethodVisitor, Consumer<Output>> {
 
             @Getter(lazy = true)
-            private final boolean methodRef = resolveIsMethodRef();
+            private final boolean methodRef = resolveMethodRef();
 
-            boolean resolveIsMethodRef() {
+            boolean resolveMethodRef() {
                 return false;
             }
 
             @Getter(lazy = true)
-            private final boolean nonNull = resolveIsNonNull();
+            private final boolean nonNull = resolveNonNull();
 
-            abstract boolean resolveIsNonNull();
+            abstract boolean resolveNonNull();
 
             @Getter(lazy = true)
             private final boolean superRef = !isAbstract(methodElement());
