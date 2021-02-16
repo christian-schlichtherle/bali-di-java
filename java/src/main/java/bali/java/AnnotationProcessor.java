@@ -126,7 +126,7 @@ public final class AnnotationProcessor extends AbstractProcessor {
     private void processCheckedTypeElement(final TypeElement e) {
         val out = new Output();
         save = true;
-        new ModuleClass(e).accept(out); // may set save = false as side effect
+        new ModuleType(e).accept(out); // may set save = false as side effect
         if (save) {
             try {
                 val jfo = getFiler().createSourceFile(getElements().getBinaryName(e) + "$", e);
@@ -266,28 +266,28 @@ public final class AnnotationProcessor extends AbstractProcessor {
 
     @RequiredArgsConstructor
     @Getter
-    final class ModuleClass implements Consumer<Output> {
+    final class ModuleType implements Consumer<Output> {
 
-        private final TypeElement classElement;
-
-        @Getter(lazy = true)
-        private final ModifierSet classModifiers =
-                modifiersOf(getClassElement()).retain(PRIVATE_PROTECTED_PUBLIC).add(ABSTRACT);
+        private final TypeElement typeElement;
 
         @Getter(lazy = true)
-        private final Name classQualifiedName = getClassElement().getQualifiedName();
+        private final ModifierSet typeModifiers =
+                modifiersOf(getTypeElement()).retain(PRIVATE_PROTECTED_PUBLIC).add(ABSTRACT);
 
         @Getter(lazy = true)
-        private final Name classSimpleName = getClassElement().getSimpleName();
+        private final Name typeQualifiedName = getTypeElement().getQualifiedName();
 
         @Getter(lazy = true)
-        private final DeclaredType classType = (DeclaredType) getClassElement().asType();
+        private final Name typeSimpleName = getTypeElement().getSimpleName();
 
         @Getter(lazy = true)
-        private final boolean interfaceType = isInterface(getClassElement());
+        private final DeclaredType declaredType = (DeclaredType) getTypeElement().asType();
 
         @Getter(lazy = true)
-        private final PackageElement packageElement = getElements().getPackageOf(getClassElement());
+        private final boolean interfaceType = isInterface(getTypeElement());
+
+        @Getter(lazy = true)
+        private final PackageElement packageElement = getElements().getPackageOf(getTypeElement());
 
         @Getter(lazy = true)
         private final Name packageName = getPackageElement().getQualifiedName();
@@ -295,20 +295,20 @@ public final class AnnotationProcessor extends AbstractProcessor {
         @Accessors(fluent = true)
         @Getter(lazy = true)
         private final boolean hasAbstractMethods =
-                allOverridableMethods(getClassElement())
+                allOverridableMethods(getTypeElement())
                         .filter(Utils::isAbstract)
                         .anyMatch(e ->
                                 hasVoidReturnType(e) || hasAnnotation(e, Lookup.class) || !hasDeclaredReturnType(e));
 
         @Getter(lazy = true)
-        private final String classTypeParametersDecl = typeParametersDecl(getClassElement());
+        private final String typeParametersDecl = typeParametersDecl(getTypeElement());
 
-        Consumer<Output> forAllModuleMethods(ClassVisitor v) {
+        Consumer<Output> forAllModuleMethods(TypeVisitor v) {
             return forAllModuleMethods0().andThen(out -> out.forAllProviderMethods(v));
         }
 
         Consumer<Output> forAllModuleMethods0() {
-            return out -> filteredOverridableMethods(getClassElement())
+            return out -> filteredOverridableMethods(getTypeElement())
                     // HC SVNT DRACONES!
                     .filter(e -> !hasAnnotation(e, Lookup.class))
                     .filter(AnnotationProcessor.this::checkDeclaredReturnType)
@@ -340,7 +340,7 @@ public final class AnnotationProcessor extends AbstractProcessor {
 
         @Override
         public void accept(Output out) {
-            new ClassVisitor().visitModuleClass(this).accept(out);
+            new TypeVisitor().visitModuleType(this).accept(out);
         }
 
         String generated() {
@@ -370,7 +370,7 @@ public final class AnnotationProcessor extends AbstractProcessor {
         abstract class ProviderMethod extends ModuleMethod {
 
             @Getter(lazy = true)
-            private final String superElementRef = (isInterfaceType() ? getClassQualifiedName() + "." : "") + "super";
+            private final String superElementRef = (isInterfaceType() ? getTypeQualifiedName() + "." : "") + "super";
 
             @Override
             boolean resolveIsNonNull() {
@@ -495,9 +495,9 @@ public final class AnnotationProcessor extends AbstractProcessor {
                     if (isParameterRef() || isSuperRef()) {
                         return Optional.empty();
                     } else {
-                        val element = resolveAccessedElement(getClassElement());
+                        val element = resolveAccessedElement(getTypeElement());
                         if (!element.isPresent()) {
-                            warn("This module " + (isInterfaceType() ? "interface" : "class") + " is missing the dependency returned by ...", getClassElement());
+                            warn("This module " + (isInterfaceType() ? "interface" : "class") + " is missing the dependency returned by ...", getTypeElement());
                             warn("... this accessor method.", methodElement());
                         }
                         return element;
@@ -531,7 +531,7 @@ public final class AnnotationProcessor extends AbstractProcessor {
                             .findFirst();
                     return element.isPresent()
                             ? element
-                            : getTypes().isSubtype(getClassType(), getMethodReturnType())
+                            : getTypes().isSubtype(getDeclaredType(), getMethodReturnType())
                             ? Optional.of(new Tuple2<>(where, where))
                             : Optional.empty();
                 }
@@ -544,7 +544,7 @@ public final class AnnotationProcessor extends AbstractProcessor {
                             ? getModuleParamName().toString()
                             : isSuperRef()
                             ? (isInterface(getMakeElement()) ? getMakeQualifiedName() + "." : "") + "super." + getMethodName() + "()"
-                            : getAccessedElement().map(Tuple2::getT1).orElseGet(ModuleClass.this::getClassElement).getSimpleName()
+                            : getAccessedElement().map(Tuple2::getT1).orElseGet(ModuleType.this::getTypeElement).getSimpleName()
                             + (isStaticRef() ? "$" : "$.this")
                             + (isModuleRef() ? "" : "." + (isFieldRef() ? getModuleFieldName() + "" : getModuleMethodName() + "()"));
                 }
@@ -665,7 +665,7 @@ public final class AnnotationProcessor extends AbstractProcessor {
             private final ExecutableType methodType = resolveMethodType();
 
             ExecutableType resolveMethodType() {
-                return (ExecutableType) getTypes().asMemberOf(getClassType(), methodElement());
+                return (ExecutableType) getTypes().asMemberOf(getDeclaredType(), methodElement());
             }
 
             @Getter(lazy = true)

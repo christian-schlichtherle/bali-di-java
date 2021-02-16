@@ -15,14 +15,14 @@
  */
 package bali.java;
 
-import bali.java.AnnotationProcessor.ModuleClass;
-import bali.java.AnnotationProcessor.ModuleClass.ProviderMethod;
+import bali.java.AnnotationProcessor.ModuleType;
+import bali.java.AnnotationProcessor.ModuleType.ProviderMethod;
 
 import java.util.function.Consumer;
 
-final class ClassVisitor {
+final class TypeVisitor {
 
-    Consumer<Output> visitModuleClass(ModuleClass c) {
+    Consumer<Output> visitModuleType(ModuleType c) {
         return out -> {
             out
                     .ad("package ").ad(c.getPackageName()).ad(";").nl()
@@ -30,12 +30,12 @@ final class ClassVisitor {
                     .ad("/*").nl()
                     .ad(c.generated()).nl()
                     .ad("*/").nl()
-                    .ad(c.getClassModifiers()).ad("class ").ad(c.getClassSimpleName()).ad(c.getClassTypeParametersDecl().isEmpty() ? "$ " : "$").ad(c.getClassTypeParametersDecl()).ad(c.isInterfaceType() ? "implements " : "extends ").ad(c.getClassType()).ad(" {").nl();
+                    .ad(c.getTypeModifiers()).ad("class ").ad(c.getTypeSimpleName()).ad(c.getTypeParametersDecl().isEmpty() ? "$ " : "$").ad(c.getTypeParametersDecl()).ad(c.isInterfaceType() ? "implements " : "extends ").ad(c.getDeclaredType()).ad(" {").nl();
             if (!c.hasAbstractMethods()) {
                 out
                         .nl()
-                        .ad("    static ").ad(c.getClassTypeParametersDecl()).ad(c.getClassType()).ad(" new$() {").nl()
-                        .ad("        return new ").ad(c.getClassSimpleName()).ad("$() {").nl()
+                        .ad("    static ").ad(c.getTypeParametersDecl()).ad(c.getDeclaredType()).ad(" new$() {").nl()
+                        .ad("        return new ").ad(c.getTypeSimpleName()).ad("$() {").nl()
                         .ad("        };").nl()
                         .ad("    }").nl();
             }

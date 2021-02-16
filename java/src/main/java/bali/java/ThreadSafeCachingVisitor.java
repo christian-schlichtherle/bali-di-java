@@ -15,7 +15,7 @@
  */
 package bali.java;
 
-import bali.java.AnnotationProcessor.ModuleClass.Method;
+import bali.java.AnnotationProcessor.ModuleType.Method;
 
 import java.util.function.Consumer;
 

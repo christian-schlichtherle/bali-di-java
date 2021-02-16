@@ -15,7 +15,7 @@
  */
 package bali.java;
 
-import bali.java.AnnotationProcessor.ModuleClass.ProviderMethod;
+import bali.java.AnnotationProcessor.ModuleType.ProviderMethod;
 
 import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.LinkedHashMap;
@@ -41,7 +41,7 @@ final class Output {
         return ad("\n");
     }
 
-    public void forAllProviderMethods(ClassVisitor v) {
+    public void forAllProviderMethods(TypeVisitor v) {
         providerMethods
                 .values()
                 .forEach(entry -> v.visitProviderMethod(entry.getKey(), entry.getValue()).accept(this));

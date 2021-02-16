@@ -15,10 +15,10 @@
  */
 package bali.java;
 
-import bali.java.AnnotationProcessor.ModuleClass.FactoryMethod;
-import bali.java.AnnotationProcessor.ModuleClass.Method;
-import bali.java.AnnotationProcessor.ModuleClass.ModuleMethod.AccessorMethod;
-import bali.java.AnnotationProcessor.ModuleClass.ProviderMethod;
+import bali.java.AnnotationProcessor.ModuleType.FactoryMethod;
+import bali.java.AnnotationProcessor.ModuleType.Method;
+import bali.java.AnnotationProcessor.ModuleType.ModuleMethod.AccessorMethod;
+import bali.java.AnnotationProcessor.ModuleType.ProviderMethod;
 
 import java.util.function.Consumer;
 
