@@ -18,7 +18,6 @@ package bali.java;
 import lombok.Value;
 import lombok.experimental.Accessors;
 
-@Accessors(fluent = true)
 @Value
 class Tuple2<T1, T2> {
 

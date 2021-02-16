@@ -48,11 +48,11 @@ final class Output {
     }
 
     String makeTypeName(ProviderMethod m) {
-        final String name = m.makeType().toString();
+        final String name = m.getMakeType().toString();
         return m.isMakeTypeAbstract()
                 ? providerMethods
                 .computeIfAbsent(name, k ->
-                        new SimpleImmutableEntry<>(m, m.makeSimpleName() + "$" + ++counter))
+                        new SimpleImmutableEntry<>(m, m.getMakeSimpleName() + "$" + ++counter))
                 .getValue()
                 : name;
     }

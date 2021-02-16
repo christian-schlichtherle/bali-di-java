@@ -25,17 +25,17 @@ final class ClassVisitor {
     Consumer<Output> visitModuleClass(ModuleClass c) {
         return out -> {
             out
-                    .ad("package ").ad(c.packageName()).ad(";").nl()
+                    .ad("package ").ad(c.getPackageName()).ad(";").nl()
                     .nl()
                     .ad("/*").nl()
                     .ad(c.generated()).nl()
                     .ad("*/").nl()
-                    .ad(c.classModifiers()).ad("class ").ad(c.classSimpleName()).ad(c.classTypeParametersDecl().isEmpty() ? "$ " : "$").ad(c.classTypeParametersDecl()).ad(c.isInterfaceType() ? "implements " : "extends ").ad(c.classType()).ad(" {").nl();
+                    .ad(c.getClassModifiers()).ad("class ").ad(c.getClassSimpleName()).ad(c.getClassTypeParametersDecl().isEmpty() ? "$ " : "$").ad(c.getClassTypeParametersDecl()).ad(c.isInterfaceType() ? "implements " : "extends ").ad(c.getClassType()).ad(" {").nl();
             if (!c.hasAbstractMethods()) {
                 out
                         .nl()
-                        .ad("    static ").ad(c.classTypeParametersDecl()).ad(c.classType()).ad(" new$() {").nl()
-                        .ad("        return new ").ad(c.classSimpleName()).ad("$() {").nl()
+                        .ad("    static ").ad(c.getClassTypeParametersDecl()).ad(c.getClassType()).ad(" new$() {").nl()
+                        .ad("        return new ").ad(c.getClassSimpleName()).ad("$() {").nl()
                         .ad("        };").nl()
                         .ad("    }").nl();
             }
@@ -48,7 +48,7 @@ final class ClassVisitor {
         return out -> {
             out
                     .nl()
-                    .ad("    private final class ").ad(makeTypeSimpleName).ad(" ").ad(m.isMakeTypeInterface() ? "implements " : "extends ").ad(m.makeType()).ad(" {").nl();
+                    .ad("    private final class ").ad(makeTypeSimpleName).ad(" ").ad(m.isMakeTypeInterface() ? "implements " : "extends ").ad(m.getMakeType()).ad(" {").nl();
             m.forAllAccessorMethods().accept(out);
             out.ad("    }").nl();
         };

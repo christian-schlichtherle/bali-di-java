@@ -25,15 +25,15 @@ final class ThreadLocalCachingVisitor implements MethodVisitor {
     public Consumer<Output> visitNonNullField(Method m, String in) {
         return out -> out
                 .nl()
-                .ad(in).ad("final java.lang.ThreadLocal<").ad(m.methodReturnType()).ad("> ").ad(m.methodName()).ad(" = new java.lang.ThreadLocal<>();").nl();
+                .ad(in).ad("final java.lang.ThreadLocal<").ad(m.getMethodReturnType()).ad("> ").ad(m.getMethodName()).ad(" = new java.lang.ThreadLocal<>();").nl();
     }
 
     @Override
     public Consumer<Output> visitNonNullMethodBegin(Method m, String in) {
         return out -> out
-                .ad(in).ad("    ").ad(m.methodReturnType()).ad(" value;").nl()
-                .ad(in).ad("    if (null == (value = this.").ad(m.methodName()).ad(".get())) {").nl()
-                .ad(in).ad("        this.").ad(m.methodName()).ad(".set(value = ");
+                .ad(in).ad("    ").ad(m.getMethodReturnType()).ad(" value;").nl()
+                .ad(in).ad("    if (null == (value = this.").ad(m.getMethodName()).ad(".get())) {").nl()
+                .ad(in).ad("        this.").ad(m.getMethodName()).ad(".set(value = ");
     }
 
     @Override
@@ -48,22 +48,22 @@ final class ThreadLocalCachingVisitor implements MethodVisitor {
     public Consumer<Output> visitNullableField(Method m, String in) {
         return out -> out
                 .nl()
-                .ad(in).ad("final java.lang.ThreadLocal<java.util.function.Supplier<").ad(m.methodReturnType()).ad(">> ").ad(m.methodName()).ad(" = new java.lang.ThreadLocal<>();").nl();
+                .ad(in).ad("final java.lang.ThreadLocal<java.util.function.Supplier<").ad(m.getMethodReturnType()).ad(">> ").ad(m.getMethodName()).ad(" = new java.lang.ThreadLocal<>();").nl();
     }
 
     @Override
     public Consumer<Output> visitNullableMethodBegin(Method m, String in) {
         return out -> out
-                .ad(in).ad("    java.util.function.Supplier<").ad(m.methodReturnType()).ad("> supplier;").nl()
-                .ad(in).ad("    if (null == (supplier = this.").ad(m.methodName()).ad(".get())) {").nl()
-                .ad(in).ad("        final ").ad(m.methodReturnType()).ad(" value = ");
+                .ad(in).ad("    java.util.function.Supplier<").ad(m.getMethodReturnType()).ad("> supplier;").nl()
+                .ad(in).ad("    if (null == (supplier = this.").ad(m.getMethodName()).ad(".get())) {").nl()
+                .ad(in).ad("        final ").ad(m.getMethodReturnType()).ad(" value = ");
     }
 
     @Override
     public Consumer<Output> visitNullableMethodEnd(Method m, String in) {
         return out -> out
                 .ad(";").nl()
-                .ad(in).ad("        this.").ad(m.methodName()).ad(".set(supplier = () -> value);").nl()
+                .ad(in).ad("        this.").ad(m.getMethodName()).ad(".set(supplier = () -> value);").nl()
                 .ad(in).ad("    }").nl()
                 .ad(in).ad("    return supplier.get();").nl();
     }

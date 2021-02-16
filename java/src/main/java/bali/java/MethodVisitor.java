@@ -27,7 +27,7 @@ interface MethodVisitor {
     default Consumer<Output> visitAccessorMethod(AccessorMethod m, String in) {
         return visitField(m, in)
                 .andThen(visitMethodBegin(m, in))
-                .andThen(out -> out.ad(m.accessedElementRef()))
+                .andThen(out -> out.ad(m.getAccessedElementRef()))
                 .andThen(visitMethodEnd(m, in));
     }
 
@@ -35,7 +35,7 @@ interface MethodVisitor {
         return visitField(m, "    ")
                 .andThen(visitMethodBegin(m, "    "))
                 .andThen(out -> {
-                    out.ad("new ").ad(m.makeType()).ad("() {").nl();
+                    out.ad("new ").ad(m.getMakeType()).ad("() {").nl();
                     m.forAllAccessorMethods().accept(out);
                     out.ad("        }");
                 })
@@ -47,7 +47,7 @@ interface MethodVisitor {
                 .andThen(visitMethodBegin(m, "    "))
                 .andThen(out -> {
                     if (m.isSuperRef()) {
-                        out.ad(m.superElementRef()).ad(".").ad(m.methodName());
+                        out.ad(m.getSuperElementRef()).ad(".").ad(m.getMethodName());
                     } else {
                         out.ad("new ").ad(out.makeTypeName(m));
                     }
@@ -73,7 +73,7 @@ interface MethodVisitor {
         return out -> out
                 .nl()
                 .ad(in).ad("@Override").nl()
-                .ad(in).ad(m.methodModifiers()).ad(m.methodTypeParametersDecl()).ad(m.methodReturnType()).ad(" ").ad(m.methodName()).ad("(").ad(m.methodParametersDecl()).ad(") ").ad(m.methodThrownTypesDecl()).ad("{").nl();
+                .ad(in).ad(m.getMethodModifiers()).ad(m.getMethodTypeParametersDecl()).ad(m.getMethodReturnType()).ad(" ").ad(m.getMethodName()).ad("(").ad(m.getMethodParametersDecl()).ad(") ").ad(m.getMethodThrownTypesDecl()).ad("{").nl();
     }
 
     Consumer<Output> visitNonNullMethodBegin(Method m, String in);
