@@ -513,7 +513,7 @@ public final class AnnotationProcessor extends AbstractProcessor {
                     return isParameterRef()
                             ? getModuleParamName().toString()
                             : isSuperRef()
-                            ? (isInterface(getMakeElement()) ? getMakeQualifiedName() + "." : "") + "super." + getMethodName() + "()"
+                            ? (isInterfaceMakeType() ? getMakeQualifiedName() + "." : "") + "super." + getMethodName() + "()"
                             : getAccessedElement().map(Tuple2::getT1).orElseGet(ModuleType.this::getTypeElement).getSimpleName()
                             + (isStaticRef() ? "$" : "$.this")
                             + (isModuleRef() ? "" : "." + (isFieldRef() ? getModuleFieldName() + "" : getModuleMethodName() + "()"));
