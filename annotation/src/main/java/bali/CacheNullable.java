@@ -13,32 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package bali.sample.cache;
+package bali;
 
-import bali.Cache;
-import bali.Module;
+import java.lang.annotation.Target;
 
-import java.util.Date;
+import static java.lang.annotation.ElementType.METHOD;
 
-import static bali.CachingStrategy.*;
+/**
+ * @see Cache Caching of non-{@code null} method return values.
+ */
+@Target(METHOD)
+public @interface CacheNullable {
 
-@Cache // == @Cache(THREAD_SAFE)
-@Module
-public interface CacheModule {
-
-    @Cache(DISABLED)
-    Date disabled();
-
-    @Cache(NOT_THREAD_SAFE)
-    Date notThreadSafe();
-
-    Date threadSafe();
-
-    @Cache(THREAD_LOCAL)
-    Date threadLocal();
-
-    @Cache
-    default Date fixed() {
-        return new Date();
-    }
+    CachingStrategy value() default CachingStrategy.THREAD_SAFE;
 }

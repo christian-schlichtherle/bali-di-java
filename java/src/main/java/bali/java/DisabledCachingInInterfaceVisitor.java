@@ -29,7 +29,7 @@ final class DisabledCachingInInterfaceVisitor extends DisabledCachingInClassVisi
         return out -> {
             out.nl();
             if (m.getCachingStrategy() != DISABLED) {
-                out.ad("@bali.Cache(").ad("nonNull = ").ad(m.isNonNull()).ad(", value = ").ad(CACHING_STRATEGY_CLASSNAME).ad(".").ad(m.getCachingStrategy()).ad(")").nl();
+                out.ad("@bali.Cache").ad(m.isNullable() ? "Nullable" : "").ad("(").ad(CACHING_STRATEGY_CLASSNAME).ad(".").ad(m.getCachingStrategy()).ad(")").nl();
             }
             out
                     .ad("@Override").nl()

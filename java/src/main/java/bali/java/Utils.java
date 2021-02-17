@@ -16,6 +16,7 @@
 package bali.java;
 
 import bali.Cache;
+import bali.CacheNullable;
 import bali.CachingStrategy;
 import bali.Module;
 
@@ -27,6 +28,8 @@ import java.util.Collection;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.ResourceBundle;
+import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -48,12 +51,36 @@ final class Utils {
 
     private static final String VOID_CLASSNAME = Void.class.getName();
 
-    static CachingStrategy cachingStrategy(final Element e) {
-        Optional<Cache> cache = getAnnotation(e, Cache.class);
-        if (!cache.isPresent() && e.getModifiers().contains(Modifier.ABSTRACT)) {
-            cache = Optional.ofNullable(e.getEnclosingElement()).flatMap(e2 -> getAnnotation(e2, Cache.class));
-        }
-        return cache.map(Cache::value).orElse(DISABLED);
+    private static final Function<Element, Optional<CachingStrategy>>
+            nullableExtractor = extractor(CacheNullable.class, CacheNullable::value);
+
+    private static final Function<Element, Optional<CachingStrategy>>
+            nonNullExtractor = extractor(Cache.class, Cache::value);
+
+    static CachingStrategy cachingStrategy(Element e) {
+        return Stream
+                .of(nullableExtractor, nonNullExtractor)
+                .map(f -> f.apply(e))
+                .filter(Optional::isPresent)
+                .limit(1)
+                .map(Optional::get)
+                .findFirst()
+                .orElse(DISABLED);
+    }
+
+    private static <A extends Annotation> Function<Element, Optional<CachingStrategy>> extractor(
+            Class<A> klass,
+            Function<? super A, CachingStrategy> func
+    ) {
+        return element -> {
+            Optional<A> optAnnotation = getAnnotation(element, klass);
+            if (!optAnnotation.isPresent() && element.getModifiers().contains(Modifier.ABSTRACT)) {
+                optAnnotation = Optional
+                        .ofNullable(element.getEnclosingElement())
+                        .flatMap(enclElement -> getAnnotation(enclElement, klass));
+            }
+            return optAnnotation.map(func);
+        };
     }
 
     static <A extends Annotation> Optional<A> getAnnotation(AnnotatedConstruct c, Class<A> k) {
@@ -81,7 +108,10 @@ final class Utils {
     }
 
     static boolean isCaching(Element e) {
-        return getAnnotation(e, Cache.class).filter(c -> !DISABLED.equals(c.value())).isPresent();
+        return Stream.<Supplier<Optional<CachingStrategy>>>of(
+                () -> getAnnotation(e, CacheNullable.class).map(CacheNullable::value),
+                () -> getAnnotation(e, Cache.class).map(Cache::value)
+        ).anyMatch(supplier -> supplier.get().filter(strategy -> strategy != DISABLED).isPresent());
     }
 
     static boolean isField(Element e) {

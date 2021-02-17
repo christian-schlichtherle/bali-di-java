@@ -448,9 +448,8 @@ public final class AnnotationProcessor extends AbstractProcessor {
             }
 
             @Override
-            boolean resolveNonNull() {
-                return isAbstract(methodElement()) ||
-                        getAnnotation(methodElement(), Cache.class).filter(Cache::nonNull).isPresent();
+            boolean resolveNullable() {
+                return !isAbstract(methodElement()) && getAnnotation(methodElement(), CacheNullable.class).isPresent();
             }
 
             @Getter(lazy = true)
@@ -582,8 +581,10 @@ public final class AnnotationProcessor extends AbstractProcessor {
                         getAccessedElement().map(Tuple2::getT2).filter(Utils::isType).isPresent();
 
                 @Override
-                boolean resolveNonNull() {
-                    return getAccessedElement().map(Tuple2::getT2).filter(Utils::isAbstract).isPresent();
+                boolean resolveNullable() {
+                    val element = getAccessedElement().map(Tuple2::getT2);
+                    return !element.filter(Utils::isAbstract).isPresent() &&
+                            element.flatMap(e -> getAnnotation(e, CacheNullable.class)).isPresent();
                 }
 
                 @Override
@@ -633,9 +634,9 @@ public final class AnnotationProcessor extends AbstractProcessor {
             }
 
             @Getter(lazy = true)
-            private final boolean nonNull = resolveNonNull();
+            private final boolean nullable = resolveNullable();
 
-            abstract boolean resolveNonNull();
+            abstract boolean resolveNullable();
 
             @Getter(lazy = true)
             private final boolean superRef = !isAbstract(methodElement());

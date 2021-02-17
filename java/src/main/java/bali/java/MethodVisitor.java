@@ -51,7 +51,7 @@ interface MethodVisitor {
     }
 
     default Consumer<Output> visitField(Method m, String prefix) {
-        return m.isNonNull() ? visitNonNullField(m, prefix) : visitNullableField(m, prefix);
+        return m.isNullable() ? visitNullableField(m, prefix) : visitNonNullField(m, prefix);
     }
 
     Consumer<Output> visitNonNullField(Method m, String prefix);
@@ -60,7 +60,7 @@ interface MethodVisitor {
 
     default Consumer<Output> visitMethodBegin(Method m) {
         return visitMethodBegin0(m)
-                .andThen(m.isNonNull() ? visitNonNullMethodBegin(m) : visitNullableMethodBegin(m));
+                .andThen(m.isNullable() ? visitNullableMethodBegin(m) : visitNonNullMethodBegin(m));
     }
 
     default Consumer<Output> visitMethodBegin0(Method m) {
@@ -72,7 +72,7 @@ interface MethodVisitor {
     }
 
     default Consumer<Output> visitMethodEnd(Method m) {
-        return (m.isNonNull() ? visitNonNullMethodEnd(m) : visitNullableMethodEnd(m))
+        return (m.isNullable() ? visitNullableMethodEnd(m) : visitNonNullMethodEnd(m))
                 .andThen(visitMethodEnd0(m));
     }
 

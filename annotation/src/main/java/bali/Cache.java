@@ -20,10 +20,11 @@ import java.lang.annotation.Target;
 import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.ElementType.TYPE;
 
+/**
+ * @see CacheNullable Caching of {@code null}able method return values.
+ */
 @Target({TYPE, METHOD})
 public @interface Cache {
-
-    boolean nonNull() default false;
 
     CachingStrategy value() default CachingStrategy.THREAD_SAFE;
 }
