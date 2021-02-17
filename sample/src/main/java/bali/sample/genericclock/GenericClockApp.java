@@ -29,7 +29,7 @@ public interface GenericClockApp {
     @Cache
     Callable<Date> clock();
 
-    Date call() throws Exception;
+    Date call();
 
     default void run() throws Exception {
         out.printf("It is now %s.\n", clock().call());
