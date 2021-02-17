@@ -157,7 +157,7 @@ package bali.sample.genericclock;
 
 /*
 @javax.annotation.Generated(
-    comments = "round=1, version=0.9.0-SNAPSHOT",
+    comments = "round=1, version=0.9.0",
     date = "2021-02-17T17:10:20.137+01:00",
     value = "bali.java.AnnotationProcessor"
 )
@@ -196,7 +196,7 @@ package bali.sample.genericclock;
 
 /*
 @javax.annotation.Generated(
-    comments = "round=1, version=0.9.0-SNAPSHOT",
+    comments = "round=1, version=0.9.0",
     date = "2021-02-17T17:10:20.150+01:00",
     value = "bali.java.AnnotationProcessor"
 )
@@ -237,9 +237,8 @@ You may recognize that the generated code is a blend of the following design pat
 <dd>The interface <code>Callable&lt;T&gt;</code> defines the template method <code>T call() throws Exception</code> to
     return a completely generic instance <code>T</code>, whereby it may terminate with an exception instead of a result.
 <dt>Mediator
-<dd>The anonymous inner class <code>Callable$1</code> holds an implicit reference to its enclosing module interface
-    <code>GenericClockApp$</code>.
-    It uses this reference to obtain the current Date by calling the method <code>Date call()</code> in the module
+<dd>The anonymous inner class <code>new Callable<>() { /* ... */ }</code> uses a reference to its enclosing module interface
+    <code>GenericClockApp$.this</code> to obtain the current Date by calling the method <code>Date call()</code> in the module
     interface.
 </dl>
 
