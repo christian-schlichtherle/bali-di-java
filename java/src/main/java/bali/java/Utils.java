@@ -44,18 +44,16 @@ final class Utils {
 
     static final ModifierSet PRIVATE_PROTECTED_PUBLIC = ModifierSet.of(Modifier.PRIVATE, Modifier.PROTECTED, Modifier.PUBLIC);
 
-    static final ModifierSet STATIC = ModifierSet.of(Modifier.STATIC);
-
     private static final String OBJECT_CLASSNAME = Object.class.getName();
 
     private static final String VOID_CLASSNAME = Void.class.getName();
 
-    static Optional<CachingStrategy> cachingStrategy(final Element e) {
+    static CachingStrategy cachingStrategy(final Element e) {
         Optional<Cache> cache = getAnnotation(e, Cache.class);
         if (!cache.isPresent() && e.getModifiers().contains(Modifier.ABSTRACT)) {
             cache = Optional.ofNullable(e.getEnclosingElement()).flatMap(e2 -> getAnnotation(e2, Cache.class));
         }
-        return cache.map(Cache::value);
+        return cache.map(Cache::value).orElse(DISABLED);
     }
 
     static <A extends Annotation> Optional<A> getAnnotation(AnnotatedConstruct c, Class<A> k) {
@@ -126,7 +124,11 @@ final class Utils {
         return ModifierSet.of(e.getModifiers());
     }
 
-    static String moduleImplementationName(TypeElement e) {
+    static String moduleClassName(TypeElement e) {
+        return moduleInterfaceName(e) + "$";
+    }
+
+    static String moduleInterfaceName(TypeElement e) {
         return e.getQualifiedName() + "$";
     }
 

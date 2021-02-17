@@ -25,15 +25,15 @@ class ModularAppSpec extends AnyWordSpec {
     import app._
 
     "cache the formatter" in {
-      formatter shouldBe theSameInstanceAs(formatter)
+      getFormatter shouldBe theSameInstanceAs(getFormatter)
     }
 
     "cache the greeting" in {
-      greeting shouldBe theSameInstanceAs(greeting)
+      getGreeting shouldBe theSameInstanceAs(getGreeting)
     }
 
     "produce 'Hello world!'" in {
-      greeting.message("world") shouldBe "Hello world!"
+      getGreeting.message("world") shouldBe "Hello world!"
     }
   }
 }

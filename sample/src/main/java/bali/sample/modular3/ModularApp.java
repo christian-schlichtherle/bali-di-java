@@ -13,21 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package bali.sample.modular2.greeting;
+package bali.sample.modular3;
 
 import bali.Cache;
-import bali.Lookup;
-import bali.Make;
 import bali.Module;
-import bali.sample.modular2.formatter.Formatter;
+import bali.sample.modular3.main.MainModule$;
+
+import static java.lang.System.out;
 
 @Cache
 @Module
-public interface GreetingModule {
+public interface ModularApp extends MainModule$, Runnable {
 
-    @Lookup
-    Formatter getFormatter();
+    @Override
+    default void run() {
+        out.println(getGreeting().message("world"));
+    }
 
-    @Make(RealGreeting.class)
-    Greeting getGreeting();
+    static void main(String... args) {
+        ModularApp$.new$().run();
+    }
 }

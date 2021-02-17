@@ -19,7 +19,7 @@ import bali.Lookup;
 
 interface RealFormatter extends Formatter {
 
-    @Lookup("format")
+    @Lookup(field = "FORMAT")
     String getFormat();
 
     @Override

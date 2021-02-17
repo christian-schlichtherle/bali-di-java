@@ -19,9 +19,11 @@ import bali.java.AnnotationProcessor.ModuleType;
 
 import java.util.function.Consumer;
 
+import static bali.java.Utils.ABSTRACT;
+
 final class TypeVisitor {
 
-    Consumer<Output> visitModuleType(ModuleType c) {
+    public Consumer<Output> visitModuleInterface(ModuleType c) {
         return out -> {
             out
                     .ad("package ").ad(c.getPackageName()).ad(";").nl()
@@ -29,17 +31,32 @@ final class TypeVisitor {
                     .ad("/*").nl()
                     .ad(c.generated()).nl()
                     .ad("*/").nl()
-                    .ad(c.getTypeModifiers()).ad("class ").ad(c.getTypeSimpleName()).ad(c.getTypeParametersDecl().isEmpty() ? "$ " : "$").ad(c.getTypeParametersDecl()).ad(c.isInterfaceType() ? "implements " : "extends ").ad(c.getDeclaredType()).ad(" {").nl()
+                    .ad(c.getTypeModifiers()).ad("interface ").ad(c.getTypeSimpleName()).ad(c.getTypeParametersDecl().isEmpty() ? "$ " : "$").ad(c.getTypeParametersDecl()).ad("extends ").ad(c.getDeclaredType()).ad(" {").nl()
                     .in();
             if (!c.hasAbstractMethods()) {
                 out
                         .nl()
                         .ad("static ").ad(c.getTypeParametersDecl()).ad(c.getDeclaredType()).ad(" new$() {").nl()
-                        .ad("    return new ").ad(c.getTypeSimpleName()).ad("$() {").nl()
+                        .ad("    return new ").ad(c.getTypeSimpleName()).ad("$$() {").nl()
                         .ad("    };").nl()
                         .ad("}").nl();
             }
-            c.forAllModuleMethods().accept(out);
+            c.forAllModuleMethodsInInterface().accept(out);
+            out.out().ad("}").nl();
+        };
+    }
+
+    public Consumer<Output> visitModuleClass(ModuleType c) {
+        return out -> {
+            out
+                    .ad("package ").ad(c.getPackageName()).ad(";").nl()
+                    .nl()
+                    .ad("/*").nl()
+                    .ad(c.generated()).nl()
+                    .ad("*/").nl()
+                    .ad(c.getTypeModifiers()).ad("abstract class ").ad(c.getTypeSimpleName()).ad(c.getTypeParametersDecl().isEmpty() ? "$$ " : "$$").ad(c.getTypeParametersDecl()).ad("implements ").ad(c.getTypeSimpleName()).ad(c.getTypeParametersDecl().isEmpty() ? "$ " : "$").ad(c.getTypeParametersDecl()).ad("{").nl()
+                    .in();
+            c.forAllModuleMethodsInClass().accept(out);
             out.out().ad("}").nl();
         };
     }

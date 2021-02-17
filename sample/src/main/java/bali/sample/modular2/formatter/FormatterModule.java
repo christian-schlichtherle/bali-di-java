@@ -24,9 +24,9 @@ import bali.Module;
 @Module
 public interface FormatterModule {
 
-    @Lookup(field = "FORMAT")
-    String format();
+    @Lookup
+    String getFormat();
 
     @Make(RealFormatter.class)
-    Formatter formatter();
+    Formatter getFormatter();
 }

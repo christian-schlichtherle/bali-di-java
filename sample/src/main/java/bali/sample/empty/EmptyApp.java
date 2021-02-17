@@ -20,14 +20,14 @@ import bali.Module;
 import static java.lang.System.out;
 
 @Module
-public class EmptyApp implements Runnable {
+public interface EmptyApp extends Runnable {
 
     @Override
-    public void run() {
+    default void run() {
         out.println("Hello world!");
     }
 
-    public static void main(String... args) {
+    static void main(String... args) {
         EmptyApp$.new$().run();
     }
 }

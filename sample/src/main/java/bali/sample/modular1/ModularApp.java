@@ -28,7 +28,7 @@ public interface ModularApp extends FormatterModule, GreetingModule, Runnable {
 
     @Override
     default void run() {
-        out.println(greeting().message("world"));
+        out.println(getGreeting().message("world"));
     }
 
     static void main(String... args) {

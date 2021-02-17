@@ -23,11 +23,11 @@ import static java.lang.System.out;
 
 @Cache
 @Module
-public abstract class ModularApp extends MainModule$ implements Runnable {
+public interface ModularApp extends MainModule$, Runnable {
 
     @Override
-    public void run() {
-        out.println(greeting().message("world"));
+    default void run() {
+        out.println(getGreeting().message("world"));
     }
 
     static void main(String... args) {

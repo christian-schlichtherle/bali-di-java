@@ -22,5 +22,5 @@ public interface FormatterModule {
 
     @Cache
     @Make(RealFormatter.class)
-    Formatter formatter();
+    Formatter getFormatter();
 }

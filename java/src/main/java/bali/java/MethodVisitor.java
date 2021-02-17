@@ -23,28 +23,30 @@ import java.util.function.Consumer;
 
 interface MethodVisitor {
 
+    default Consumer<Output> visitModuleMethodInInterface(ModuleMethod m) {
+        return visitMethodBegin(m)
+                .andThen(out -> {
+                    out.ad("new ").ad(m.getMakeType()).ad("()");
+                    if (m.isAbstractMakeType()) {
+                        out.ad(" {").nl().in();
+                        m.forAllAccessorMethods().accept(out);
+                        out.out().ad("}");
+                    }
+                })
+                .andThen(visitMethodEnd(m));
+    }
+
+    default Consumer<Output> visitModuleMethodInClass(ModuleMethod m) {
+        return visitField(m, "private ")
+                .andThen(visitMethodBegin(m))
+                .andThen(out -> out.ad(m.getSuperRef()).ad(".").ad(m.getMethodName()).ad("()"))
+                .andThen(visitMethodEnd(m));
+    }
+
     default Consumer<Output> visitAccessorMethod(AccessorMethod m) {
         return visitField(m, "")
                 .andThen(visitMethodBegin(m))
                 .andThen(out -> out.ad(m.getAccessedElementRef()))
-                .andThen(visitMethodEnd(m));
-    }
-
-    default Consumer<Output> visitModuleMethod(ModuleMethod m) {
-        return visitField(m, "private ")
-                .andThen(visitMethodBegin(m))
-                .andThen(out -> {
-                    if (m.isSuperRef()) {
-                        out.ad(m.getSuperElementRef()).ad(".").ad(m.getMethodName()).ad("()");
-                    } else {
-                        out.ad("new ").ad(m.getMakeType()).ad("()");
-                        if (m.isAbstractMakeType()) {
-                            out.ad(" {").nl().in();
-                            m.forAllAccessorMethods().accept(out);
-                            out.out().ad("}");
-                        }
-                    }
-                })
                 .andThen(visitMethodEnd(m));
     }
 
@@ -69,10 +71,6 @@ interface MethodVisitor {
                 .in();
     }
 
-    Consumer<Output> visitNonNullMethodBegin(Method m);
-
-    Consumer<Output> visitNullableMethodBegin(Method m);
-
     default Consumer<Output> visitMethodEnd(Method m) {
         return (m.isNonNull() ? visitNonNullMethodEnd(m) : visitNullableMethodEnd(m))
                 .andThen(visitMethodEnd0(m));
@@ -82,7 +80,11 @@ interface MethodVisitor {
         return out -> out.out().ad("}").nl();
     }
 
+    Consumer<Output> visitNonNullMethodBegin(Method m);
+
     Consumer<Output> visitNonNullMethodEnd(Method m);
+
+    Consumer<Output> visitNullableMethodBegin(Method m);
 
     Consumer<Output> visitNullableMethodEnd(Method m);
 }

@@ -19,7 +19,7 @@ import bali.java.AnnotationProcessor.ModuleType.Method;
 
 import java.util.function.Consumer;
 
-final class DisabledCachingVisitor implements MethodVisitor {
+class DisabledCachingInClassVisitor implements MethodVisitor {
 
     @Override
     public Consumer<Output> visitNonNullField(Method m, String prefix) {

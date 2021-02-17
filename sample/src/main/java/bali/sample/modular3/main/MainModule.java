@@ -13,21 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package bali.sample.modular2.greeting;
+package bali.sample.modular3.main;
 
 import bali.Cache;
-import bali.Lookup;
-import bali.Make;
 import bali.Module;
-import bali.sample.modular2.formatter.Formatter;
+import bali.sample.modular3.formatter.Formatter;
+import bali.sample.modular3.formatter.FormatterModule;
+import bali.sample.modular3.greeting.Greeting;
+import bali.sample.modular3.greeting.GreetingModule;
 
 @Cache
 @Module
-public interface GreetingModule {
+public interface MainModule {
 
-    @Lookup
-    Formatter getFormatter();
+    String FORMAT = "Hello %s!";
 
-    @Make(RealGreeting.class)
-    Greeting getGreeting();
+    default Formatter getFormatter() {
+        return getFormatterModule().getFormatter();
+    }
+
+    FormatterModule getFormatterModule();
+
+    default Greeting getGreeting() {
+        return getGreetingModule().getGreeting();
+    }
+
+    GreetingModule getGreetingModule();
 }

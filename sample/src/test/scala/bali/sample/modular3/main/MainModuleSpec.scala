@@ -13,21 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package bali.sample.modular2.greeting;
+package bali.sample.modular3.main
 
-import bali.Cache;
-import bali.Lookup;
-import bali.Make;
-import bali.Module;
-import bali.sample.modular2.formatter.Formatter;
+import org.scalatest.matchers.should.Matchers._
+import org.scalatest.wordspec.AnyWordSpec
 
-@Cache
-@Module
-public interface GreetingModule {
+class MainModuleSpec extends AnyWordSpec {
 
-    @Lookup
-    Formatter getFormatter();
+  "The main module" should {
+    val module = MainModule$.new$
+    import module._
 
-    @Make(RealGreeting.class)
-    Greeting getGreeting();
+    "cache the formatter" in {
+      getFormatter shouldBe theSameInstanceAs(getFormatter)
+    }
+
+    "cache the greeting" in {
+      getGreeting shouldBe theSameInstanceAs(getGreeting)
+    }
+
+    "produce 'Hello world!'" in {
+      getGreeting.message("world") shouldBe "Hello world!"
+    }
+  }
 }

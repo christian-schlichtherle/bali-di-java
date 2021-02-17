@@ -19,10 +19,10 @@ import bali.sample.modular2.formatter.Formatter;
 
 interface RealGreeting extends Greeting {
 
-    Formatter formatter();
+    Formatter getFormatter();
 
     @Override
     default String message(String entity) {
-        return formatter().format(entity);
+        return getFormatter().format(entity);
     }
 }

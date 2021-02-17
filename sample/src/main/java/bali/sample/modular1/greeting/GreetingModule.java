@@ -22,5 +22,5 @@ public interface GreetingModule {
 
     @Cache
     @Make(RealGreeting.class)
-    Greeting greeting();
+    Greeting getGreeting();
 }

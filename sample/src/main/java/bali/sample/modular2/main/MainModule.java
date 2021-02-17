@@ -18,25 +18,28 @@ package bali.sample.modular2.main;
 import bali.Cache;
 import bali.Module;
 import bali.sample.modular2.formatter.Formatter;
-import bali.sample.modular2.formatter.FormatterModule;
+import bali.sample.modular2.formatter.FormatterModule$;
 import bali.sample.modular2.greeting.Greeting;
-import bali.sample.modular2.greeting.GreetingModule;
+import bali.sample.modular2.greeting.GreetingModule$;
 
-@Cache
 @Module
-public interface MainModule {
+public interface MainModule extends FormatterModule$, GreetingModule$ {
 
-    String FORMAT = "Hello %s!";
-
-    default Formatter formatter() {
-        return formatterModule().formatter();
+    @Cache
+    @Override
+    default String getFormat() {
+        return "Hello %s!";
     }
 
-    FormatterModule formatterModule();
-
-    default Greeting greeting() {
-        return greetingModule().greeting();
+    @Cache
+    @Override
+    default Formatter getFormatter() {
+        return FormatterModule$.super.getFormatter();
     }
 
-    GreetingModule greetingModule();
+    @Cache
+    @Override
+    default Greeting getGreeting() {
+        return GreetingModule$.super.getGreeting();
+    }
 }
