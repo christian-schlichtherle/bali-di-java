@@ -37,7 +37,7 @@ public interface CacheModule {
     @Cache(THREAD_LOCAL)
     Date threadLocal();
 
-    @Cache
+    @Cache(nonNull = true)
     default Date fixed() {
         return new Date();
     }

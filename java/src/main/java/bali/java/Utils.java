@@ -44,6 +44,8 @@ final class Utils {
 
     static final ModifierSet PRIVATE_PROTECTED_PUBLIC = ModifierSet.of(Modifier.PRIVATE, Modifier.PROTECTED, Modifier.PUBLIC);
 
+    static final String CACHING_STRATEGY_CLASSNAME = CachingStrategy.class.getName();
+
     private static final String OBJECT_CLASSNAME = Object.class.getName();
 
     private static final String VOID_CLASSNAME = Void.class.getName();

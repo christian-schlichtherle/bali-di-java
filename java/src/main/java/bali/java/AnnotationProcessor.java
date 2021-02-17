@@ -15,10 +15,7 @@
  */
 package bali.java;
 
-import bali.CachingStrategy;
-import bali.Lookup;
-import bali.Make;
-import bali.Module;
+import bali.*;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.Accessors;
@@ -443,7 +440,8 @@ public final class AnnotationProcessor extends AbstractProcessor {
 
             @Override
             boolean resolveNonNull() {
-                return isAbstract(methodElement());
+                return isAbstract(methodElement()) ||
+                        getAnnotation(methodElement(), Cache.class).filter(Cache::nonNull).isPresent();
             }
 
             @Getter(lazy = true)

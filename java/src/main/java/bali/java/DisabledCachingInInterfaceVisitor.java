@@ -16,27 +16,22 @@
 package bali.java;
 
 import bali.java.AnnotationProcessor.ModuleType.Method;
-import lombok.val;
 
 import java.util.function.Consumer;
 
 import static bali.CachingStrategy.DISABLED;
-import static bali.CachingStrategy.THREAD_SAFE;
+import static bali.java.Utils.CACHING_STRATEGY_CLASSNAME;
 
 final class DisabledCachingInInterfaceVisitor extends DisabledCachingInClassVisitor {
 
     @Override
     public Consumer<Output> visitMethodBegin0(Method m) {
         return out -> {
-            val cachingStrategy = m.getCachingStrategy();
-            if (cachingStrategy != DISABLED) {
-                out.nl().ad("@bali.Cache");
-                if (cachingStrategy != THREAD_SAFE) {
-                    out.ad("(bali.CachingStrategy.").ad(cachingStrategy).ad(")");
-                }
+            out.nl();
+            if (m.getCachingStrategy() != DISABLED) {
+                out.ad("@bali.Cache(").ad("nonNull = ").ad(m.isNonNull()).ad(", value = ").ad(CACHING_STRATEGY_CLASSNAME).ad(".").ad(m.getCachingStrategy()).ad(")").nl();
             }
             out
-                    .nl()
                     .ad("@Override").nl()
                     .ad("default ").ad(m.getMethodTypeParametersDecl()).ad(m.getMethodReturnType()).ad(" ").ad(m.getMethodName()).ad("(").ad(m.getMethodParametersDecl()).ad(") ").ad(m.getMethodThrownTypesDecl()).ad("{").nl()
                     .in();

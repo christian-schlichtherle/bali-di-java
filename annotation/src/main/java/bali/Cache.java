@@ -23,5 +23,7 @@ import static java.lang.annotation.ElementType.TYPE;
 @Target({TYPE, METHOD})
 public @interface Cache {
 
+    boolean nonNull() default false;
+
     CachingStrategy value() default CachingStrategy.THREAD_SAFE;
 }
