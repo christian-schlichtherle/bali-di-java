@@ -232,7 +232,7 @@ You may recognize that the generated code is a blend of the following design pat
     current time.
     The interface provides the static method constructor named <code>new$()</code> to control its instantiation and
     inhibit the uncontrolled proliferation of its type while still allowing to extend/implement the module interface,
-    which is required for advanced scenarios like multi-module applications.
+    which is useful for advanced scenarios like multi-module applications.
 <dt>Template Method
 <dd>The interface <code>Callable&lt;T&gt;</code> defines the template method <code>T call() throws Exception</code> to
     return a completely generic instance <code>T</code>, whereby it may terminate with an exception instead of a result.
