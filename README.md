@@ -23,7 +23,7 @@ following dependency to your project:
     <groupId>global.namespace.bali</groupId>
     <artifactId>bali-java</artifactId>
     <!-- see https://github.com/christian-schlichtherle/bali-di/releases/latest -->
-    <version>0.8.0</version>
+    <version>0.9.0</version>
     <scope>provided</scope>
 </dependency>
 ```
@@ -148,24 +148,60 @@ public interface GenericClockApp {
 }
 ```
 
-This results in the annotation processor to generate the following code for you:
+This results in the annotation processor to generate two source files for you.
+The first source file wires the dependencies in a module interface whose name is the same as the annotated module
+type with a single `$` character appended: 
 
 ```java
 package bali.sample.genericclock;
 
 /*
 @javax.annotation.Generated(
-    comments = "round=1, version=0.6.0",
-    date = "2021-01-17T20:21:06.023+01:00",
+    comments = "round=1, version=0.9.0-SNAPSHOT",
+    date = "2021-02-17T17:10:20.137+01:00",
     value = "bali.java.AnnotationProcessor"
 )
 */
-public abstract class GenericClockApp$ implements bali.sample.genericclock.GenericClockApp {
+public interface GenericClockApp$ extends bali.sample.genericclock.GenericClockApp {
 
     static bali.sample.genericclock.GenericClockApp new$() {
-        return new GenericClockApp$() {
+        return new GenericClockApp$$() {
         };
     }
+
+    @bali.Cache(bali.CachingStrategy.THREAD_SAFE)
+    @Override
+    default java.util.concurrent.Callable<java.util.Date> clock() {
+        return new java.util.concurrent.Callable<java.util.Date>() {
+
+            @Override
+            public java.util.Date call() throws java.lang.Exception {
+                return GenericClockApp$.this.call();
+            }
+        };
+    }
+
+    @Override
+    default java.util.Date call() {
+        return new java.util.Date();
+    }
+}
+```
+
+The second source file caches the wired dependencies as requested in a module class whose name is the same as the
+annotated module type with a double `$` character appended:
+
+```java
+package bali.sample.genericclock;
+
+/*
+@javax.annotation.Generated(
+    comments = "round=1, version=0.9.0-SNAPSHOT",
+    date = "2021-02-17T17:10:20.150+01:00",
+    value = "bali.java.AnnotationProcessor"
+)
+*/
+public abstract class GenericClockApp$$ implements GenericClockApp$ {
 
     private volatile java.util.concurrent.Callable<java.util.Date> clock;
 
@@ -175,24 +211,11 @@ public abstract class GenericClockApp$ implements bali.sample.genericclock.Gener
         if (null == (value = this.clock)) {
             synchronized (this) {
                 if (null == (value = this.clock)) {
-                    this.clock = value = new Callable$1();
+                    this.clock = value = bali.sample.genericclock.GenericClockApp$.super.clock();
                 }
             }
         }
         return value;
-    }
-
-    @Override
-    public java.util.Date call() throws java.lang.Exception {
-        return new java.util.Date();
-    }
-
-    private final class Callable$1 implements java.util.concurrent.Callable<java.util.Date> {
-        
-        @Override
-        public java.util.Date call() throws java.lang.Exception {
-            return GenericClockApp$.this.call();
-        }
     }
 }
 ```
@@ -205,18 +228,19 @@ You may recognize that the generated code is a blend of the following design pat
     the abstract method <code>Callable&lt;Date&gt; clock()</code> without knowing the implementation class.
     The same is true for the method <code>Date date()</code>.
 <dt>Factory Method
-<dd>The class <code>GenericClockApp$</code> implements these factory methods to create, and in case of
-    <code>Callable&lt;Date&gt; clock()</code> also cache, the singleton clock and its current time.
-    The class is abstract and provides a static method constructor in order to control its instantiation and inhibit the
-    uncontrolled proliferation of its type while still allowing for subclassing - the latter feature is required for
-    advanced scenarios like modular apps.
+<dd>The interface <code>GenericClockApp$</code> implements these factory methods to create the singleton clock and the
+    current time.
+    The interface provides the static method constructor named <code>new$()</code> to control its instantiation and
+    inhibit the uncontrolled proliferation of its type while still allowing to extend/implement the module interface,
+    which is required for advanced scenarios like multi-module applications.
 <dt>Template Method
 <dd>The interface <code>Callable&lt;T&gt;</code> defines the template method <code>T call() throws Exception</code> to
     return a completely generic instance <code>T</code>, whereby it may terminate with an exception instead of a result.
 <dt>Mediator
-<dd>The inner class <code>Callable$1</code> holds an implicit reference to its enclosing class
+<dd>The anonymous inner class <code>Callable$1</code> holds an implicit reference to its enclosing module interface
     <code>GenericClockApp$</code>.
-    It uses this reference to obtain the current Date when calling its method <code>Date call() throws Exception</code>.
+    It uses this reference to obtain the current Date by calling the method <code>Date call()</code> in the module
+    interface.
 </dl>
 
 If there were more dependencies, these patterns would be repeatedly applied to the abstract methods of these types.
