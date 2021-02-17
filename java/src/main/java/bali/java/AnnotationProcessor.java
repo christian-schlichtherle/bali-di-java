@@ -185,7 +185,7 @@ public final class AnnotationProcessor extends AbstractProcessor {
                 .stream()
                 .filter(Utils::isMethod)
                 .map(ExecutableElement.class::cast)
-                .filter(e -> isAbstract(e) || isCaching(e) && isParameterLess(e))
+                .filter(e -> isAbstract(e) || cachingStrategy(e) != DISABLED && isParameterLess(e))
                 .filter(e -> !isModule(element)
                         || checkMakeType(e) && checkReturnType(e) && checkParameterTypes(e)
                         || (save = false));
@@ -349,7 +349,7 @@ public final class AnnotationProcessor extends AbstractProcessor {
 
         Consumer<Output> forAllModuleMethodsInClass() {
             return out -> filteredOverridableMethods(getTypeElement())
-                    .filter(e -> !DISABLED.equals(cachingStrategy(e)))
+                    .filter(e -> cachingStrategy(e) != DISABLED)
                     // HC SVNT DRACONES!
                     .filter(e -> !hasAnnotation(e, Lookup.class))
                     .filter(AnnotationProcessor.this::checkDeclaredReturnType)
