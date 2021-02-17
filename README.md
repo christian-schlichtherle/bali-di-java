@@ -251,12 +251,12 @@ The [sample code](samples) also showcases the following advanced features:
 + Abstract factory methods in types annotated with [`@Module`](annotations/src/main/java/bali/Module.java) to use their
   (possible generic) parameters as dependencies.
 + Caching the return value of parameterless, overridable methods in a module or dependency type by applying the
-  [`@Cache`](annotations/src/main/java/bali/Cache.java) annotation to the method.
+  [`@Cache`](annotations/src/main/java/bali/Cache.java) or [`@CacheNullable`](annotations/src.main/java/bali/Cache.java) annotation to the method.
 + Selecting a caching strategy by applying one of `@Cache(DISABLED)`, `@Cache(NOT_THREAD_SAFE)`, `@Cache(THREAD_SAFE)`
   or `@Cache(THREAD_LOCAL)`.
   The default value of the `@Cache` annotation is the thread-safe caching strategy.
 + Specifying a default caching strategy for all abstract, parameterless methods in a module or dependency type by
-  applying the `@Cache` annotation to the type.
+  applying the `@Cache` annotation to the module type.
 + Taking advantage of interface segregation by applying
   [`@Make(MyImplementation.class)`](annotations/src/main/java/bali/Make.java) to methods returning `MyInterface`, where
   `MyImplementation` is a subtype of `MyInterface`. 
