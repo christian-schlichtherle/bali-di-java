@@ -272,10 +272,16 @@ public final class AnnotationProcessor extends AbstractProcessor {
     }
 
     private String typeParametersDecl(Parameterizable parameterizable) {
-        return mkString(parameterizable.getTypeParameters().stream().map(p ->
-                        p + mkString(p.getBounds().stream().filter(t -> !isObject(t)),
-                                " extends ", " & ", "")),
-                "<", ", ", "> ");
+        return typeParametersWithBoundsDecl(parameterizable, Function.identity());
+    }
+
+    private String typeParametersWithBoundsDecl(Parameterizable parameterizable) {
+        return typeParametersWithBoundsDecl(parameterizable,
+                p -> p + mkString(p.getBounds().stream().filter(t -> !isObject(t)), " extends ", " & ", ""));
+    }
+
+    private String typeParametersWithBoundsDecl(Parameterizable parameterizable, Function<? super TypeParameterElement, ?> f) {
+        return mkString(parameterizable.getTypeParameters().stream().map(f), "<", ", ", "> ");
     }
 
     private boolean isSubtype(TypeMirror a, TypeMirror b, Element e) {
@@ -316,6 +322,9 @@ public final class AnnotationProcessor extends AbstractProcessor {
 
         @Getter(lazy = true)
         private final String typeParametersDecl = typeParametersDecl(getTypeElement());
+
+        @Getter(lazy = true)
+        private final String typeParametersWithBoundsDecl = typeParametersWithBoundsDecl(getTypeElement());
 
         String generated() {
             return String.format(Locale.ENGLISH,
@@ -654,7 +663,7 @@ public final class AnnotationProcessor extends AbstractProcessor {
             }
 
             @Getter(lazy = true)
-            private final String methodTypeParametersDecl = typeParametersDecl(methodElement());
+            private final String methodTypeParametersDecl = typeParametersWithBoundsDecl(methodElement());
 
             @Getter(lazy = true)
             private final String methodParametersDecl =
