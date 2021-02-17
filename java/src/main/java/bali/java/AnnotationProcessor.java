@@ -185,7 +185,7 @@ public final class AnnotationProcessor extends AbstractProcessor {
                 .stream()
                 .filter(Utils::isMethod)
                 .map(ExecutableElement.class::cast)
-                .filter(e -> isAbstract(e) || isCaching(e) && !hasParameters(e))
+                .filter(e -> isAbstract(e) || isCaching(e) && isParameterLess(e))
                 .filter(e -> !isModule(element)
                         || checkMakeType(e) && checkReturnType(e) && checkParameterTypes(e)
                         || (save = false));
@@ -458,7 +458,7 @@ public final class AnnotationProcessor extends AbstractProcessor {
 
             Consumer<Output> forAllAccessorMethods() {
                 return out -> filteredOverridableMethods(getMakeElement())
-                        .filter(e -> !hasParameters(e))
+                        .filter(Utils::isParameterLess)
                         .map(e -> {
                             val method = newAccessorMethod(e);
                             return method.apply(method.isCachingDisabled()

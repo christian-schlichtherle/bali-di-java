@@ -38,8 +38,6 @@ final class Utils {
 
     static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle(Utils.class.getPackage().getName() + ".bundle");
 
-    static final ModifierSet ABSTRACT = ModifierSet.of(Modifier.ABSTRACT);
-
     static final ModifierSet PROTECTED_PUBLIC = ModifierSet.of(Modifier.PROTECTED, Modifier.PUBLIC);
 
     static final ModifierSet PRIVATE_PROTECTED_PUBLIC = ModifierSet.of(Modifier.PRIVATE, Modifier.PROTECTED, Modifier.PUBLIC);
@@ -66,8 +64,8 @@ final class Utils {
         return getAnnotation(c, k).isPresent();
     }
 
-    static boolean hasParameters(ExecutableElement e) {
-        return !e.getParameters().isEmpty() || !e.getTypeParameters().isEmpty();
+    static boolean isParameterLess(ExecutableElement e) {
+        return e.getParameters().isEmpty() && e.getTypeParameters().isEmpty();
     }
 
     static boolean hasDeclaredReturnType(ExecutableElement e) {
