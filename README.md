@@ -279,8 +279,8 @@ If there were more dependencies, these patterns would be repeatedly applied to t
 The [sample code](samples) also demonstrates the following advanced features: 
 
 + You can cache the return value of any parameterless method in a module interface or a dependency type by applying the
-  [`@Cache`](annotation/src/main/java/bali/Cache.java) or [`@CacheNullable`](annotation/src.main/java/bali/Cache.java)
-  annotation to the method.
+  [`@Cache`](annotation/src/main/java/bali/Cache.java) or
+  [`@CacheNullable`](annotation/src/main/java/bali/CacheNullable.java) annotation to the method.
 + You can select a caching strategy for non-`null` return values by applying one of `@Cache(DISABLED)`,
   `@Cache(NOT_THREAD_SAFE)`, `@Cache(THREAD_SAFE)` or `@Cache(THREAD_LOCAL)` to the method, where applying
   `@Cache(THREAD_SAFE)` can be abbreviated to just `@Cache`.
