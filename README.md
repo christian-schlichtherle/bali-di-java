@@ -32,13 +32,13 @@ Note that this is a compile-time-only dependency - there is no runtime dependenc
 
 ## Sample Code
 
-This project uses a modular build. The module [`bali-samples`](samples) provides lots of sample code showing how to use
+This project uses a modular build. The module [`bali-sample`](sample) provides lots of sample code showing how to use
 the annotations and generated source code.
 `bali-samples` is not published on Maven Central however - it is only available as source code. You can browse the
-source code [here](samples/src/main/java/bali/sample) or clone this project.
+source code [here](sample/src/main/java/bali/sample) or clone this project.
 
 The module `bali-samples` is organized into different packages with each package representing an individual,
-self-contained showcase. For example, the package [`bali.sample.greeting`](samples/src/main/java/bali/sample/greeting)
+self-contained showcase. For example, the package [`bali.sample.greeting`](sample/src/main/java/bali/sample/greeting)
 showcases a glorified way to produce a simple "Hello world!" message by using different components with dependency
 injection.
 
