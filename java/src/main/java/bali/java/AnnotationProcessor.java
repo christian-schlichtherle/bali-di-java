@@ -131,14 +131,14 @@ public final class AnnotationProcessor extends AbstractProcessor {
 
     private void processCheckedTypeElement(final TypeElement e) {
         val typeVisitor = new TypeVisitor();
-        val moduleType = new ModuleType(e);
+        val moduleInterface = new ModuleInterface(e);
         val iface = new Output();
         val klass = new Output();
 
         save = true;
-        typeVisitor.visitModuleInterface(moduleType).accept(iface); // may set save = false as side effect
+        typeVisitor.visitModuleInterface4CompanionInterface(moduleInterface).accept(iface); // may set save = false as side effect
         if (save) {
-            typeVisitor.visitModuleClass(moduleType).accept(klass); // dito
+            typeVisitor.visitModuleInterface4CompanionClass(moduleInterface).accept(klass); // dito
         }
         if (save) {
             val baseName = getElements().getBinaryName(e);
@@ -240,7 +240,7 @@ public final class AnnotationProcessor extends AbstractProcessor {
     private MethodVisitor methodVisitor(final ExecutableElement e) {
         switch (cachingStrategy(e)) {
             case DISABLED:
-                return new DisabledCachingInClassVisitor();
+                return new DisabledCachingVisitor();
             case NOT_THREAD_SAFE:
                 return new NotThreadSafeCachingVisitor();
             case THREAD_SAFE:
@@ -249,7 +249,7 @@ public final class AnnotationProcessor extends AbstractProcessor {
                 return new ThreadLocalCachingVisitor();
             default:
                 error("Unknown caching strategy - caching is disabled.", e);
-                return new DisabledCachingInClassVisitor();
+                return new DisabledCachingVisitor();
         }
     }
 
@@ -290,7 +290,7 @@ public final class AnnotationProcessor extends AbstractProcessor {
 
     @RequiredArgsConstructor
     @Getter
-    final class ModuleType {
+    final class ModuleInterface {
 
         private final TypeElement typeElement;
 
@@ -337,23 +337,23 @@ public final class AnnotationProcessor extends AbstractProcessor {
                     AnnotationProcessor.class.getName());
         }
 
-        Consumer<Output> forAllModuleMethodsInInterface() {
+        Consumer<Output> forAllModuleMethods4CompanionInterface() {
             return out -> filteredOverridableMethods(getTypeElement())
                     .filter(Utils::isAbstract)
                     // HC SVNT DRACONES!
                     .filter(e -> !hasAnnotation(e, Lookup.class))
                     .filter(AnnotationProcessor.this::checkDeclaredReturnType)
-                    .map(e -> new DisabledCachingInInterfaceVisitor().visitModuleMethodInInterface(newModuleMethod(e)))
+                    .map(e -> new DisabledCaching4CompanionInterfaceVisitor().visitModuleMethod4CompanionInterface(newModuleMethod(e)))
                     .forEach(c -> c.accept(out));
         }
 
-        Consumer<Output> forAllModuleMethodsInClass() {
+        Consumer<Output> forAllModuleMethods4CompanionClass() {
             return out -> filteredOverridableMethods(getTypeElement())
                     .filter(e -> cachingStrategy(e) != DISABLED)
                     // HC SVNT DRACONES!
                     .filter(e -> !hasAnnotation(e, Lookup.class))
                     .filter(AnnotationProcessor.this::checkDeclaredReturnType)
-                    .map(e -> methodVisitor(e).visitModuleMethodInClass(newModuleMethod(e)))
+                    .map(e -> methodVisitor(e).visitModuleMethod4CompanionClass(newModuleMethod(e)))
                     .forEach(c -> c.accept(out));
         }
 
@@ -455,20 +455,19 @@ public final class AnnotationProcessor extends AbstractProcessor {
             @Getter(lazy = true)
             private final String superRef = moduleInterfaceName(getTypeElement()) + ".super";
 
-            Consumer<Output> forAllAccessorMethods() {
+            Consumer<Output> forAllDependencyMethods() {
                 return out -> filteredOverridableMethods(getMakeElement())
                         .filter(Utils::isParameterLess)
                         .map(e -> {
-                            val method = newAccessorMethod(e);
-                            return method.apply(method.isCachingDisabled()
-                                    ? new DisabledCachingInClassVisitor()
-                                    : methodVisitor(e));
+                            val method = newDependencyMethod(e);
+                            return (method.isCachingDisabled() ? new DisabledCachingVisitor() : methodVisitor(e))
+                                    .visitDependencyMethod(method);
                         })
                         .forEach(c -> c.accept(out));
             }
 
-            AccessorMethod newAccessorMethod(ExecutableElement e) {
-                return new AccessorMethod() {
+            DependencyMethod newDependencyMethod(ExecutableElement e) {
+                return new DependencyMethod() {
 
                     @Override
                     ExecutableElement methodElement() {
@@ -477,7 +476,7 @@ public final class AnnotationProcessor extends AbstractProcessor {
                 };
             }
 
-            abstract class AccessorMethod extends Method {
+            abstract class DependencyMethod extends Method {
 
                 @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
                 @Getter(lazy = true)
@@ -490,7 +489,7 @@ public final class AnnotationProcessor extends AbstractProcessor {
                         val element = resolveAccessedElement(getTypeElement());
                         if (!element.isPresent()) {
                             warn("This module interface is missing the dependency returned by ...", getTypeElement());
-                            warn("... this accessor method.", methodElement());
+                            warn("... this dependency method.", methodElement());
                         }
                         return element;
                     }
@@ -536,7 +535,7 @@ public final class AnnotationProcessor extends AbstractProcessor {
                             ? getModuleParamName().toString()
                             : isSuperRef()
                             ? (isInterfaceMakeType() ? getMakeQualifiedName() + "." : "") + "super." + getMethodName() + "()"
-                            : getAccessedElement().map(Tuple2::getT1).orElseGet(ModuleType.this::getTypeElement).getSimpleName()
+                            : getAccessedElement().map(Tuple2::getT1).orElseGet(ModuleInterface.this::getTypeElement).getSimpleName()
                             + (isStaticRef() ? "$" : "$.this")
                             + (isModuleRef() ? "" : "." + (isFieldRef() ? getModuleFieldName() + "" : getModuleMethodName() + "()"));
                 }
@@ -613,10 +612,6 @@ public final class AnnotationProcessor extends AbstractProcessor {
                                     .findFirst())
                             .map(getElements()::getName)
                             .orElseGet(this::getMethodName);
-                }
-
-                Consumer<Output> apply(MethodVisitor v) {
-                    return v.visitAccessorMethod(this);
                 }
             }
         }

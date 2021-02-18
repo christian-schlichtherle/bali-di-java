@@ -15,11 +15,11 @@
  */
 package bali.java;
 
-import bali.java.AnnotationProcessor.ModuleType.Method;
+import bali.java.AnnotationProcessor.ModuleInterface.Method;
 
 import java.util.function.Consumer;
 
-class DisabledCachingInClassVisitor implements MethodVisitor {
+class DisabledCachingVisitor implements MethodVisitor {
 
     @Override
     public Consumer<Output> visitNonNullField(Method m, String prefix) {

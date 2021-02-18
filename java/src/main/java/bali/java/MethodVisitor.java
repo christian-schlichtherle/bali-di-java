@@ -15,35 +15,35 @@
  */
 package bali.java;
 
-import bali.java.AnnotationProcessor.ModuleType.ModuleMethod;
-import bali.java.AnnotationProcessor.ModuleType.Method;
-import bali.java.AnnotationProcessor.ModuleType.ModuleMethod.AccessorMethod;
+import bali.java.AnnotationProcessor.ModuleInterface.ModuleMethod;
+import bali.java.AnnotationProcessor.ModuleInterface.Method;
+import bali.java.AnnotationProcessor.ModuleInterface.ModuleMethod.DependencyMethod;
 
 import java.util.function.Consumer;
 
 interface MethodVisitor {
 
-    default Consumer<Output> visitModuleMethodInInterface(ModuleMethod m) {
+    default Consumer<Output> visitModuleMethod4CompanionInterface(ModuleMethod m) {
         return visitMethodBegin(m)
                 .andThen(out -> {
                     out.ad("new ").ad(m.getMakeType()).ad("()");
                     if (m.isAbstractMakeType()) {
                         out.ad(" {").nl().in();
-                        m.forAllAccessorMethods().accept(out);
+                        m.forAllDependencyMethods().accept(out);
                         out.out().ad("}");
                     }
                 })
                 .andThen(visitMethodEnd(m));
     }
 
-    default Consumer<Output> visitModuleMethodInClass(ModuleMethod m) {
+    default Consumer<Output> visitModuleMethod4CompanionClass(ModuleMethod m) {
         return visitField(m, "private ")
                 .andThen(visitMethodBegin(m))
                 .andThen(out -> out.ad(m.getSuperRef()).ad(".").ad(m.getMethodName()).ad("()"))
                 .andThen(visitMethodEnd(m));
     }
 
-    default Consumer<Output> visitAccessorMethod(AccessorMethod m) {
+    default Consumer<Output> visitDependencyMethod(DependencyMethod m) {
         return visitField(m, "")
                 .andThen(visitMethodBegin(m))
                 .andThen(out -> out.ad(m.getAccessedElementRef()))

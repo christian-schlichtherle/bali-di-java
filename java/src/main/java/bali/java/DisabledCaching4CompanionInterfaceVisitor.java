@@ -15,14 +15,14 @@
  */
 package bali.java;
 
-import bali.java.AnnotationProcessor.ModuleType.Method;
+import bali.java.AnnotationProcessor.ModuleInterface.Method;
 
 import java.util.function.Consumer;
 
 import static bali.CachingStrategy.DISABLED;
 import static bali.java.Utils.CACHING_STRATEGY_CLASSNAME;
 
-final class DisabledCachingInInterfaceVisitor extends DisabledCachingInClassVisitor {
+final class DisabledCaching4CompanionInterfaceVisitor extends DisabledCachingVisitor {
 
     @Override
     public Consumer<Output> visitMethodBegin0(Method m) {

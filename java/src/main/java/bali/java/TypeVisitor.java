@@ -15,13 +15,13 @@
  */
 package bali.java;
 
-import bali.java.AnnotationProcessor.ModuleType;
+import bali.java.AnnotationProcessor.ModuleInterface;
 
 import java.util.function.Consumer;
 
 final class TypeVisitor {
 
-    public Consumer<Output> visitModuleInterface(ModuleType c) {
+    public Consumer<Output> visitModuleInterface4CompanionInterface(ModuleInterface c) {
         return out -> {
             out
                     .ad("package ").ad(c.getPackageName()).ad(";").nl()
@@ -39,12 +39,12 @@ final class TypeVisitor {
                         .ad("    };").nl()
                         .ad("}").nl();
             }
-            c.forAllModuleMethodsInInterface().accept(out);
+            c.forAllModuleMethods4CompanionInterface().accept(out);
             out.out().ad("}").nl();
         };
     }
 
-    public Consumer<Output> visitModuleClass(ModuleType c) {
+    public Consumer<Output> visitModuleInterface4CompanionClass(ModuleInterface c) {
         return out -> {
             out
                     .ad("package ").ad(c.getPackageName()).ad(";").nl()
@@ -54,7 +54,7 @@ final class TypeVisitor {
                     .ad("*/").nl()
                     .ad(c.getTypeModifiers()).ad("abstract class ").ad(c.getTypeSimpleName()).ad(c.getTypeParametersWithBoundsDecl().isEmpty() ? "$$ " : "$$").ad(c.getTypeParametersWithBoundsDecl()).ad("implements ").ad(c.getTypeSimpleName()).ad(c.getTypeParametersWithBoundsDecl().isEmpty() ? "$ " : "$").ad(c.getTypeParametersDecl()).ad("{").nl()
                     .in();
-            c.forAllModuleMethodsInClass().accept(out);
+            c.forAllModuleMethods4CompanionClass().accept(out);
             out.out().ad("}").nl();
         };
     }
