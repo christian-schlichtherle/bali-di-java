@@ -18,11 +18,12 @@ package bali;
 import java.lang.annotation.Target;
 
 import static java.lang.annotation.ElementType.METHOD;
+import static java.lang.annotation.ElementType.TYPE;
 
 /**
  * @see Cache Caching of non-{@code null} method return values.
  */
-@Target(METHOD)
+@Target({METHOD, TYPE})
 public @interface CacheNullable {
 
     CachingStrategy value() default CachingStrategy.THREAD_SAFE;

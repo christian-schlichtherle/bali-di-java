@@ -23,7 +23,7 @@ import static java.lang.annotation.ElementType.TYPE;
 /**
  * @see CacheNullable Caching of {@code null}able method return values.
  */
-@Target({TYPE, METHOD})
+@Target({METHOD, TYPE})
 public @interface Cache {
 
     CachingStrategy value() default CachingStrategy.THREAD_SAFE;
