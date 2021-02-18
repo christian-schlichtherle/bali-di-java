@@ -29,11 +29,11 @@ class GenericClockAppSpec extends AnyWordSpec {
     }
 
     "not cache the time" in {
-      call shouldNot be theSameInstanceAs call
+      get shouldNot be theSameInstanceAs get
     }
 
     "not cache the time of the clock" in {
-      clock.call shouldNot be theSameInstanceAs clock.call
+      clock.get shouldNot be theSameInstanceAs clock.get
     }
   }
 }

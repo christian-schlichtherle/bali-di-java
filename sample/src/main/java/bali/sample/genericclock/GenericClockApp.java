@@ -19,7 +19,7 @@ import bali.Cache;
 import bali.Module;
 
 import java.util.Date;
-import java.util.concurrent.Callable;
+import java.util.function.Supplier;
 
 import static java.lang.System.out;
 
@@ -27,15 +27,15 @@ import static java.lang.System.out;
 public interface GenericClockApp {
 
     @Cache
-    Callable<Date> clock();
+    Supplier<Date> clock();
 
-    Date call();
+    Date get();
 
-    default void run() throws Exception {
-        out.printf("It is now %s.\n", clock().call());
+    default void run() {
+        out.printf("It is now %s.\n", clock().get());
     }
 
-    static void main(String... args) throws Exception {
+    static void main(String... args) {
         GenericClockApp$.new$().run();
     }
 }
