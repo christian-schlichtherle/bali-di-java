@@ -16,6 +16,7 @@
 package bali.sample.strange;
 
 import bali.Cache;
+import bali.Lookup;
 
 import java.util.function.Supplier;
 
@@ -25,6 +26,7 @@ import static bali.CachingStrategy.THREAD_LOCAL;
 @FunctionalInterface
 interface ThreadLocalSupplier<T> extends Supplier<T> {
 
+    @Lookup(param = "t")
     @Override
     T get();
 }

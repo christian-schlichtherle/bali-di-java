@@ -24,9 +24,7 @@ import java.util.function.Supplier;
 
 /**
  * This module is "strange" because it does nothing useful.
- * It exists for testing some advanced code generation features such as accessor methods, factory methods, provider
- * methods, generic parameter methods, generic method parameters, methods with exception list declarations and accessing
- * static elements or fields of a module.
+ * It exists for testing some advanced code generation features.
  */
 @Module
 public interface StrangeModule extends SuperStrangeModule {
@@ -34,14 +32,14 @@ public interface StrangeModule extends SuperStrangeModule {
     StrangeModule module = StrangeModule$.new$();
 
     @Make(ThreadLocalCallable.class)
-    <V> Callable<V> callable(V call);
+    <V> Callable<V> callable(V v);
 
     @Make(ThreadLocalSupplier.class)
-    <T> Supplier<T> supplier(T get);
+    <T> Supplier<T> supplier(T t);
 
     @Cache
     NestedAbstractDecorator nestedAbstractDecorator();
 
     interface NestedAbstractDecorator extends StrangeModule {
     }
- }
+}

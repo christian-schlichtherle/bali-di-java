@@ -16,6 +16,7 @@
 package bali.sample.strange;
 
 import bali.Cache;
+import bali.Lookup;
 
 import java.util.concurrent.Callable;
 
@@ -25,6 +26,7 @@ import static bali.CachingStrategy.THREAD_LOCAL;
 @FunctionalInterface
 interface ThreadLocalCallable<V> extends Callable<V> {
 
+    @Lookup(param = "v")
     @Override
     V call() throws Exception;
 }
