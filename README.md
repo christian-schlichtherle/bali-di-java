@@ -279,7 +279,7 @@ If there were more dependencies, these patterns would be repeatedly applied to t
 The [sample code](samples) also demonstrates the following advanced features: 
 
 + You can cache the return value of any parameterless method in a module interface or a dependency type by applying the
-  [`@Cache`](annotations/src/main/java/bali/Cache.java) or [`@CacheNullable`](annotations/src.main/java/bali/Cache.java)
+  [`@Cache`](annotation/src/main/java/bali/Cache.java) or [`@CacheNullable`](annotation/src.main/java/bali/Cache.java)
   annotation to the method.
 + You can select a caching strategy for non-`null` return values by applying one of `@Cache(DISABLED)`,
   `@Cache(NOT_THREAD_SAFE)`, `@Cache(THREAD_SAFE)` or `@Cache(THREAD_LOCAL)` to the method, where applying
@@ -290,10 +290,10 @@ The [sample code](samples) also demonstrates the following advanced features:
   Note that a default caching strategy only applies to abstract methods.
 + You can also declare abstract methods with (possibly generic) parameters in a module interface in order to use their
   parameters as dependencies of the return value.
-+ You can apply the [`@Make`](annotations/src/main/java/bali/Make.java) annotation to abstract methods in module
++ You can apply the [`@Make`](annotation/src/main/java/bali/Make.java) annotation to abstract methods in module
   interfaces in order to take advantage of loose coupling and hide implementation types.
   The value of the annotation must be a subclass or subinterface of the method's return class or interface.
-+ You can apply the [`@Lookup`](annotations/src/main/java/bali/Lookup.java) annotation to abstract, parameterless
++ You can apply the [`@Lookup`](annotation/src/main/java/bali/Lookup.java) annotation to abstract, parameterless
   methods in dependencies in order to specify the name of a method, field or parameter in a module interface to use as
   the dependency of the return value.
 + When applying the `@Lookup` annotation to an abstract, parameterless method in a module interface, the method does not
