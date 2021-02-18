@@ -33,7 +33,7 @@ final class DisabledCaching4CompanionInterfaceVisitor extends DisabledCachingVis
             }
             out
                     .ad("@Override").nl()
-                    .ad("default ").ad(m.getMethodTypeParametersDecl()).ad(m.getMethodReturnType()).ad(" ").ad(m.getMethodName()).ad("(").ad(m.getMethodParametersDecl()).ad(") ").ad(m.getMethodThrownTypesDecl()).ad("{").nl()
+                    .ad("default ").ad(m.getMethodTypeParametersTerm()).ad(m.getMethodReturnType()).ad(" ").ad(m.getMethodName()).ad("(").ad(m.getMethodParameterTypesTerm()).ad(") ").ad(m.getMethodThrownTypesTerm()).ad("{").nl()
                     .in();
         };
     }

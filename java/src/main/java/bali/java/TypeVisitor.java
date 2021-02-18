@@ -21,40 +21,40 @@ import java.util.function.Consumer;
 
 final class TypeVisitor {
 
-    public Consumer<Output> visitModuleInterface4CompanionInterface(ModuleInterface c) {
+    public Consumer<Output> visitModuleInterface4CompanionInterface(ModuleInterface m) {
         return out -> {
             out
-                    .ad("package ").ad(c.getPackageName()).ad(";").nl()
+                    .ad("package ").ad(m.getPackageName()).ad(";").nl()
                     .nl()
                     .ad("/*").nl()
-                    .ad(c.generated()).nl()
+                    .ad(m.generated()).nl()
                     .ad("*/").nl()
-                    .ad(c.getTypeModifiers()).ad("interface ").ad(c.getTypeSimpleName()).ad(c.getTypeParametersWithBoundsDecl().isEmpty() ? "$ " : "$").ad(c.getTypeParametersWithBoundsDecl()).ad("extends ").ad(c.getDeclaredType()).ad(" {").nl()
+                    .ad(m.getModifiers()).ad("interface ").ad(m.getSimpleName()).ad(m.getTypeParametersWithBoundsTerm().isEmpty() ? "$ " : "$").ad(m.getTypeParametersWithBoundsTerm()).ad("extends ").ad(m.getDeclaredType()).ad(" {").nl()
                     .in();
-            if (!c.hasAbstractMethods()) {
+            if (!m.hasAbstractMethods()) {
                 out
                         .nl()
-                        .ad("static ").ad(c.getTypeParametersWithBoundsDecl()).ad(c.getDeclaredType()).ad(" new$() {").nl()
-                        .ad("    return new ").ad(c.getTypeSimpleName()).ad("$$").ad(c.getTypeParametersDecl()).ad("() {").nl()
+                        .ad("static ").ad(m.getTypeParametersWithBoundsTerm()).ad(m.getDeclaredType()).ad(" new$() {").nl()
+                        .ad("    return new ").ad(m.getSimpleName()).ad("$$").ad(m.getTypeParametersWithoutBoundsTerm()).ad("() {").nl()
                         .ad("    };").nl()
                         .ad("}").nl();
             }
-            c.forAllModuleMethods4CompanionInterface().accept(out);
+            m.forAllModuleMethods4CompanionInterface().accept(out);
             out.out().ad("}").nl();
         };
     }
 
-    public Consumer<Output> visitModuleInterface4CompanionClass(ModuleInterface c) {
+    public Consumer<Output> visitModuleInterface4CompanionClass(ModuleInterface m) {
         return out -> {
             out
-                    .ad("package ").ad(c.getPackageName()).ad(";").nl()
+                    .ad("package ").ad(m.getPackageName()).ad(";").nl()
                     .nl()
                     .ad("/*").nl()
-                    .ad(c.generated()).nl()
+                    .ad(m.generated()).nl()
                     .ad("*/").nl()
-                    .ad(c.getTypeModifiers()).ad("abstract class ").ad(c.getTypeSimpleName()).ad(c.getTypeParametersWithBoundsDecl().isEmpty() ? "$$ " : "$$").ad(c.getTypeParametersWithBoundsDecl()).ad("implements ").ad(c.getTypeSimpleName()).ad(c.getTypeParametersWithBoundsDecl().isEmpty() ? "$ " : "$").ad(c.getTypeParametersDecl()).ad("{").nl()
+                    .ad(m.getModifiers()).ad("abstract class ").ad(m.getSimpleName()).ad(m.getTypeParametersWithBoundsTerm().isEmpty() ? "$$ " : "$$").ad(m.getTypeParametersWithBoundsTerm()).ad("implements ").ad(m.getSimpleName()).ad(m.getTypeParametersWithoutBoundsTerm().isEmpty() ? "$ " : "$").ad(m.getTypeParametersWithoutBoundsTerm()).ad("{").nl()
                     .in();
-            c.forAllModuleMethods4CompanionClass().accept(out);
+            m.forAllModuleMethods4CompanionClass().accept(out);
             out.out().ad("}").nl();
         };
     }

@@ -15,6 +15,7 @@
  */
 package bali.sample.strange;
 
+import bali.Cache;
 import bali.Make;
 import bali.Module;
 
@@ -37,4 +38,10 @@ public interface StrangeModule extends SuperStrangeModule {
 
     @Make(ThreadLocalSupplier.class)
     <T> Supplier<T> supplier(T get);
-}
+
+    @Cache
+    NestedAbstractDecorator nestedAbstractDecorator();
+
+    interface NestedAbstractDecorator extends StrangeModule {
+    }
+ }

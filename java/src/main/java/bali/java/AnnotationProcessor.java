@@ -185,7 +185,7 @@ public final class AnnotationProcessor extends AbstractProcessor {
                 .stream()
                 .filter(Utils::isMethod)
                 .map(ExecutableElement.class::cast)
-                .filter(e -> isAbstract(e) || cachingStrategy(e) != DISABLED && isParameterLess(e))
+                .filter(e -> isAbstract(e) || isParameterLess(e) && cachingStrategy(e) != DISABLED)
                 .filter(e -> !isModule(element)
                         || checkMakeType(e) && checkReturnType(e) && checkParameterTypes(e)
                         || (save = false));
@@ -271,16 +271,16 @@ public final class AnnotationProcessor extends AbstractProcessor {
                 || error("Provider or factory methods in modules must return class or interface types.", e);
     }
 
-    private String typeParametersDecl(Parameterizable parameterizable) {
-        return typeParametersWithBoundsDecl(parameterizable, Function.identity());
+    private String typeParametersWithoutBoundsTerm(Parameterizable parameterizable) {
+        return typeParametersTerm(parameterizable, Function.identity());
     }
 
-    private String typeParametersWithBoundsDecl(Parameterizable parameterizable) {
-        return typeParametersWithBoundsDecl(parameterizable,
+    private String typeParametersWithBoundsTerm(Parameterizable parameterizable) {
+        return typeParametersTerm(parameterizable,
                 p -> p + mkString(p.getBounds().stream().filter(t -> !isObject(t)), " extends ", " & ", ""));
     }
 
-    private String typeParametersWithBoundsDecl(Parameterizable parameterizable, Function<? super TypeParameterElement, ?> f) {
+    private String typeParametersTerm(Parameterizable parameterizable, Function<? super TypeParameterElement, ?> f) {
         return mkString(parameterizable.getTypeParameters().stream().map(f), "<", ", ", "> ");
     }
 
@@ -292,39 +292,33 @@ public final class AnnotationProcessor extends AbstractProcessor {
     @Getter
     final class ModuleInterface {
 
-        private final TypeElement typeElement;
+        private final TypeElement element;
 
         @Getter(lazy = true)
-        private final ModifierSet typeModifiers = modifiersOf(getTypeElement()).retain(PRIVATE_PROTECTED_PUBLIC);
+        private final ModifierSet modifiers = modifiersOf(getElement()).retain(PRIVATE_PROTECTED_PUBLIC);
 
         @Getter(lazy = true)
-        private final Name typeQualifiedName = getTypeElement().getQualifiedName();
+        private final Name simpleName = getElement().getSimpleName();
 
         @Getter(lazy = true)
-        private final Name typeSimpleName = getTypeElement().getSimpleName();
+        private final DeclaredType declaredType = (DeclaredType) getElement().asType();
 
         @Getter(lazy = true)
-        private final DeclaredType declaredType = (DeclaredType) getTypeElement().asType();
-
-        @Getter(lazy = true)
-        private final PackageElement packageElement = getElements().getPackageOf(getTypeElement());
-
-        @Getter(lazy = true)
-        private final Name packageName = getPackageElement().getQualifiedName();
+        private final Name packageName = getElements().getPackageOf(getElement()).getQualifiedName();
 
         @Accessors(fluent = true)
         @Getter(lazy = true)
         private final boolean hasAbstractMethods =
-                allOverridableMethods(getTypeElement())
+                allOverridableMethods(getElement())
                         .filter(Utils::isAbstract)
                         .anyMatch(e ->
                                 hasVoidReturnType(e) || hasAnnotation(e, Lookup.class) || !hasDeclaredReturnType(e));
 
         @Getter(lazy = true)
-        private final String typeParametersDecl = typeParametersDecl(getTypeElement());
+        private final String typeParametersWithoutBoundsTerm = typeParametersWithoutBoundsTerm(getElement());
 
         @Getter(lazy = true)
-        private final String typeParametersWithBoundsDecl = typeParametersWithBoundsDecl(getTypeElement());
+        private final String typeParametersWithBoundsTerm = typeParametersWithBoundsTerm(getElement());
 
         String generated() {
             return String.format(Locale.ENGLISH,
@@ -338,7 +332,7 @@ public final class AnnotationProcessor extends AbstractProcessor {
         }
 
         Consumer<Output> forAllModuleMethods4CompanionInterface() {
-            return out -> filteredOverridableMethods(getTypeElement())
+            return out -> filteredOverridableMethods(getElement())
                     .filter(Utils::isAbstract)
                     // HC SVNT DRACONES!
                     .filter(e -> !hasAnnotation(e, Lookup.class))
@@ -348,7 +342,7 @@ public final class AnnotationProcessor extends AbstractProcessor {
         }
 
         Consumer<Output> forAllModuleMethods4CompanionClass() {
-            return out -> filteredOverridableMethods(getTypeElement())
+            return out -> filteredOverridableMethods(getElement())
                     .filter(e -> cachingStrategy(e) != DISABLED)
                     // HC SVNT DRACONES!
                     .filter(e -> !hasAnnotation(e, Lookup.class))
@@ -370,10 +364,10 @@ public final class AnnotationProcessor extends AbstractProcessor {
         abstract class ModuleMethod extends Method {
 
             @Getter(lazy = true)
-            private final boolean abstractMakeType = isAbstract(getMakeElement());
+            private final boolean makeTypeAbstract = isAbstract(getMakeElement());
 
             @Getter(lazy = true)
-            private final boolean interfaceMakeType = isInterface(getMakeElement());
+            private final boolean makeTypeInterface = isInterface(getMakeElement());
 
             @Getter(lazy = true)
             private final TypeElement makeElement = typeElement(getMakeType());
@@ -453,11 +447,10 @@ public final class AnnotationProcessor extends AbstractProcessor {
             }
 
             @Getter(lazy = true)
-            private final String superRef = moduleInterfaceName(getTypeElement()) + ".super";
+            private final String superRef = moduleInterfaceName(getElement()) + ".super";
 
             Consumer<Output> forAllDependencyMethods() {
                 return out -> filteredOverridableMethods(getMakeElement())
-                        .filter(Utils::isParameterLess)
                         .map(e -> {
                             val method = newDependencyMethod(e);
                             return (method.isCachingDisabled() ? new DisabledCachingVisitor() : methodVisitor(e))
@@ -478,7 +471,6 @@ public final class AnnotationProcessor extends AbstractProcessor {
 
             abstract class DependencyMethod extends Method {
 
-                @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
                 @Getter(lazy = true)
                 private final Optional<Tuple2<TypeElement, Element>> accessedElement = resolveAccessedElement();
 
@@ -486,9 +478,9 @@ public final class AnnotationProcessor extends AbstractProcessor {
                     if (isParameterRef() || isSuperRef()) {
                         return Optional.empty();
                     } else {
-                        val element = resolveAccessedElement(getTypeElement());
+                        val element = resolveAccessedElement(getElement());
                         if (!element.isPresent()) {
-                            warn("This module interface is missing the dependency returned by ...", getTypeElement());
+                            warn("This module interface is missing the dependency returned by ...", getElement());
                             warn("... this dependency method.", methodElement());
                         }
                         return element;
@@ -497,9 +489,13 @@ public final class AnnotationProcessor extends AbstractProcessor {
 
                 private Optional<Tuple2<TypeElement, Element>> resolveAccessedElement(Element e) {
                     for (; e instanceof TypeElement; e = e.getEnclosingElement()) {
-                        val element = findAccessedElement((TypeElement) e);
-                        if (element.isPresent()) {
-                            return element;
+                        val where = (TypeElement) e;
+                        if (getTypes().isSubtype(getDeclaredType(), getMethodReturnType())) {
+                            return Optional.of(new Tuple2<>(where, where));
+                        }
+                        val what = findAccessedElement(where);
+                        if (what.isPresent()) {
+                            return what;
                         }
                     }
                     return Optional.empty();
@@ -515,16 +511,11 @@ public final class AnnotationProcessor extends AbstractProcessor {
                             })
                             .collect(Collectors.toList());
                     // Prefer method access over field access:
-                    val element = Stream
+                    return Stream
                             .<Function<Element, Boolean>>of(Utils::isMethod, Utils::isField)
                             .flatMap(f -> members.stream().filter(f::apply))
                             .map(e -> new Tuple2<TypeElement, Element>(where, e))
                             .findFirst();
-                    return element.isPresent()
-                            ? element
-                            : getTypes().isSubtype(getDeclaredType(), getMethodReturnType())
-                            ? Optional.of(new Tuple2<>(where, where))
-                            : Optional.empty();
                 }
 
                 @Getter(lazy = true)
@@ -534,34 +525,31 @@ public final class AnnotationProcessor extends AbstractProcessor {
                     return isParameterRef()
                             ? getModuleParamName().toString()
                             : isSuperRef()
-                            ? (isInterfaceMakeType() ? getMakeQualifiedName() + "." : "") + "super." + getMethodName() + "()"
-                            : getAccessedElement().map(Tuple2::getT1).orElseGet(ModuleInterface.this::getTypeElement).getSimpleName()
+                            ? (isMakeTypeInterface() ? getMakeQualifiedName() + "." : "") + "super." + getMethodName() + "(" + getMethodParametersTerm() + ")"
+                            : getAccessedElement().map(Tuple2::getT1).orElseGet(ModuleInterface.this::getElement).getSimpleName()
                             + (isStaticRef() ? "$" : "$.this")
-                            + (isModuleRef() ? "" : "." + (isFieldRef() ? getModuleFieldName() + "" : getModuleMethodName() + "()"));
+                            + (isModuleRef() ? "" : "." + (isFieldRef() ? getModuleFieldName() + "" : getModuleMethodName() + "(" + getMethodParametersTerm() + ")"));
                 }
 
                 @Getter(lazy = true)
                 private final boolean cachingDisabled = resolveCachingDisabled();
 
                 private boolean resolveCachingDisabled() {
-                    val element = getAccessedElement().map(Tuple2::getT2);
+                    val e = getAccessedElement().map(Tuple2::getT2);
                     return isParameterRef()
                             || isModuleRef()
-                            || element.filter(Utils::isFinal).filter(Utils::isField).isPresent()
-                            || element
-                            .map(Utils::cachingStrategy)
-                            .filter(getCachingStrategy()::equals)
-                            .isPresent();
+                            || e.filter(Utils::isFinal).filter(Utils::isField).isPresent()
+                            || e.map(Utils::cachingStrategy).filter(getCachingStrategy()::equals).isPresent()
+                            || e.filter(Utils::isMethod).map(ExecutableElement.class::cast).filter(ee -> !isParameterLess(ee)).isPresent();
                 }
 
                 @Getter(lazy = true)
                 private final boolean fieldRef =
                         getAccessedElement().map(Tuple2::getT2).filter(Utils::isField).isPresent();
 
-                @Override
-                boolean resolveMethodRef() {
-                    return getAccessedElement().map(Tuple2::getT2).filter(Utils::isMethod).isPresent();
-                }
+                @Getter(lazy = true)
+                private final boolean moduleRef =
+                        getAccessedElement().map(Tuple2::getT2).filter(Utils::isType).isPresent();
 
                 @Getter(lazy = true)
                 private final boolean parameterRef =
@@ -569,15 +557,15 @@ public final class AnnotationProcessor extends AbstractProcessor {
                                 .this
                                 .getMethodParameters()
                                 .stream()
-                                .anyMatch(variable -> getModuleParamName().equals(variable.getSimpleName()));
+                                .map(Element::getSimpleName)
+                                .anyMatch(getModuleParamName()::equals);
 
                 @Getter(lazy = true)
                 private final boolean staticRef =
                         getAccessedElement().map(Tuple2::getT2).filter(Utils::isStatic).isPresent();
 
                 @Getter(lazy = true)
-                private final boolean moduleRef =
-                        getAccessedElement().map(Tuple2::getT2).filter(Utils::isType).isPresent();
+                private final boolean superRef = !isAbstract(methodElement());
 
                 @Override
                 boolean resolveNullable() {
@@ -622,19 +610,9 @@ public final class AnnotationProcessor extends AbstractProcessor {
             private final CachingStrategy cachingStrategy = cachingStrategy(methodElement());
 
             @Getter(lazy = true)
-            private final boolean methodRef = resolveMethodRef();
-
-            boolean resolveMethodRef() {
-                return false;
-            }
-
-            @Getter(lazy = true)
             private final boolean nullable = resolveNullable();
 
             abstract boolean resolveNullable();
-
-            @Getter(lazy = true)
-            private final boolean superRef = !isAbstract(methodElement());
 
             abstract ExecutableElement methodElement();
 
@@ -649,7 +627,20 @@ public final class AnnotationProcessor extends AbstractProcessor {
                     unmodifiableList(methodElement().getParameters());
 
             @Getter(lazy = true)
+            private final String methodParametersTerm =
+                    mkString(getMethodParameters(), "", ", ", "");
+
+            @Getter(lazy = true)
+            private final String methodParameterTypesTerm =
+                    mkString(getMethodParameters().stream().map(var -> var.asType() + " " + var),
+                            "", ", ", "");
+
+            @Getter(lazy = true)
             private final TypeMirror methodReturnType = getMethodType().getReturnType();
+
+            @Getter(lazy = true)
+            private final String methodThrownTypesTerm =
+                    mkString(getMethodType().getThrownTypes(), "throws ", ", ", " ");
 
             @Getter(lazy = true)
             private final ExecutableType methodType = resolveMethodType();
@@ -659,16 +650,7 @@ public final class AnnotationProcessor extends AbstractProcessor {
             }
 
             @Getter(lazy = true)
-            private final String methodTypeParametersDecl = typeParametersWithBoundsDecl(methodElement());
-
-            @Getter(lazy = true)
-            private final String methodParametersDecl =
-                    mkString(getMethodParameters().stream().map(var -> var.asType() + " " + var),
-                            "", ", ", "");
-
-            @Getter(lazy = true)
-            private final String methodThrownTypesDecl =
-                    mkString(getMethodType().getThrownTypes(), "throws ", ", ", " ");
+            private final String methodTypeParametersTerm = typeParametersWithBoundsTerm(methodElement());
         }
     }
 }

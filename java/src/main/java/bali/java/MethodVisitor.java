@@ -27,7 +27,7 @@ interface MethodVisitor {
         return visitMethodBegin(m)
                 .andThen(out -> {
                     out.ad("new ").ad(m.getMakeType()).ad("()");
-                    if (m.isAbstractMakeType()) {
+                    if (m.isMakeTypeAbstract()) {
                         out.ad(" {").nl().in();
                         m.forAllDependencyMethods().accept(out);
                         out.out().ad("}");
@@ -67,7 +67,7 @@ interface MethodVisitor {
         return out -> out
                 .nl()
                 .ad("@Override").nl()
-                .ad(m.getMethodModifiers()).ad(m.getMethodTypeParametersDecl()).ad(m.getMethodReturnType()).ad(" ").ad(m.getMethodName()).ad("(").ad(m.getMethodParametersDecl()).ad(") ").ad(m.getMethodThrownTypesDecl()).ad("{").nl()
+                .ad(m.getMethodModifiers()).ad(m.getMethodTypeParametersTerm()).ad(m.getMethodReturnType()).ad(" ").ad(m.getMethodName()).ad("(").ad(m.getMethodParameterTypesTerm()).ad(") ").ad(m.getMethodThrownTypesTerm()).ad("{").nl()
                 .in();
     }
 
