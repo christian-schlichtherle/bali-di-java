@@ -610,6 +610,9 @@ public final class AnnotationProcessor extends AbstractProcessor {
             private final CachingStrategy cachingStrategy = cachingStrategy(methodElement());
 
             @Getter(lazy = true)
+            private final String cachingStrategyTerm = CACHING_STRATEGY_CLASSNAME + "." + getCachingStrategy();
+
+            @Getter(lazy = true)
             private final boolean nullable = resolveNullable();
 
             abstract boolean resolveNullable();
