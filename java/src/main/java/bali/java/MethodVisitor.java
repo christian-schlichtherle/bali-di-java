@@ -67,7 +67,7 @@ interface MethodVisitor {
         return out -> out
                 .nl()
                 .ad("@Override").nl()
-                .ad(m.getMethodModifiers()).ad(m.getMethodTypeParametersTerm()).ad(m.getMethodReturnType()).ad(" ").ad(m.getMethodName()).ad("(").ad(m.getMethodParameterTypesTerm()).ad(") ").ad(m.getMethodThrownTypesTerm()).ad("{").nl()
+                .ad(m.getMethodModifiers()).ad(m.getMethodSignatureWithoutModifiers()).ad("{").nl()
                 .in();
     }
 

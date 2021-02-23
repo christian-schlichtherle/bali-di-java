@@ -29,13 +29,13 @@ final class TypeVisitor {
                     .ad("/*").nl()
                     .ad(m.generated()).nl()
                     .ad("*/").nl()
-                    .ad(m.getModifiers()).ad("interface ").ad(m.getSimpleName()).ad(m.getTypeParametersWithBoundsTerm().isEmpty() ? "$ " : "$").ad(m.getTypeParametersWithBoundsTerm()).ad("extends ").ad(m.getDeclaredType()).ad(" {").nl()
+                    .ad(m.getModifiers()).ad("interface ").ad(m.getSimpleName()).ad(m.getTypeParametersWithBoundsList().isEmpty() ? "$ " : "$").ad(m.getTypeParametersWithBoundsList()).ad("extends ").ad(m.getDeclaredType()).ad(" {").nl()
                     .in();
             if (!m.hasAbstractMethods()) {
                 out
                         .nl()
-                        .ad("static ").ad(m.getTypeParametersWithBoundsTerm()).ad(m.getDeclaredType()).ad(" new$() {").nl()
-                        .ad("    return new ").ad(m.getSimpleName()).ad("$$").ad(m.getTypeParametersWithoutBoundsTerm()).ad("() {").nl()
+                        .ad("static ").ad(m.getTypeParametersWithBoundsList()).ad(m.getDeclaredType()).ad(" new$() {").nl()
+                        .ad("    return new ").ad(m.getSimpleName()).ad("$$").ad(m.getTypeParametersWithoutBoundsList()).ad("() {").nl()
                         .ad("    };").nl()
                         .ad("}").nl();
             }
@@ -52,7 +52,7 @@ final class TypeVisitor {
                     .ad("/*").nl()
                     .ad(m.generated()).nl()
                     .ad("*/").nl()
-                    .ad(m.getModifiers()).ad("abstract class ").ad(m.getSimpleName()).ad(m.getTypeParametersWithBoundsTerm().isEmpty() ? "$$ " : "$$").ad(m.getTypeParametersWithBoundsTerm()).ad("implements ").ad(m.getSimpleName()).ad(m.getTypeParametersWithoutBoundsTerm().isEmpty() ? "$ " : "$").ad(m.getTypeParametersWithoutBoundsTerm()).ad("{").nl()
+                    .ad(m.getModifiers()).ad("abstract class ").ad(m.getSimpleName()).ad(m.getTypeParametersWithBoundsList().isEmpty() ? "$$ " : "$$").ad(m.getTypeParametersWithBoundsList()).ad("implements ").ad(m.getSimpleName()).ad(m.getTypeParametersWithoutBoundsList().isEmpty() ? "$ " : "$").ad(m.getTypeParametersWithoutBoundsList()).ad("{").nl()
                     .in();
             m.forAllModuleMethods4CompanionClass().accept(out);
             out.out().ad("}").nl();

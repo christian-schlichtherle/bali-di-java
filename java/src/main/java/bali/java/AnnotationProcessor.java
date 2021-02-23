@@ -271,16 +271,16 @@ public final class AnnotationProcessor extends AbstractProcessor {
                 || error("Provider or factory methods in modules must return class or interface types.", e);
     }
 
-    private String typeParametersWithoutBoundsTerm(Parameterizable parameterizable) {
-        return typeParametersTerm(parameterizable, Function.identity());
+    private String typeParametersWithoutBoundsList(Parameterizable parameterizable) {
+        return typeParametersList(parameterizable, Function.identity());
     }
 
-    private String typeParametersWithBoundsTerm(Parameterizable parameterizable) {
-        return typeParametersTerm(parameterizable,
+    private String typeParametersWithBoundsList(Parameterizable parameterizable) {
+        return typeParametersList(parameterizable,
                 p -> p + mkString(p.getBounds().stream().filter(t -> !isObject(t)), " extends ", " & ", ""));
     }
 
-    private String typeParametersTerm(Parameterizable parameterizable, Function<? super TypeParameterElement, ?> f) {
+    private String typeParametersList(Parameterizable parameterizable, Function<? super TypeParameterElement, ?> f) {
         return mkString(parameterizable.getTypeParameters().stream().map(f), "<", ", ", "> ");
     }
 
@@ -315,10 +315,10 @@ public final class AnnotationProcessor extends AbstractProcessor {
                                 hasVoidReturnType(e) || hasAnnotation(e, Lookup.class) || !hasDeclaredReturnType(e));
 
         @Getter(lazy = true)
-        private final String typeParametersWithoutBoundsTerm = typeParametersWithoutBoundsTerm(getElement());
+        private final String typeParametersWithoutBoundsList = typeParametersWithoutBoundsList(getElement());
 
         @Getter(lazy = true)
-        private final String typeParametersWithBoundsTerm = typeParametersWithBoundsTerm(getElement());
+        private final String typeParametersWithBoundsList = typeParametersWithBoundsList(getElement());
 
         String generated() {
             return String.format(Locale.ENGLISH,
@@ -374,9 +374,6 @@ public final class AnnotationProcessor extends AbstractProcessor {
 
             @Getter(lazy = true)
             private final Name makeQualifiedName = getMakeElement().getQualifiedName();
-
-            @Getter(lazy = true)
-            private final Name makeSimpleName = getMakeElement().getSimpleName();
 
             @Getter(lazy = true)
             private final DeclaredType makeType = resolveMakeType();
@@ -525,10 +522,10 @@ public final class AnnotationProcessor extends AbstractProcessor {
                     return isParameterRef()
                             ? getModuleParamName().toString()
                             : isSuperRef()
-                            ? (isMakeTypeInterface() ? getMakeQualifiedName() + "." : "") + "super." + getMethodName() + "(" + getMethodParametersTerm() + ")"
+                            ? (isMakeTypeInterface() ? getMakeQualifiedName() + "." : "") + "super." + getMethodName() + "(" + getMethodParametersWithoutTypesList() + ")"
                             : getAccessedElement().map(Tuple2::getT1).orElseGet(ModuleInterface.this::getElement).getSimpleName()
                             + (isStaticRef() ? "$" : "$.this")
-                            + (isModuleRef() ? "" : "." + (isFieldRef() ? getModuleFieldName() + "" : getModuleMethodName() + "(" + getMethodParametersTerm() + ")"));
+                            + (isModuleRef() ? "" : "." + (isFieldRef() ? getModuleFieldName() + "" : getModuleMethodName() + "(" + getMethodParametersWithoutTypesList() + ")"));
                 }
 
                 @Getter(lazy = true)
@@ -610,7 +607,7 @@ public final class AnnotationProcessor extends AbstractProcessor {
             private final CachingStrategy cachingStrategy = cachingStrategy(methodElement());
 
             @Getter(lazy = true)
-            private final String cachingStrategyTerm = CACHING_STRATEGY_CLASSNAME + "." + getCachingStrategy();
+            private final String cachingStrategyName = CACHING_STRATEGY_CLASSNAME + "." + getCachingStrategy();
 
             @Getter(lazy = true)
             private final boolean nullable = resolveNullable();
@@ -630,11 +627,11 @@ public final class AnnotationProcessor extends AbstractProcessor {
                     unmodifiableList(methodElement().getParameters());
 
             @Getter(lazy = true)
-            private final String methodParametersTerm =
+            private final String methodParametersWithoutTypesList =
                     mkString(getMethodParameters(), "", ", ", "");
 
             @Getter(lazy = true)
-            private final String methodParameterTypesTerm =
+            private final String methodParametersWithTypesList =
                     mkString(getMethodParameters().stream().map(var -> var.asType() + " " + var),
                             "", ", ", "");
 
@@ -642,7 +639,12 @@ public final class AnnotationProcessor extends AbstractProcessor {
             private final TypeMirror methodReturnType = getMethodType().getReturnType();
 
             @Getter(lazy = true)
-            private final String methodThrownTypesTerm =
+            private final String methodSignatureWithoutModifiers =
+                    getMethodTypeParametersWithBoundsList() + getMethodReturnType() + " " + getMethodName() +
+                            "(" + getMethodParametersWithTypesList() + ") " + getMethodThrowsList();
+
+            @Getter(lazy = true)
+            private final String methodThrowsList =
                     mkString(getMethodType().getThrownTypes(), "throws ", ", ", " ");
 
             @Getter(lazy = true)
@@ -653,7 +655,7 @@ public final class AnnotationProcessor extends AbstractProcessor {
             }
 
             @Getter(lazy = true)
-            private final String methodTypeParametersTerm = typeParametersWithBoundsTerm(methodElement());
+            private final String methodTypeParametersWithBoundsList = typeParametersWithBoundsList(methodElement());
         }
     }
 }

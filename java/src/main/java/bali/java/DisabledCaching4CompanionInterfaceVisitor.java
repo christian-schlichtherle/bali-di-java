@@ -28,11 +28,11 @@ final class DisabledCaching4CompanionInterfaceVisitor extends DisabledCachingVis
         return out -> {
             out.nl();
             if (m.getCachingStrategy() != DISABLED) {
-                out.ad("@bali.Cache").ad(m.isNullable() ? "Nullable" : "").ad("(").ad(m.getCachingStrategyTerm()).ad(")").nl();
+                out.ad("@bali.Cache").ad(m.isNullable() ? "Nullable" : "").ad("(").ad(m.getCachingStrategyName()).ad(")").nl();
             }
             out
                     .ad("@Override").nl()
-                    .ad("default ").ad(m.getMethodTypeParametersTerm()).ad(m.getMethodReturnType()).ad(" ").ad(m.getMethodName()).ad("(").ad(m.getMethodParameterTypesTerm()).ad(") ").ad(m.getMethodThrownTypesTerm()).ad("{").nl()
+                    .ad("default ").ad(m.getMethodSignatureWithoutModifiers()).ad("{").nl()
                     .in();
         };
     }
