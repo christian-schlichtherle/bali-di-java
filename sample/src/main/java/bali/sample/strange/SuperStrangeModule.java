@@ -21,8 +21,6 @@ import bali.Make;
 import java.util.concurrent.Callable;
 import java.util.function.Supplier;
 
-import static bali.CachingStrategy.DISABLED;
-
 @Cache
 public interface SuperStrangeModule {
 
@@ -37,5 +35,7 @@ public interface SuperStrangeModule {
     }
 
     @Cache
-    default String get() { return new String("Hello world!"); }
+    default String get() {
+        return new String("Hello world!");
+    }
 }
