@@ -26,6 +26,7 @@ import java.util.function.Supplier;
  * This module is "strange" because it does nothing useful.
  * It exists for testing some advanced code generation features.
  */
+@Cache
 @Module
 public interface StrangeModule extends SuperStrangeModule {
 
@@ -37,7 +38,6 @@ public interface StrangeModule extends SuperStrangeModule {
     @Make(ThreadLocalSupplier.class)
     <T> Supplier<T> supplier(T t);
 
-    @Cache
     NestedAbstractDecorator nestedAbstractDecorator();
 
     interface NestedAbstractDecorator extends StrangeModule {

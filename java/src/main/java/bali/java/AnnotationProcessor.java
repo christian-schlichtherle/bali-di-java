@@ -343,6 +343,7 @@ public final class AnnotationProcessor extends AbstractProcessor {
 
         Consumer<Output> forAllModuleMethods4CompanionClass() {
             return out -> filteredOverridableMethods(getElement())
+                    .filter(Utils::isParameterLess)
                     .filter(e -> cachingStrategy(e) != DISABLED)
                     // HC SVNT DRACONES!
                     .filter(e -> !hasAnnotation(e, Lookup.class))
