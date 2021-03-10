@@ -26,7 +26,7 @@ interface MethodVisitor {
     default Consumer<Output> visitModuleMethod4CompanionInterface(ModuleMethod m) {
         return visitMethodBegin(m)
                 .andThen(out -> {
-                    out.ad("new ").ad(m.getMakeType()).ad("()");
+                    out.ad("new ").ad(m.getMakeTypeLocalized()).ad("()");
                     if (m.isMakeTypeAbstract()) {
                         out.ad(" {").nl().in();
                         m.forAllDependencyMethods().accept(out);
@@ -39,7 +39,7 @@ interface MethodVisitor {
     default Consumer<Output> visitModuleMethod4CompanionClass(ModuleMethod m) {
         return visitField(m, "private ")
                 .andThen(visitMethodBegin(m))
-                .andThen(out -> out.ad(m.getSuperRef()).ad(".").ad(m.getMethodName()).ad("()"))
+                .andThen(out -> out.ad(m.getCompanionInterfaceRef()).ad(".").ad(m.getMethodName()).ad("()"))
                 .andThen(visitMethodEnd(m));
     }
 
@@ -67,7 +67,7 @@ interface MethodVisitor {
         return out -> out
                 .nl()
                 .ad("@Override").nl()
-                .ad(m.getMethodModifiers()).ad(m.getMethodSignatureWithoutModifiers()).ad("{").nl()
+                .ad(m.getMethodModifiers().toString()).ad(m.getMethodSignatureWithoutModifiers()).ad("{").nl()
                 .in();
     }
 

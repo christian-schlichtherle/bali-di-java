@@ -206,7 +206,7 @@ public final class AnnotationProcessor extends AbstractProcessor {
             val moduleElement = Optional.ofNullable(getTypes().asElement(type)).filter(Utils::isModule);
             if (moduleElement.isPresent()) {
                 return moduleElement
-                        .flatMap(m -> Optional.ofNullable(getElements().getTypeElement(moduleClassName((TypeElement) m))))
+                        .flatMap(m -> Optional.ofNullable(getElements().getTypeElement(companionClassName((QualifiedNameable) m))))
                         .isPresent();
             } else {
                 return true;
@@ -287,6 +287,10 @@ public final class AnnotationProcessor extends AbstractProcessor {
         return getTypes().isSubtype(a, b) || error(a + " is not a subtype of " + b + ".", e);
     }
 
+    private PackageElement packageOf(Element e) {
+        return getElements().getPackageOf(e);
+    }
+
     @RequiredArgsConstructor
     @Getter
     final class ModuleInterface {
@@ -303,7 +307,13 @@ public final class AnnotationProcessor extends AbstractProcessor {
         private final DeclaredType declaredType = (DeclaredType) getElement().asType();
 
         @Getter(lazy = true)
-        private final Name packageName = getElements().getPackageOf(getElement()).getQualifiedName();
+        private final String declaredTypeLocalized = localize(getDeclaredType());
+
+        @Getter(lazy = true)
+        private final PackageElement packageElement = packageOf(getElement());
+
+        @Getter(lazy = true)
+        private final Name packageName = getPackageElement().getQualifiedName();
 
         @Accessors(fluent = true)
         @Getter(lazy = true)
@@ -350,6 +360,15 @@ public final class AnnotationProcessor extends AbstractProcessor {
                     .forEach(c -> c.accept(out));
         }
 
+        private String localize(Object o) {
+            return localize(o.toString());
+        }
+
+        private String localize(String s) {
+            val prefix = getPackageName() + ".";
+            return s.startsWith(prefix) ? s.substring(prefix.length()) : s;
+        }
+
         ModuleMethod newModuleMethod(ExecutableElement e) {
             return new ModuleMethod() {
 
@@ -372,10 +391,22 @@ public final class AnnotationProcessor extends AbstractProcessor {
             private final TypeElement makeElement = typeElement(getMakeType());
 
             @Getter(lazy = true)
-            private final Name makeQualifiedName = getMakeElement().getQualifiedName();
+            private final Name makeElementNameLocalized =
+                    getMakeElementPackage().equals(getPackageElement())
+                            ? getMakeElement().getSimpleName()
+                            : getMakeElement().getQualifiedName();
+
+            @Getter(lazy = true)
+            private final PackageElement makeElementPackage = packageOf(getMakeElement());
 
             @Getter(lazy = true)
             private final DeclaredType makeType = resolveMakeType();
+
+            @Getter(lazy = true)
+            private final String makeTypeLocalized =
+                    getMakeElementPackage().equals(getPackageElement())
+                            ? localize(getMakeType())
+                            : getMakeType().toString();
 
             private DeclaredType resolveMakeType() {
                 val declaredMakeType = AnnotationProcessor
@@ -388,7 +419,7 @@ public final class AnnotationProcessor extends AbstractProcessor {
                 val declaredReturnElement = typeElement(declaredReturnType);
                 if (isModule(declaredReturnElement)) {
                     val moduleType = Optional
-                            .ofNullable(getElements().getTypeElement(moduleClassName(declaredReturnElement)))
+                            .ofNullable(getElements().getTypeElement(companionClassName(declaredReturnElement)))
                             .map(Element::asType)
                             .flatMap(this::parameterizedReturnType);
                     if (moduleType.isPresent()) {
@@ -443,7 +474,7 @@ public final class AnnotationProcessor extends AbstractProcessor {
             }
 
             @Getter(lazy = true)
-            private final String superRef = moduleInterfaceName(getElement()) + ".super";
+            private final String companionInterfaceRef = getElement().getSimpleName() + "$.super";
 
             Consumer<Output> forAllDependencyMethods() {
                 return out -> filteredOverridableMethods(getMakeElement())
@@ -452,7 +483,7 @@ public final class AnnotationProcessor extends AbstractProcessor {
                         .filter(t -> t.getT1().isCachingDisabled() || checkCacheableReturnType(t.getT2()))
                         .map(t ->
                                 (t.getT1().isCachingDisabled() ? new DisabledCachingVisitor() : methodVisitor(t.getT2()))
-                                .visitDependencyMethod(t.getT1()))
+                                        .visitDependencyMethod(t.getT1()))
                         .forEach(c -> c.accept(out));
             }
 
@@ -522,7 +553,7 @@ public final class AnnotationProcessor extends AbstractProcessor {
                     return isParameterRef()
                             ? getModuleParamName().toString()
                             : isSuperRef()
-                            ? (isMakeTypeInterface() ? getMakeQualifiedName() + "." : "") + "super." + getMethodName() + "(" + getMethodParametersWithoutTypesList() + ")"
+                            ? (isMakeTypeInterface() ? getMakeElementNameLocalized() + "." : "") + "super." + getMethodName() + "(" + getMethodParametersWithoutTypesList() + ")"
                             : getAccessedElement().map(Tuple2::getT1).orElseGet(ModuleInterface.this::getElement).getSimpleName()
                             + (isStaticRef() ? "$" : "$.this")
                             + (isModuleRef() ? "" : "." + (isFieldRef() ? getModuleFieldName() + "" : getModuleMethodName() + "(" + getMethodParametersWithoutTypesList() + ")"));
@@ -636,11 +667,25 @@ public final class AnnotationProcessor extends AbstractProcessor {
                             "", ", ", "");
 
             @Getter(lazy = true)
+            private final Optional<Element> methodReturnElement =
+                    Optional.ofNullable(getTypes().asElement(getMethodReturnType()));
+
+            @Getter(lazy = true)
+            private final Optional<PackageElement> methodReturnElementPackage =
+                    getMethodReturnElement().map(AnnotationProcessor.this::packageOf);
+
+            @Getter(lazy = true)
             private final TypeMirror methodReturnType = getMethodType().getReturnType();
 
             @Getter(lazy = true)
+            private final String methodReturnTypeLocalized =
+                    getMethodReturnElementPackage().filter(p -> p.equals(getPackageElement())).isPresent()
+                            ? localize(getMethodReturnType())
+                            : getMethodReturnType().toString();
+
+            @Getter(lazy = true)
             private final String methodSignatureWithoutModifiers =
-                    getMethodTypeParametersWithBoundsList() + getMethodReturnType() + " " + getMethodName() +
+                    getMethodTypeParametersWithBoundsList() + getMethodReturnTypeLocalized() + " " + getMethodName() +
                             "(" + getMethodParametersWithTypesList() + ") " + getMethodThrowsList();
 
             @Getter(lazy = true)

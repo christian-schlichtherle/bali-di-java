@@ -34,7 +34,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static bali.CachingStrategy.DISABLED;
-import static javax.lang.model.type.TypeKind.DECLARED;
 import static javax.lang.model.type.TypeKind.VOID;
 
 final class Utils {
@@ -145,11 +144,11 @@ final class Utils {
         return ModifierSet.of(e.getModifiers());
     }
 
-    static String moduleClassName(TypeElement e) {
-        return moduleInterfaceName(e) + "$";
+    static String companionClassName(QualifiedNameable e) {
+        return companionInterfaceName(e) + "$";
     }
 
-    static String moduleInterfaceName(TypeElement e) {
+    static String companionInterfaceName(QualifiedNameable e) {
         return e.getQualifiedName() + "$";
     }
 

@@ -15,6 +15,8 @@
  */
 package bali.java;
 
+import javax.lang.model.element.Name;
+
 final class Output {
 
     private final StringBuilder out = new StringBuilder();
@@ -40,18 +42,14 @@ final class Output {
         return this;
     }
 
-    Output ad(Object obj) {
-        return ad(String.valueOf(obj));
-    }
-
-    Output ad(final String str) {
+    Output ad(final CharSequence s) {
         if (nl) {
             nl = false;
             for (int i = 0; i < indentation; i++) {
                 out.append("    ");
             }
         }
-        out.append(str);
+        out.append(s);
         return this;
     }
 

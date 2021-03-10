@@ -25,20 +25,20 @@ final class NotThreadSafeCachingVisitor implements MethodVisitor {
     public Consumer<Output> visitNonNullField(Method m, String prefix) {
         return out -> out
                 .nl()
-                .ad(prefix).ad(m.getMethodReturnType()).ad(" ").ad(m.getMethodName()).ad(";").nl();
+                .ad(prefix).ad(m.getMethodReturnTypeLocalized()).ad(" ").ad(m.getMethodName()).ad(";").nl();
     }
 
     @Override
     public Consumer<Output> visitNullableField(Method m, String prefix) {
         return out -> out
                 .nl()
-                .ad(prefix).ad("java.util.function.Supplier<").ad(m.getMethodReturnType()).ad("> ").ad(m.getMethodName()).ad(";").nl();
+                .ad(prefix).ad("java.util.function.Supplier<").ad(m.getMethodReturnTypeLocalized()).ad("> ").ad(m.getMethodName()).ad(";").nl();
     }
 
     @Override
     public Consumer<Output> visitNonNullMethodBegin(Method m) {
         return out -> out
-                .ad(m.getMethodReturnType()).ad(" value;").nl()
+                .ad(m.getMethodReturnTypeLocalized()).ad(" value;").nl()
                 .ad("if (null == (value = this.").ad(m.getMethodName()).ad(")) {").nl()
                 .ad("    this.").ad(m.getMethodName()).ad(" = value = ")
                 .in();
@@ -56,9 +56,9 @@ final class NotThreadSafeCachingVisitor implements MethodVisitor {
     @Override
     public Consumer<Output> visitNullableMethodBegin(Method m) {
         return out -> out
-                .ad("java.util.function.Supplier<").ad(m.getMethodReturnType()).ad("> supplier;").nl()
+                .ad("java.util.function.Supplier<").ad(m.getMethodReturnTypeLocalized()).ad("> supplier;").nl()
                 .ad("if (null == (supplier = this.").ad(m.getMethodName()).ad(")) {").nl()
-                .ad("    final ").ad(m.getMethodReturnType()).ad(" value = ")
+                .ad("    final ").ad(m.getMethodReturnTypeLocalized()).ad(" value = ")
                 .in();
     }
 

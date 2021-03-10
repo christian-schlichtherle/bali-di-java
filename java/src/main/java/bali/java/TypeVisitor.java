@@ -29,12 +29,12 @@ final class TypeVisitor {
                     .ad("/*").nl()
                     .ad(m.generated()).nl()
                     .ad("*/").nl()
-                    .ad(m.getModifiers()).ad("interface ").ad(m.getSimpleName()).ad(m.getTypeParametersWithBoundsList().isEmpty() ? "$ " : "$").ad(m.getTypeParametersWithBoundsList()).ad("extends ").ad(m.getDeclaredType()).ad(" {").nl()
+                    .ad(m.getModifiers().toString()).ad("interface ").ad(m.getSimpleName()).ad(m.getTypeParametersWithBoundsList().isEmpty() ? "$ " : "$").ad(m.getTypeParametersWithBoundsList()).ad("extends ").ad(m.getDeclaredTypeLocalized()).ad(" {").nl()
                     .in();
             if (!m.hasAbstractMethods()) {
                 out
                         .nl()
-                        .ad("static ").ad(m.getTypeParametersWithBoundsList()).ad(m.getDeclaredType()).ad(" new$() {").nl()
+                        .ad("static ").ad(m.getTypeParametersWithBoundsList()).ad(m.getDeclaredTypeLocalized()).ad(" new$() {").nl()
                         .ad("    return new ").ad(m.getSimpleName()).ad("$$").ad(m.getTypeParametersWithoutBoundsList()).ad("() {").nl()
                         .ad("    };").nl()
                         .ad("}").nl();
@@ -52,7 +52,7 @@ final class TypeVisitor {
                     .ad("/*").nl()
                     .ad(m.generated()).nl()
                     .ad("*/").nl()
-                    .ad(m.getModifiers()).ad("abstract class ").ad(m.getSimpleName()).ad(m.getTypeParametersWithBoundsList().isEmpty() ? "$$ " : "$$").ad(m.getTypeParametersWithBoundsList()).ad("implements ").ad(m.getSimpleName()).ad(m.getTypeParametersWithoutBoundsList().isEmpty() ? "$ " : "$").ad(m.getTypeParametersWithoutBoundsList()).ad("{").nl()
+                    .ad(m.getModifiers().toString()).ad("abstract class ").ad(m.getSimpleName()).ad(m.getTypeParametersWithBoundsList().isEmpty() ? "$$ " : "$$").ad(m.getTypeParametersWithBoundsList()).ad("implements ").ad(m.getSimpleName()).ad(m.getTypeParametersWithoutBoundsList().isEmpty() ? "$ " : "$").ad(m.getTypeParametersWithoutBoundsList()).ad("{").nl()
                     .in();
             m.forAllModuleMethods4CompanionClass().accept(out);
             out.out().ad("}").nl();
