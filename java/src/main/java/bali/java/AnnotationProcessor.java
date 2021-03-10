@@ -266,9 +266,8 @@ public final class AnnotationProcessor extends AbstractProcessor {
         getMessager().printMessage(WARNING, message, e);
     }
 
-    private boolean checkDeclaredReturnType(ExecutableElement e) {
-        return hasDeclaredReturnType(e)
-                || error("Provider or factory methods in modules must return class or interface types.", e);
+    private boolean checkCacheableReturnType(ExecutableElement e) {
+        return hasCacheableReturnType(e) || error("Cannot cache return value.", e);
     }
 
     private String typeParametersWithoutBoundsList(Parameterizable parameterizable) {
@@ -311,8 +310,7 @@ public final class AnnotationProcessor extends AbstractProcessor {
         private final boolean hasAbstractMethods =
                 allOverridableMethods(getElement())
                         .filter(Utils::isAbstract)
-                        .anyMatch(e ->
-                                hasVoidReturnType(e) || hasAnnotation(e, Lookup.class) || !hasDeclaredReturnType(e));
+                        .anyMatch(e -> hasAnnotation(e, Lookup.class) || !hasCacheableReturnType(e));
 
         @Getter(lazy = true)
         private final String typeParametersWithoutBoundsList = typeParametersWithoutBoundsList(getElement());
@@ -334,9 +332,9 @@ public final class AnnotationProcessor extends AbstractProcessor {
         Consumer<Output> forAllModuleMethods4CompanionInterface() {
             return out -> filteredOverridableMethods(getElement())
                     .filter(Utils::isAbstract)
-                    // HC SVNT DRACONES!
                     .filter(e -> !hasAnnotation(e, Lookup.class))
-                    .filter(AnnotationProcessor.this::checkDeclaredReturnType)
+                    // HC SVNT DRACONES!
+                    .filter(AnnotationProcessor.this::checkCacheableReturnType)
                     .map(e -> new DisabledCaching4CompanionInterfaceVisitor().visitModuleMethod4CompanionInterface(newModuleMethod(e)))
                     .forEach(c -> c.accept(out));
         }
@@ -345,9 +343,9 @@ public final class AnnotationProcessor extends AbstractProcessor {
             return out -> filteredOverridableMethods(getElement())
                     .filter(Utils::isParameterLess)
                     .filter(e -> cachingStrategy(e) != DISABLED)
-                    // HC SVNT DRACONES!
                     .filter(e -> !hasAnnotation(e, Lookup.class))
-                    .filter(AnnotationProcessor.this::checkDeclaredReturnType)
+                    // HC SVNT DRACONES!
+                    .filter(AnnotationProcessor.this::checkCacheableReturnType)
                     .map(e -> methodVisitor(e).visitModuleMethod4CompanionClass(newModuleMethod(e)))
                     .forEach(c -> c.accept(out));
         }
@@ -449,6 +447,8 @@ public final class AnnotationProcessor extends AbstractProcessor {
 
             Consumer<Output> forAllDependencyMethods() {
                 return out -> filteredOverridableMethods(getMakeElement())
+                        // HC SVNT DRACONES!
+                        .filter(AnnotationProcessor.this::checkCacheableReturnType)
                         .map(e -> {
                             val method = newDependencyMethod(e);
                             return (method.isCachingDisabled() ? new DisabledCachingVisitor() : methodVisitor(e))
