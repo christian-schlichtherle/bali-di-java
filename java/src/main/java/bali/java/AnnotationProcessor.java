@@ -448,12 +448,11 @@ public final class AnnotationProcessor extends AbstractProcessor {
             Consumer<Output> forAllDependencyMethods() {
                 return out -> filteredOverridableMethods(getMakeElement())
                         // HC SVNT DRACONES!
-                        .filter(AnnotationProcessor.this::checkCacheableReturnType)
-                        .map(e -> {
-                            val method = newDependencyMethod(e);
-                            return (method.isCachingDisabled() ? new DisabledCachingVisitor() : methodVisitor(e))
-                                    .visitDependencyMethod(method);
-                        })
+                        .map(e -> new Tuple2<>(newDependencyMethod(e), e))
+                        .filter(t -> t.getT1().isCachingDisabled() || checkCacheableReturnType(t.getT2()))
+                        .map(t ->
+                                (t.getT1().isCachingDisabled() ? new DisabledCachingVisitor() : methodVisitor(t.getT2()))
+                                .visitDependencyMethod(t.getT1()))
                         .forEach(c -> c.accept(out));
             }
 
