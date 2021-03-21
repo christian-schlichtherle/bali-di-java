@@ -178,34 +178,34 @@ package bali.sample.genericclock;
 
 /*
 @javax.annotation.Generated(
-    comments = "round=1, version=0.9.1-SNAPSHOT",
-    date = "2021-02-18T08:22:51.523+01:00",
+    comments = "round=1, version=0.11.0",
+    date = "2021-03-21T16:45:20.955+01:00",
     value = "bali.java.AnnotationProcessor"
 )
 */
-public interface GenericClockApp$ extends bali.sample.genericclock.GenericClockApp { // (1)
+public interface GenericClockApp$ extends GenericClockApp { // (1)
 
-    static bali.sample.genericclock.GenericClockApp new$() { // (2)
-        return new GenericClockApp$$() {
-        };
-    }
+  static GenericClockApp new$() { // (2)
+    return new GenericClockApp$$() {
+    };
+  }
 
-    @bali.Cache(bali.CachingStrategy.THREAD_SAFE)
-    @Override
-    default java.util.function.Supplier<java.util.Date> clock() { // (3)
-        return new java.util.function.Supplier<java.util.Date>() {
+  @bali.Cache(bali.CachingStrategy.THREAD_SAFE)
+  @Override
+  default java.util.function.Supplier<java.util.Date> clock() { // (3)
+    return new java.util.function.Supplier<java.util.Date>() {
 
-            @Override
-            public java.util.Date get() {
-                return GenericClockApp$.this.get();
-            }
-        };
-    }
+      @Override
+      public java.util.Date get() {
+        return GenericClockApp$.this.get();
+      }
+    };
+  }
 
-    @Override
-    default java.util.Date get() { // (4)
-        return new java.util.Date();
-    }
+  @Override
+  default java.util.Date get() { // (4)
+    return new java.util.Date();
+  }
 }
 ```
 
@@ -230,27 +230,27 @@ package bali.sample.genericclock;
 
 /*
 @javax.annotation.Generated(
-    comments = "round=1, version=0.9.1-SNAPSHOT",
-    date = "2021-02-18T08:22:51.557+01:00",
+    comments = "round=1, version=0.11.0",
+    date = "2021-03-21T16:45:20.956+01:00",
     value = "bali.java.AnnotationProcessor"
 )
 */
 public abstract class GenericClockApp$$ implements GenericClockApp$ {
 
-    private volatile java.util.function.Supplier<java.util.Date> clock;
+  private volatile java.util.function.Supplier<java.util.Date> clock;
 
-    @Override
-    public java.util.function.Supplier<java.util.Date> clock() {
-        java.util.function.Supplier<java.util.Date> value;
+  @Override
+  public java.util.function.Supplier<java.util.Date> clock() {
+    java.util.function.Supplier<java.util.Date> value;
+    if (null == (value = this.clock)) {
+      synchronized (this) {
         if (null == (value = this.clock)) {
-            synchronized (this) {
-                if (null == (value = this.clock)) {
-                    this.clock = value = bali.sample.genericclock.GenericClockApp$.super.clock();
-                }
-            }
+          this.clock = value = GenericClockApp$.super.clock();
         }
-        return value;
+      }
     }
+    return value;
+  }
 }
 ```
 
