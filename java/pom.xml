@@ -20,7 +20,7 @@
     <parent>
         <groupId>global.namespace.bali</groupId>
         <artifactId>bali-parent</artifactId>
-        <version>0.11.1</version>
+        <version>0.11.2-SNAPSHOT</version>
     </parent>
 
     <artifactId>bali-java</artifactId>
@@ -31,7 +31,7 @@
         <dependency>
             <groupId>global.namespace.bali</groupId>
             <artifactId>bali-annotation</artifactId>
-            <version>0.11.1</version>
+            <version>0.11.2-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
