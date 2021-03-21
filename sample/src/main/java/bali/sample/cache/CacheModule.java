@@ -19,6 +19,7 @@ import bali.Cache;
 import bali.Module;
 
 import java.util.Date;
+import java.util.concurrent.ThreadLocalRandom;
 
 import static bali.CachingStrategy.*;
 
@@ -40,5 +41,10 @@ public interface CacheModule {
     @Cache
     default Date fixed() {
         return new Date();
+    }
+
+    @Cache(THREAD_LOCAL)
+    default int randomInt() {
+        return ThreadLocalRandom.current().nextInt();
     }
 }

@@ -92,8 +92,7 @@ final class Utils {
     }
 
     static boolean hasCacheableReturnType(final ExecutableElement e) {
-        val returnType = e.getReturnType();
-        return !isVoid(returnType) && !returnType.getKind().isPrimitive();
+        return !isVoid(e.getReturnType());
     }
 
     static boolean hasVoidReturnType(ExecutableElement e) {

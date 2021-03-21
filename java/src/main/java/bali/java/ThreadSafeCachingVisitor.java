@@ -25,20 +25,20 @@ final class ThreadSafeCachingVisitor implements MethodVisitor {
     public Consumer<Output> visitNonNullField(Method m, String prefix) {
         return out -> out
                 .nl()
-                .ad(prefix).ad("volatile ").ad(m.getMethodReturnTypeLocalized()).ad(" ").ad(m.getMethodName()).ad(";").nl();
+                .ad(prefix).ad("volatile ").ad(m.getMethodCacheTypeLocalized()).ad(" ").ad(m.getMethodName()).ad(";").nl();
     }
 
     @Override
     public Consumer<Output> visitNullableField(Method m, String prefix) {
         return out -> out
                 .nl()
-                .ad(prefix).ad("volatile java.util.function.Supplier<").ad(m.getMethodReturnTypeLocalized()).ad("> ").ad(m.getMethodName()).ad(";").nl();
+                .ad(prefix).ad("volatile java.util.function.Supplier<").ad(m.getMethodCacheTypeLocalized()).ad("> ").ad(m.getMethodName()).ad(";").nl();
     }
 
     @Override
     public Consumer<Output> visitNonNullMethodBegin(Method m) {
         return out -> out
-                .ad(m.getMethodReturnTypeLocalized()).ad(" value;").nl()
+                .ad(m.getMethodCacheTypeLocalized()).ad(" value;").nl()
                 .ad("if (null == (value = this.").ad(m.getMethodName()).ad(")) {").nl()
                 .ad("    synchronized (this) {").nl()
                 .ad("        if (null == (value = this.").ad(m.getMethodName()).ad(")) {").nl()
@@ -60,11 +60,11 @@ final class ThreadSafeCachingVisitor implements MethodVisitor {
     @Override
     public Consumer<Output> visitNullableMethodBegin(Method m) {
         return out -> out
-                .ad("java.util.function.Supplier<").ad(m.getMethodReturnTypeLocalized()).ad("> supplier;").nl()
+                .ad("java.util.function.Supplier<").ad(m.getMethodCacheTypeLocalized()).ad("> supplier;").nl()
                 .ad("if (null == (supplier = this.").ad(m.getMethodName()).ad(")) {").nl()
                 .ad("    synchronized (this) {").nl()
                 .ad("        if (null == (supplier = this.").ad(m.getMethodName()).ad(")) {").nl()
-                .ad("            final ").ad(m.getMethodReturnTypeLocalized()).ad(" value = ")
+                .ad("            final ").ad(m.getMethodCacheTypeLocalized()).ad(" value = ")
                 .in(3);
     }
 

@@ -24,10 +24,7 @@ import lombok.val;
 import javax.annotation.processing.*;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.*;
-import javax.lang.model.type.DeclaredType;
-import javax.lang.model.type.ExecutableType;
-import javax.lang.model.type.TypeKind;
-import javax.lang.model.type.TypeMirror;
+import javax.lang.model.type.*;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
 import java.io.IOException;
@@ -644,6 +641,26 @@ public final class AnnotationProcessor extends AbstractProcessor {
             private final boolean nullable = resolveNullable();
 
             abstract boolean resolveNullable();
+
+            @Getter(lazy = true)
+            private final Optional<Element> methodCacheElement =
+                    Optional.ofNullable(getTypes().asElement(getMethodCacheType()));
+
+            @Getter(lazy = true)
+            private final Optional<PackageElement> methodCacheElementPackage =
+                    getMethodCacheElement().map(AnnotationProcessor.this::packageOf);
+
+            @Getter(lazy = true)
+            private final TypeMirror methodCacheType =
+                    getMethodReturnType().getKind().isPrimitive()
+                    ? getTypes().boxedClass((PrimitiveType) getMethodReturnType()).asType()
+                    : getMethodReturnType();
+
+            @Getter(lazy = true)
+            private final String methodCacheTypeLocalized =
+                    getMethodCacheElementPackage().filter(p -> p.equals(getPackageElement())).isPresent()
+                            ? localize(getMethodCacheType())
+                            : getMethodCacheType().toString();
 
             abstract ExecutableElement methodElement();
 
