@@ -54,5 +54,29 @@ class CacheModuleSpec extends AnyWordSpec {
     "cache the time (fixed)" in {
       fixed shouldBe theSameInstanceAs(fixed)
     }
+
+    "cache the random integer (thread-local)" in {
+      var a1: Int = 0
+      var a2: Int = 0
+
+      var b1: Int = 0
+      var b2: Int = 0
+
+      new Thread(() => {
+        a1 = randomInt
+        a2 = randomInt
+      }).tap(_.start()).join()
+
+      new Thread(() => {
+        b1 = randomInt
+        b2 = randomInt
+      }).tap(_.start()).join()
+
+      a1 shouldEqual a2
+
+      b1 shouldEqual b2
+
+      a1 should not equal b1
+    }
   }
 }
