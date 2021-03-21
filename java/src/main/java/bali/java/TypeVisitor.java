@@ -29,12 +29,12 @@ final class TypeVisitor {
                     .ad("/*").nl()
                     .ad(m.generated()).nl()
                     .ad("*/").nl()
-                    .ad(m.getModifiers().toString()).ad("interface ").ad(m.getSimpleName()).ad(m.getTypeParametersWithBoundsList().isEmpty() ? "$ " : "$").ad(m.getTypeParametersWithBoundsList()).ad("extends ").ad(m.getDeclaredTypeLocalized()).ad(" {").nl()
+                    .ad(m.getModifiers().toString()).ad("interface ").ad(m.getSimpleName()).ad(m.getTypeParametersWithBoundsList().isEmpty() ? "$ " : "$").ad(m.getTypeParametersWithBoundsList()).ad("extends ").ad(m.getLocalDeclaredType()).ad(" {").nl()
                     .in();
             if (!m.hasAbstractMethods()) {
                 out
                         .nl()
-                        .ad("static ").ad(m.getTypeParametersWithBoundsList()).ad(m.getDeclaredTypeLocalized()).ad(" new$() {").nl()
+                        .ad("static ").ad(m.getTypeParametersWithBoundsList()).ad(m.getLocalDeclaredType()).ad(" new$() {").nl()
                         .ad("    return new ").ad(m.getSimpleName()).ad("$$").ad(m.getTypeParametersWithoutBoundsList()).ad("() {").nl()
                         .ad("    };").nl()
                         .ad("}").nl();

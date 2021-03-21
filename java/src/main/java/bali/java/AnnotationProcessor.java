@@ -41,27 +41,28 @@ import static bali.java.Utils.*;
 import static java.util.Collections.unmodifiableList;
 import static javax.tools.Diagnostic.Kind.ERROR;
 import static javax.tools.Diagnostic.Kind.WARNING;
+import static lombok.AccessLevel.PRIVATE;
 
 @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
 @SupportedAnnotationTypes("bali.*")
 public final class AnnotationProcessor extends AbstractProcessor {
 
-    @Getter(lazy = true)
+    @Getter(lazy = true, value = PRIVATE)
     private final Elements elements = processingEnv.getElementUtils();
 
-    @Getter(lazy = true)
+    @Getter(lazy = true, value = PRIVATE)
     private final Filer filer = processingEnv.getFiler();
 
-    @Getter(lazy = true)
+    @Getter(lazy = true, value = PRIVATE)
     private final Name makeAnnotationName = getElements().getName(Make.class.getName());
 
-    @Getter(lazy = true)
+    @Getter(lazy = true, value = PRIVATE)
     private final Messager messager = processingEnv.getMessager();
 
-    @Getter(lazy = true)
+    @Getter(lazy = true, value = PRIVATE)
     private final Name moduleAnnotationName = getElements().getName(Module.class.getName());
 
-    @Getter(lazy = true)
+    @Getter(lazy = true, value = PRIVATE)
     private final Types types = processingEnv.getTypeUtils();
 
     private int round;
@@ -303,21 +304,21 @@ public final class AnnotationProcessor extends AbstractProcessor {
         @Getter(lazy = true)
         private final DeclaredType declaredType = (DeclaredType) getElement().asType();
 
-        @Getter(lazy = true)
-        private final String declaredTypeLocalized = localize(getDeclaredType());
-
-        @Getter(lazy = true)
-        private final PackageElement packageElement = packageOf(getElement());
-
-        @Getter(lazy = true)
-        private final Name packageName = getPackageElement().getQualifiedName();
-
         @Accessors(fluent = true)
         @Getter(lazy = true)
         private final boolean hasAbstractMethods =
                 allOverridableMethods(getElement())
                         .filter(Utils::isAbstract)
                         .anyMatch(e -> hasAnnotation(e, Lookup.class) || !hasCacheableReturnType(e));
+
+        @Getter(lazy = true)
+        private final String localDeclaredType = local(getDeclaredType());
+
+        @Getter(lazy = true)
+        private final PackageElement packageElement = packageOf(getElement());
+
+        @Getter(lazy = true)
+        private final Name packageName = getPackageElement().getQualifiedName();
 
         @Getter(lazy = true)
         private final String typeParametersWithoutBoundsList = typeParametersWithoutBoundsList(getElement());
@@ -357,11 +358,11 @@ public final class AnnotationProcessor extends AbstractProcessor {
                     .forEach(c -> c.accept(out));
         }
 
-        private String localize(Object o) {
-            return localize(o.toString());
+        private String local(Object o) {
+            return local(o.toString());
         }
 
-        private String localize(String s) {
+        private String local(String s) {
             val prefix = getPackageName() + ".";
             return s.startsWith(prefix) ? s.substring(prefix.length()) : s;
         }
@@ -379,6 +380,18 @@ public final class AnnotationProcessor extends AbstractProcessor {
         abstract class ModuleMethod extends Method {
 
             @Getter(lazy = true)
+            private final Name localMakeElementName =
+                    getMakeElementPackage().equals(getPackageElement())
+                            ? getMakeElement().getSimpleName()
+                            : getMakeElement().getQualifiedName();
+
+            @Getter(lazy = true)
+            private final String localMakeType =
+                    getMakeElementPackage().equals(getPackageElement())
+                            ? local(getMakeType())
+                            : getMakeType().toString();
+
+            @Getter(lazy = true)
             private final boolean makeTypeAbstract = isAbstract(getMakeElement());
 
             @Getter(lazy = true)
@@ -388,22 +401,10 @@ public final class AnnotationProcessor extends AbstractProcessor {
             private final TypeElement makeElement = typeElement(getMakeType());
 
             @Getter(lazy = true)
-            private final Name makeElementNameLocalized =
-                    getMakeElementPackage().equals(getPackageElement())
-                            ? getMakeElement().getSimpleName()
-                            : getMakeElement().getQualifiedName();
-
-            @Getter(lazy = true)
             private final PackageElement makeElementPackage = packageOf(getMakeElement());
 
             @Getter(lazy = true)
             private final DeclaredType makeType = resolveMakeType();
-
-            @Getter(lazy = true)
-            private final String makeTypeLocalized =
-                    getMakeElementPackage().equals(getPackageElement())
-                            ? localize(getMakeType())
-                            : getMakeType().toString();
 
             private DeclaredType resolveMakeType() {
                 val declaredMakeType = AnnotationProcessor
@@ -468,7 +469,7 @@ public final class AnnotationProcessor extends AbstractProcessor {
             @Override
             boolean resolveNullable() {
                 return !isAbstract(getMethodElement())
-                        && !isMethodReturnTypePrimitive()
+                        && !isPrimitiveMethodReturnType()
                         && getAnnotation(getMethodElement(), CacheNullable.class).isPresent();
             }
 
@@ -552,7 +553,7 @@ public final class AnnotationProcessor extends AbstractProcessor {
                     return isParameterRef()
                             ? getModuleParamName().toString()
                             : isSuperRef()
-                            ? (isMakeTypeInterface() ? getMakeElementNameLocalized() + "." : "") + "super." + getMethodName() + "(" + getMethodParametersWithoutTypesList() + ")"
+                            ? (isMakeTypeInterface() ? getLocalMakeElementName() + "." : "") + "super." + getMethodName() + "(" + getMethodParametersWithoutTypesList() + ")"
                             : getAccessedElement().map(Tuple2::getT1).orElseGet(ModuleInterface.this::getElement).getSimpleName()
                             + (isStaticRef() ? "$" : "$.this")
                             + (isModuleRef() ? "" : "." + (isFieldRef() ? getModuleFieldName() + "" : getModuleMethodName() + "(" + getMethodParametersWithoutTypesList() + ")"));
@@ -640,9 +641,16 @@ public final class AnnotationProcessor extends AbstractProcessor {
             private final String cachingStrategyName = CACHING_STRATEGY_CLASSNAME + "." + getCachingStrategy();
 
             @Getter(lazy = true)
-            private final boolean nullable = resolveNullable();
+            private final String localMethodCacheType =
+                    getMethodCacheElementPackage().filter(p -> p.equals(getPackageElement())).isPresent()
+                            ? local(getMethodCacheType())
+                            : getMethodCacheType().toString();
 
-            abstract boolean resolveNullable();
+            @Getter(lazy = true)
+            private final String localMethodReturnType =
+                    getMethodReturnElementPackage().filter(p -> p.equals(getPackageElement())).isPresent()
+                            ? local(getMethodReturnType())
+                            : getMethodReturnType().toString();
 
             @Getter(lazy = true)
             private final Optional<Element> methodCacheElement =
@@ -654,15 +662,9 @@ public final class AnnotationProcessor extends AbstractProcessor {
 
             @Getter(lazy = true)
             private final TypeMirror methodCacheType =
-                    isMethodReturnTypePrimitive()
-                    ? getTypes().boxedClass((PrimitiveType) getMethodReturnType()).asType()
-                    : getMethodReturnType();
-
-            @Getter(lazy = true)
-            private final String methodCacheTypeLocalized =
-                    getMethodCacheElementPackage().filter(p -> p.equals(getPackageElement())).isPresent()
-                            ? localize(getMethodCacheType())
-                            : getMethodCacheType().toString();
+                    isPrimitiveMethodReturnType()
+                            ? getTypes().boxedClass((PrimitiveType) getMethodReturnType()).asType()
+                            : getMethodReturnType();
 
             abstract ExecutableElement getMethodElement();
 
@@ -697,17 +699,8 @@ public final class AnnotationProcessor extends AbstractProcessor {
             private final TypeMirror methodReturnType = getMethodType().getReturnType();
 
             @Getter(lazy = true)
-            private final boolean methodReturnTypePrimitive = getMethodReturnType().getKind().isPrimitive();
-
-            @Getter(lazy = true)
-            private final String methodReturnTypeLocalized =
-                    getMethodReturnElementPackage().filter(p -> p.equals(getPackageElement())).isPresent()
-                            ? localize(getMethodReturnType())
-                            : getMethodReturnType().toString();
-
-            @Getter(lazy = true)
             private final String methodSignatureWithoutModifiers =
-                    getMethodTypeParametersWithBoundsList() + getMethodReturnTypeLocalized() + " " + getMethodName() +
+                    getMethodTypeParametersWithBoundsList() + getLocalMethodReturnType() + " " + getMethodName() +
                             "(" + getMethodParametersWithTypesList() + ") " + getMethodThrowsList();
 
             @Getter(lazy = true)
@@ -723,6 +716,14 @@ public final class AnnotationProcessor extends AbstractProcessor {
 
             @Getter(lazy = true)
             private final String methodTypeParametersWithBoundsList = typeParametersWithBoundsList(getMethodElement());
+
+            @Getter(lazy = true)
+            private final boolean nullable = resolveNullable();
+
+            abstract boolean resolveNullable();
+
+            @Getter(lazy = true)
+            private final boolean primitiveMethodReturnType = getMethodReturnType().getKind().isPrimitive();
         }
     }
 }
