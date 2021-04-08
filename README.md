@@ -23,7 +23,7 @@ following dependency to your project:
     <groupId>global.namespace.bali</groupId>
     <artifactId>bali-java</artifactId>
     <!-- see https://github.com/christian-schlichtherle/bali-di/releases/latest -->
-    <version>0.11.1</version>
+    <version>0.11.2</version>
     <scope>provided</scope>
 </dependency>
 ```
@@ -176,13 +176,12 @@ Therefore, let's call this the _companion interface_:
 ```java
 package bali.sample.genericclock;
 
-/*
-@javax.annotation.Generated(
-    comments = "round=1, version=0.11.0",
-    date = "2021-03-21T16:45:20.955+01:00",
-    value = "bali.java.AnnotationProcessor"
+@bali.Generated(
+        processor = "bali.java.AnnotationProcessor",
+        round = 1,
+        timestamp = "2021-03-21T16:45:20.955+01:00",
+        version = "0.11.2"
 )
-*/
 public interface GenericClockApp$ extends GenericClockApp { // (1)
 
   static GenericClockApp new$() { // (2)
@@ -228,13 +227,12 @@ Therefore, let's call this the _companion class_:
 ```java
 package bali.sample.genericclock;
 
-/*
-@javax.annotation.Generated(
-    comments = "round=1, version=0.11.0",
-    date = "2021-03-21T16:45:20.956+01:00",
-    value = "bali.java.AnnotationProcessor"
+@bali.Generated(
+        processor = "bali.java.AnnotationProcessor",
+        round = 1,
+        timestamp = "2021-03-21T16:45:20.956+01:00",
+        version = "0.11.2"
 )
-*/
 public abstract class GenericClockApp$$ implements GenericClockApp$ {
 
   private volatile java.util.function.Supplier<java.util.Date> clock;
