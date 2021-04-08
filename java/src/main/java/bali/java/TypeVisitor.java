@@ -26,9 +26,7 @@ final class TypeVisitor {
             out
                     .ad("package ").ad(m.getPackageName()).ad(";").nl()
                     .nl()
-                    .ad("/*").nl()
                     .ad(m.generated()).nl()
-                    .ad("*/").nl()
                     .ad(m.getModifiers().toString()).ad("interface ").ad(m.getSimpleName()).ad(m.getTypeParametersWithBoundsList().isEmpty() ? "$ " : "$").ad(m.getTypeParametersWithBoundsList()).ad("extends ").ad(m.getLocalDeclaredType()).ad(" {").nl()
                     .in();
             if (!m.hasAbstractMethods()) {
@@ -49,9 +47,7 @@ final class TypeVisitor {
             out
                     .ad("package ").ad(m.getPackageName()).ad(";").nl()
                     .nl()
-                    .ad("/*").nl()
                     .ad(m.generated()).nl()
-                    .ad("*/").nl()
                     .ad(m.getModifiers().toString()).ad("abstract class ").ad(m.getSimpleName()).ad(m.getTypeParametersWithBoundsList().isEmpty() ? "$$ " : "$$").ad(m.getTypeParametersWithBoundsList()).ad("implements ").ad(m.getSimpleName()).ad(m.getTypeParametersWithoutBoundsList().isEmpty() ? "$ " : "$").ad(m.getTypeParametersWithoutBoundsList()).ad("{").nl()
                     .in();
             m.forAllModuleMethods4CompanionClass().accept(out);

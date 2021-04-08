@@ -328,13 +328,17 @@ public final class AnnotationProcessor extends AbstractProcessor {
 
         String generated() {
             return String.format(Locale.ENGLISH,
-                    "@javax.annotation.Generated(\n" +
-                            "    comments = \"round=%d, version=%s\",\n" +
-                            "    date = \"%s\",\n" +
-                            "    value = \"%s\"\n" +
+                    "@bali.Generated(\n" +
+                            "    processor = \"%s\",\n" +
+                            "    round = %d,\n" +
+                            "    timestamp = \"%s\",\n" +
+                            "    version = \"%s\"\n" +
                             ")",
-                    round, RESOURCE_BUNDLE.getString("version"), OffsetDateTime.now(),
-                    AnnotationProcessor.class.getName());
+                    AnnotationProcessor.class.getName(),
+                    round,
+                    OffsetDateTime.now(),
+                    RESOURCE_BUNDLE.getString("version")
+            );
         }
 
         Consumer<Output> forAllModuleMethods4CompanionInterface() {
