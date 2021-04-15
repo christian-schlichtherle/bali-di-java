@@ -25,7 +25,7 @@
 
     <artifactId>bali-java</artifactId>
 
-    <name>Bali DI Java</name>
+    <name>Bali DI for Java</name>
 
     <dependencies>
         <dependency>
