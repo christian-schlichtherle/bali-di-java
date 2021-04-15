@@ -29,7 +29,7 @@ following dependency to your project:
 </dependency>
 ```
 
-Note that this is a compile-time-only dependency - there is no runtime dependency of your code on Bali DI!
+Note that this is a compile-time-only dependency - there is no runtime dependency of your code on Bali DI for Java!
 
 ## Sample Code
 
