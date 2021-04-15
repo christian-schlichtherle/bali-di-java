@@ -24,11 +24,11 @@
     </parent>
 
     <groupId>global.namespace.bali</groupId>
-    <artifactId>bali-root</artifactId>
+    <artifactId>bali-java-root</artifactId>
     <version>0.11.3-SNAPSHOT</version>
     <packaging>pom</packaging>
 
-    <name>Bali DI Root</name>
+    <name>Bali DI Root for Java</name>
     <description>Bali DI is a Java code generator for dependency injection.</description>
 
     <url>https://github.com/christian-schlichtherle/bali-di</url>
