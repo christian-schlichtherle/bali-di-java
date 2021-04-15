@@ -3,14 +3,14 @@
 [![Apache License 2.0](https://img.shields.io/github/license/christian-schlichtherle/bali-di.svg)](https://www.apache.org/licenses/LICENSE-2.0)
 [![Test Workflow](https://github.com/christian-schlichtherle/bali-di/workflows/test/badge.svg)](https://github.com/christian-schlichtherle/bali-di/actions?query=workflow%3Atest)
 
-# Bali DI
+# Bali DI for Java
 
-Bali DI is a Java code generator for dependency injection. As a pure annotation processor, it works with any Java
-compiler which is compliant to Java 8 or later.
+Bali DI for Java is a pure annotation processor which generates source code to automate dependency injection. It
+supports any compiler which is compliant to Java 8 or later.
 
 > Bali is also an [island](https://en.wikipedia.org/wiki/Bali) between Java and Lombok in Indonesia.
-> For disambiguation, the name of this project is "Bali DI", not just "Bali", where DI is an acronym for [_dependency
-> injection_](https://en.wikipedia.org/wiki/Dependency_injection).
+> For disambiguation, the name of this project is "Bali DI for Java", not just "Bali", where DI is an acronym for
+> [_dependency injection_](https://en.wikipedia.org/wiki/Dependency_injection).
 > In code however, the term "DI" is dropped because there is no ambiguity in this context.
 
 # Getting Started
