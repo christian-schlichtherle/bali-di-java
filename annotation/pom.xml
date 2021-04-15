@@ -19,11 +19,11 @@
 
     <parent>
         <groupId>global.namespace.bali</groupId>
-        <artifactId>bali-parent</artifactId>
+        <artifactId>bali-root</artifactId>
         <version>0.11.3-SNAPSHOT</version>
     </parent>
 
     <artifactId>bali-annotation</artifactId>
 
-    <name>Bali DI Annotation</name>
+    <name>Bali DI Annotations</name>
 </project>

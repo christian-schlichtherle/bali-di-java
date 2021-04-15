@@ -39,9 +39,9 @@ the annotations and generated source code.
 source code [here](sample/src/main/java/bali/sample) or clone this project.
 
 The module `bali-samples` is organized into different packages with each package representing an individual,
-self-contained showcase. For example, the package [`bali.sample.greeting`](sample/src/main/java/bali/sample/greeting)
-showcases a glorified way to produce a simple "Hello world!" message by using different components with dependency
-injection.
+self-contained showcase. For example, the
+package [`bali.java.sample.greeting`](java-sample/src/main/java/bali/java/sample/greeting) showcases a glorified way to
+produce a simple "Hello world!" message by using different components with dependency injection.
 
 Please forgive me for not providing real-world samples, but I believe learning a new tool is simpler if you don't have
 to learn about a specific problem domain first.
@@ -121,7 +121,7 @@ The following sample app prints the current date and time using an instance of t
 clock:
 
 ```java
-package bali.sample.genericclock;
+package bali.java.sample.genericclock;
 
 import bali.Cache;
 import bali.Module;
@@ -173,7 +173,7 @@ of the generated interface is the same as the module interface with a single `$`
 call this the _companion interface_:
 
 ```java
-package bali.sample.genericclock;
+package bali.java.sample.genericclock;
 
 @bali.Generated(
         processor = "bali.java.AnnotationProcessor",
@@ -222,7 +222,7 @@ name of the generated class is the same as the module interface with a double `$
 call this the _companion class_:
 
 ```java
-package bali.sample.genericclock;
+package bali.java.sample.genericclock;
 
 @bali.Generated(
         processor = "bali.java.AnnotationProcessor",

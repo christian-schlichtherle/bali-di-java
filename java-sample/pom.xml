@@ -23,41 +23,24 @@
         <version>0.11.3-SNAPSHOT</version>
     </parent>
 
-    <artifactId>bali-java</artifactId>
+    <artifactId>bali-java-sample</artifactId>
 
-    <name>Bali DI for Java</name>
+    <name>Bali DI Samples for Java</name>
+
+    <properties>
+        <gpg.skip>true</gpg.skip>
+        <maven.deploy.skip>true</maven.deploy.skip>
+        <maven.install.skip>true</maven.install.skip>
+        <maven.javadoc.skip>true</maven.javadoc.skip>
+        <maven.source.skip>true</maven.source.skip>
+    </properties>
 
     <dependencies>
         <dependency>
             <groupId>global.namespace.bali</groupId>
-            <artifactId>bali-annotation</artifactId>
+            <artifactId>bali-java</artifactId>
             <version>0.11.3-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
             <scope>provided</scope>
         </dependency>
     </dependencies>
-
-    <build>
-        <plugins>
-            <plugin>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>default-compile</id>
-                        <configuration>
-                            <annotationProcessors>
-                                <annotationProcessor>lombok.launch.AnnotationProcessorHider$AnnotationProcessor
-                                </annotationProcessor>
-                                <annotationProcessor>lombok.launch.AnnotationProcessorHider$ClaimingProcessor
-                                </annotationProcessor>
-                            </annotationProcessors>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
 </project>
