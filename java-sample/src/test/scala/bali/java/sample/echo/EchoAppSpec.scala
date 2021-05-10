@@ -18,21 +18,14 @@ package bali.java.sample.echo
 import org.scalatest.matchers.should.Matchers._
 import org.scalatest.wordspec.AnyWordSpec
 
-import java.util
-
 class EchoAppSpec extends AnyWordSpec {
 
   "The echo app" should {
-    val app = EchoApp.INSTANCE
-    val echo = app.echo(util.Arrays.asList("Hello", "world!"))
-    import echo._
-
-    "cache the message" in {
-      message shouldBe theSameInstanceAs(message)
-    }
+    val app = EchoApp$.new$
+    import app._
 
     "produce 'Hello world!'" in {
-      message shouldBe "Hello world!"
+      getEcho.echo("Hello", "world!") shouldBe "Hello world!"
     }
   }
 }

@@ -17,17 +17,14 @@ package bali.java.sample.echo;
 
 import bali.Module;
 
-import java.util.Arrays;
-import java.util.List;
-
 @Module
 interface EchoApp {
 
-    EchoApp INSTANCE = EchoApp$.new$();
+    String DELIMITER = " ";
 
-    Echo echo(List<String> args);
+    Echo getEcho();
 
     static void main(String... args) {
-        INSTANCE.echo(Arrays.asList(args)).run();
+        EchoApp$.new$().getEcho().run(args);
     }
 }

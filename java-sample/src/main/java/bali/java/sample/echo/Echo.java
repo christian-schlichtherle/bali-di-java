@@ -15,25 +15,20 @@
  */
 package bali.java.sample.echo;
 
-import bali.Cache;
 import bali.Lookup;
-
-import java.util.List;
 
 import static java.lang.System.out;
 
-public interface Echo extends Runnable {
+public interface Echo {
 
-    @Lookup("args")
-    List<String> getArgs();
+    @Lookup(field = "DELIMITER")
+    String getDelimiter();
 
-    @Override
-    default void run() {
-        out.println(message());
+    default void run(String... args) {
+        out.println(echo(args));
     }
 
-    @Cache
-    default String message() {
-        return String.join(" ", getArgs());
+    default String echo(String... args) {
+        return String.join(getDelimiter(), (args));
     }
 }
