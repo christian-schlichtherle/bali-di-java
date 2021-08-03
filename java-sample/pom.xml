@@ -27,14 +27,6 @@
 
     <name>Bali DI Samples for Java</name>
 
-    <properties>
-        <gpg.skip>true</gpg.skip>
-        <maven.install.skip>true</maven.install.skip>
-        <maven.javadoc.skip>true</maven.javadoc.skip>
-        <maven.source.skip>true</maven.source.skip>
-        <skipLocalStaging>true</skipLocalStaging>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>global.namespace.bali</groupId>
