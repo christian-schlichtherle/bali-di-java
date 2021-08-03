@@ -472,9 +472,7 @@ public final class AnnotationProcessor extends AbstractProcessor {
 
             @Override
             boolean resolveNullable() {
-                return !isAbstract(getMethodElement())
-                        && !isPrimitiveMethodReturnType()
-                        && getAnnotation(getMethodElement(), CacheNullable.class).isPresent();
+                return !isAbstract(getMethodElement()) && super.resolveNullable();
             }
 
             @Getter(lazy = true)
@@ -601,9 +599,14 @@ public final class AnnotationProcessor extends AbstractProcessor {
 
                 @Override
                 boolean resolveNullable() {
-                    val element = getAccessedElement().map(Tuple2::getT2);
-                    return !element.filter(Utils::isAbstract).isPresent() &&
-                            element.flatMap(e -> getAnnotation(e, CacheNullable.class)).isPresent();
+                    val optAccessedElement = getAccessedElement();
+                    if (optAccessedElement.isPresent()) {
+                        val accessedElement = optAccessedElement.get().getT2();
+                        return !isAbstract(accessedElement) &&
+                                getAnnotation(accessedElement, CacheNullable.class).isPresent();
+                    } else {
+                        return super.resolveNullable();
+                    }
                 }
 
                 @Override
@@ -724,7 +727,10 @@ public final class AnnotationProcessor extends AbstractProcessor {
             @Getter(lazy = true)
             private final boolean nullable = resolveNullable();
 
-            abstract boolean resolveNullable();
+            boolean resolveNullable() {
+                return !isPrimitiveMethodReturnType() &&
+                        getAnnotation(getMethodElement(), CacheNullable.class).isPresent();
+            }
 
             @Getter(lazy = true)
             private final boolean primitiveMethodReturnType = getMethodReturnType().getKind().isPrimitive();
