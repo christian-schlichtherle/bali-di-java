@@ -25,7 +25,7 @@ import static bali.CachingStrategy.*;
 
 @Cache // == @Cache(THREAD_SAFE)
 @Module
-public interface CacheModule {
+public interface CacheModule extends SuperModule {
 
     @Cache(DISABLED)
     Date disabled();
