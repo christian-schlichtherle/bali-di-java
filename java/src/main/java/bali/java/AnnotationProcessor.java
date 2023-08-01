@@ -252,7 +252,11 @@ public final class AnnotationProcessor extends AbstractProcessor {
     }
 
     private TypeElement typeElement(TypeMirror t) {
-        return (TypeElement) getTypes().asElement(t);
+        return (TypeElement) element(t);
+    }
+
+    private Element element(TypeMirror t) {
+        return getTypes().asElement(t);
     }
 
     private boolean error(final CharSequence message, final Element e) {
@@ -387,7 +391,7 @@ public final class AnnotationProcessor extends AbstractProcessor {
             private final Name localMakeElementName =
                     getMakeElementPackage().equals(getPackageElement())
                             ? getMakeElement().getSimpleName()
-                            : getMakeElement().getQualifiedName();
+                            : ((QualifiedNameable) getMakeElement()).getQualifiedName();
 
             @Getter(lazy = true)
             private final String localMakeType =
@@ -402,15 +406,15 @@ public final class AnnotationProcessor extends AbstractProcessor {
             private final boolean makeTypeInterface = isInterface(getMakeElement());
 
             @Getter(lazy = true)
-            private final TypeElement makeElement = typeElement(getMakeType());
+            private final Element makeElement = element(getMakeType());
 
             @Getter(lazy = true)
             private final PackageElement makeElementPackage = packageOf(getMakeElement());
 
             @Getter(lazy = true)
-            private final DeclaredType makeType = resolveMakeType();
+            private final TypeMirror makeType = resolveMakeType();
 
-            private DeclaredType resolveMakeType() {
+            private TypeMirror resolveMakeType() {
                 val declaredMakeType = AnnotationProcessor
                         .this
                         .makeType(getMethodElement())
@@ -418,17 +422,17 @@ public final class AnnotationProcessor extends AbstractProcessor {
                         .filter(t -> isSubtype(t, getMethodReturnType(), getMethodElement()))
                         .map(TypeMirror.class::cast);
                 final TypeMirror declaredReturnType = declaredMakeType.orElseGet(this::getMethodReturnType);
-                val declaredReturnElement = typeElement(declaredReturnType);
+                val declaredReturnElement = element(declaredReturnType);
                 if (isModule(declaredReturnElement)) {
                     val moduleType = Optional
-                            .ofNullable(getElements().getTypeElement(companionClassName(declaredReturnElement)))
+                            .ofNullable(getElements().getTypeElement(companionClassName((TypeElement) declaredReturnElement)))
                             .map(Element::asType)
                             .flatMap(this::parameterizedReturnType);
                     if (moduleType.isPresent()) {
                         return moduleType.get();
                     }
                 }
-                return (DeclaredType) declaredReturnType;
+                return declaredReturnType;
             }
 
             private Optional<DeclaredType> parameterizedReturnType(final TypeMirror makeType) {
@@ -479,7 +483,7 @@ public final class AnnotationProcessor extends AbstractProcessor {
             private final String companionInterfaceRef = getElement().getSimpleName() + "$.super";
 
             Consumer<Output> forAllDependencyMethods() {
-                return out -> filteredOverridableMethods(getMakeElement())
+                return out -> filteredOverridableMethods((TypeElement) getMakeElement())
                         // HC SVNT DRACONES!
                         .map(e -> new Tuple2<>(newDependencyMethod(e), e))
                         .filter(t -> t.getT1().isCachingDisabled() || checkCacheableReturnType(t.getT2()))
@@ -611,7 +615,7 @@ public final class AnnotationProcessor extends AbstractProcessor {
 
                 @Override
                 ExecutableType resolveMethodType() {
-                    return (ExecutableType) getTypes().asMemberOf(getMakeType(), getMethodElement());
+                    return (ExecutableType) getTypes().asMemberOf((DeclaredType) getMakeType(), getMethodElement());
                 }
 
                 @Getter(lazy = true)
