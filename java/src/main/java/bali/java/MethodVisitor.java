@@ -15,9 +15,9 @@
  */
 package bali.java;
 
-import bali.java.AnnotationProcessor.ModuleInterface.ModuleMethod;
 import bali.java.AnnotationProcessor.ModuleInterface.Method;
-import bali.java.AnnotationProcessor.ModuleInterface.ModuleMethod.DependencyMethod;
+import bali.java.AnnotationProcessor.ModuleInterface.ModuleMethod;
+import bali.java.AnnotationProcessor.ModuleInterface.ModuleMethod.ComponentMethod;
 
 import java.util.function.Consumer;
 
@@ -29,7 +29,7 @@ interface MethodVisitor {
                     out.ad("new ").ad(m.getLocalMakeType()).ad("()");
                     if (m.isMakeTypeAbstract()) {
                         out.ad(" {").nl().in();
-                        m.forAllDependencyMethods().accept(out);
+                        m.forAllComponentMethods().accept(out);
                         out.out().ad("}");
                     }
                 })
@@ -43,7 +43,7 @@ interface MethodVisitor {
                 .andThen(visitMethodEnd(m));
     }
 
-    default Consumer<Output> visitDependencyMethod(DependencyMethod m) {
+    default Consumer<Output> visitComponentMethod(ComponentMethod m) {
         return visitField(m, "")
                 .andThen(visitMethodBegin(m))
                 .andThen(out -> out.ad(m.getAccessedElementRef()))

@@ -295,9 +295,9 @@ public final class AnnotationProcessor extends AbstractProcessor {
     }
 
     @RequiredArgsConstructor
-    @Getter
     final class ModuleInterface {
 
+        @Getter
         private final TypeElement element;
 
         @Getter(lazy = true)
@@ -483,19 +483,19 @@ public final class AnnotationProcessor extends AbstractProcessor {
             @Getter(lazy = true)
             private final String companionInterfaceRef = getElement().getSimpleName() + "$.super";
 
-            Consumer<Output> forAllDependencyMethods() {
+            Consumer<Output> forAllComponentMethods() {
                 return out -> filteredOverridableMethods((TypeElement) getMakeElement())
                         // HC SVNT DRACONES!
-                        .map(e -> new Tuple2<>(newDependencyMethod(e), e))
+                        .map(e -> new Tuple2<>(newComponentMethod(e), e))
                         .filter(t -> t.getT1().isCachingDisabled() || checkCacheableReturnType(t.getT2()))
                         .map(t ->
                                 (t.getT1().isCachingDisabled() ? new DisabledCachingVisitor() : methodVisitor(t.getT2()))
-                                        .visitDependencyMethod(t.getT1()))
+                                        .visitComponentMethod(t.getT1()))
                         .forEach(c -> c.accept(out));
             }
 
-            DependencyMethod newDependencyMethod(ExecutableElement e) {
-                return new DependencyMethod() {
+            ComponentMethod newComponentMethod(ExecutableElement e) {
+                return new ComponentMethod() {
 
                     @Override
                     ExecutableElement getMethodElement() {
@@ -504,7 +504,7 @@ public final class AnnotationProcessor extends AbstractProcessor {
                 };
             }
 
-            abstract class DependencyMethod extends Method {
+            abstract class ComponentMethod extends Method {
 
                 @Getter(lazy = true)
                 private final Optional<Tuple2<TypeElement, Element>> accessedElement = resolveAccessedElement();
