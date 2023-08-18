@@ -16,6 +16,7 @@
 package bali.java;
 
 import bali.java.AnnotationProcessor.ModuleInterface.Method;
+import bali.java.AnnotationProcessor.ModuleInterface.ModuleMethod;
 
 import java.util.function.Consumer;
 
@@ -25,6 +26,10 @@ final class DisabledCaching4CompanionInterfaceVisitor extends DisabledCachingVis
 
     @Override
     public Consumer<Output> visitMethodBegin0(Method m) {
+        return visitMethodBegin1((ModuleMethod) m);
+    }
+
+    private Consumer<Output> visitMethodBegin1(ModuleMethod m) {
         return out -> {
             out.nl();
             if (m.getCachingStrategy() != DISABLED) {
@@ -34,6 +39,11 @@ final class DisabledCaching4CompanionInterfaceVisitor extends DisabledCachingVis
                     .ad("@Override").nl()
                     .ad("default ").ad(m.getMethodSignatureWithoutModifiers()).ad("{").nl()
                     .in();
+            if (m.isMakeTypeAbstract()) {
+                out.ad("final class ").ad(m.getMakeElementSimpleName()).ad(m.isMakeTypeInterface() ? " implements " : " extends ").ad(m.getMakeType().toString()).ad(" {").nl().in();
+                m.forAllComponentMethods().accept(out);
+                out.out().ad("}").nl();
+            }
         };
     }
 }

@@ -294,10 +294,10 @@ public final class AnnotationProcessor extends AbstractProcessor {
         return getElements().getPackageOf(e);
     }
 
+    @Getter
     @RequiredArgsConstructor
     final class ModuleInterface {
 
-        @Getter
         private final TypeElement element;
 
         @Getter(lazy = true)
@@ -408,6 +408,9 @@ public final class AnnotationProcessor extends AbstractProcessor {
 
             @Getter(lazy = true)
             private final Element makeElement = element(getMakeType());
+
+            @Getter(lazy = true)
+            private final Name makeElementSimpleName = getMakeElement().getSimpleName();
 
             @Getter(lazy = true)
             private final PackageElement makeElementPackage = packageOf(getMakeElement());
