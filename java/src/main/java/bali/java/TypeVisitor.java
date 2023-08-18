@@ -33,8 +33,7 @@ final class TypeVisitor {
                 out
                         .nl()
                         .ad("static ").ad(m.getTypeParametersWithBoundsList()).ad(m.getLocalDeclaredType()).ad(" new$() {").nl()
-                        .ad("    return new ").ad(m.getSimpleName()).ad("$$").ad(m.getTypeParametersWithoutBoundsList()).ad("() {").nl()
-                        .ad("    };").nl()
+                        .ad("    return new ").ad(m.getSimpleName()).ad("$$();").nl()
                         .ad("}").nl();
             }
             m.forAllModuleMethods4CompanionInterface().accept(out);
@@ -48,7 +47,7 @@ final class TypeVisitor {
                     .ad("package ").ad(m.getPackageName()).ad(";").nl()
                     .nl()
                     .ad(m.generated()).nl()
-                    .ad(m.getModifiers().toString()).ad("abstract class ").ad(m.getSimpleName()).ad(m.getTypeParametersWithBoundsList().isEmpty() ? "$$ " : "$$").ad(m.getTypeParametersWithBoundsList()).ad("implements ").ad(m.getSimpleName()).ad(m.getTypeParametersWithoutBoundsList().isEmpty() ? "$ " : "$").ad(m.getTypeParametersWithoutBoundsList()).ad("{").nl()
+                    .ad(m.getModifiers().toString()).ad(m.hasAbstractMethods() ? "abstract " : "").ad("class ").ad(m.getSimpleName()).ad(m.getTypeParametersWithBoundsList().isEmpty() ? "$$ " : "$$").ad(m.getTypeParametersWithBoundsList()).ad("implements ").ad(m.getSimpleName()).ad(m.getTypeParametersWithoutBoundsList().isEmpty() ? "$ " : "$").ad(m.getTypeParametersWithoutBoundsList()).ad("{").nl()
                     .in();
             m.forAllModuleMethods4CompanionClass().accept(out);
             out.out().ad("}").nl();
