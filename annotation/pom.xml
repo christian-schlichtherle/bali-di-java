@@ -20,7 +20,7 @@
     <parent>
         <groupId>global.namespace.bali</groupId>
         <artifactId>bali-java-root</artifactId>
-        <version>0.11.6-SNAPSHOT</version>
+        <version>0.11.6</version>
     </parent>
 
     <artifactId>bali-annotation</artifactId>
