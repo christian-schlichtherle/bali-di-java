@@ -25,7 +25,7 @@ interface MethodVisitor {
 
     default Consumer<Output> visitModuleMethod4CompanionInterface(ModuleMethod m) {
         return visitMethodBegin(m)
-                .andThen(out -> out.ad("new ").ad(m.isMakeTypeAbstract() ? m.getMakeElementSimpleName() : m.getLocalMakeType()).ad("()"))
+                .andThen(out -> out.ad("new ").ad(m.isMakeTypeAbstract() ? m.getMakeElementSimpleName() + "$" : m.getLocalMakeType()).ad("()"))
                 .andThen(visitMethodEnd(m));
     }
 

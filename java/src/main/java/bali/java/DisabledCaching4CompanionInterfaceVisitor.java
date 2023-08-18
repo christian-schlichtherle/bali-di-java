@@ -40,7 +40,7 @@ final class DisabledCaching4CompanionInterfaceVisitor extends DisabledCachingVis
                     .ad("default ").ad(m.getMethodSignatureWithoutModifiers()).ad("{").nl()
                     .in();
             if (m.isMakeTypeAbstract()) {
-                out.ad("final class ").ad(m.getMakeElementSimpleName()).ad(m.isMakeTypeInterface() ? " implements " : " extends ").ad(m.getMakeType().toString()).ad(" {").nl().in();
+                out.ad("final class ").ad(m.getMakeElementSimpleName()).ad("$").ad(m.isMakeTypeInterface() ? " implements " : " extends ").ad(m.getMakeType().toString()).ad(" {").nl().in();
                 m.forAllComponentMethods().accept(out);
                 out.out().ad("}").nl();
             }
