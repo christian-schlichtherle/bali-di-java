@@ -389,12 +389,6 @@ public final class AnnotationProcessor extends AbstractProcessor {
         abstract class ModuleMethod extends Method {
 
             @Getter(lazy = true)
-            private final Name localMakeElementName =
-                    getMakeElementPackage().equals(getPackageElement())
-                            ? getMakeElement().getSimpleName()
-                            : ((QualifiedNameable) getMakeElement()).getQualifiedName();
-
-            @Getter(lazy = true)
             private final String localMakeType =
                     getMakeElementPackage().equals(getPackageElement())
                             ? local(getMakeType())
@@ -410,10 +404,13 @@ public final class AnnotationProcessor extends AbstractProcessor {
             private final Element makeElement = element(getMakeType());
 
             @Getter(lazy = true)
-            private final Name makeElementSimpleName = getMakeElement().getSimpleName();
+            private final PackageElement makeElementPackage = packageOf(getMakeElement());
 
             @Getter(lazy = true)
-            private final PackageElement makeElementPackage = packageOf(getMakeElement());
+            private final Name makeElementQualifiedName = ((QualifiedNameable) getMakeElement()).getQualifiedName();
+
+            @Getter(lazy = true)
+            private final Name makeElementSimpleName = getMakeElement().getSimpleName();
 
             @Getter(lazy = true)
             private final TypeMirror makeType = resolveMakeType();
@@ -563,7 +560,7 @@ public final class AnnotationProcessor extends AbstractProcessor {
                     return isParameterRef()
                             ? getModuleParamName().toString()
                             : isSuperRef()
-                            ? (isMakeTypeInterface() ? getLocalMakeElementName() + "." : "") + "super." + getMethodName() + "(" + getMethodParametersWithoutTypesList() + ")"
+                            ? (isMakeTypeInterface() ? getMakeElementQualifiedName() + "." : "") + "super." + getMethodName() + "(" + getMethodParametersWithoutTypesList() + ")"
                             : getAccessedElement().map(Tuple2::getT1).orElseGet(ModuleInterface.this::getElement).getSimpleName()
                             + (isStaticRef() ? "$" : "$.this")
                             + (isModuleRef() ? "" : "." + (isFieldRef() ? getModuleFieldName() + "" : getModuleMethodName() + "(" + getMethodParametersWithoutTypesList() + ")"));
