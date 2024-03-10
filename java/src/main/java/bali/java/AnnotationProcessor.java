@@ -519,7 +519,7 @@ public final class AnnotationProcessor extends AbstractProcessor {
                         val element = resolveAccessedElement(getElement());
                         if (!element.isPresent()) {
                             warn("This module interface is missing the dependency returned by ...", getElement());
-                            warn("... this dependency method.", getMethodElement());
+                            warn("... this component method.", getMethodElement());
                         }
                         return element;
                     }
