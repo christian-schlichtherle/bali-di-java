@@ -28,7 +28,7 @@
     <version>0.11.9-SNAPSHOT</version>
     <packaging>pom</packaging>
 
-    <name>Bali DI Root for Java</name>
+    <name>Bali DI for Java Root</name>
     <description>Bali DI is a Java code generator for dependency injection.</description>
 
     <url>https://github.com/christian-schlichtherle/bali-di</url>
