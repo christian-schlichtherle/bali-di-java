@@ -29,6 +29,6 @@ public interface Echo {
     }
 
     default String echo(String... args) {
-        return String.join(getDelimiter(), (args));
+        return String.join(getDelimiter(), args);
     }
 }
