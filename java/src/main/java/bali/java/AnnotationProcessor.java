@@ -265,8 +265,9 @@ public final class AnnotationProcessor extends AbstractProcessor {
         return false;
     }
 
-    private void warn(CharSequence message, Element e) {
+    private boolean warn(CharSequence message, Element e) {
         getMessager().printMessage(WARNING, message, e);
+        return true;
     }
 
     private boolean checkNonVoidReturnType(ExecutableElement e) {
@@ -353,6 +354,9 @@ public final class AnnotationProcessor extends AbstractProcessor {
                     // HC SVNT DRACONES!
                     .filter(AnnotationProcessor.this::checkNonVoidReturnType)
                     .map(this::newModuleMethod)
+                    .filter(m -> m.getMethodParameters().isEmpty() ||
+                            m.isMakeTypeAbstract() ||
+                            warn("Method parameters will be ignored by the factory method in the companion interface.", m.getMethodElement()))
                     .map(m -> new DisabledCaching4CompanionInterfaceVisitor().visitModuleMethod4CompanionInterface(m))
                     .forEach(c -> c.accept(out));
         }
