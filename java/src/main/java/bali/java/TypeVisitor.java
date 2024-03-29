@@ -47,7 +47,7 @@ final class TypeVisitor {
                     .ad("package ").ad(m.getPackageName()).ad(";").nl()
                     .nl()
                     .ad(m.generated()).nl()
-                    .ad(m.getModifiers().toString()).ad(m.hasAbstractMethods() ? "abstract " : "").ad("class ").ad(m.getSimpleName()).ad(m.getTypeParametersWithBoundsList().isEmpty() ? "$$ " : "$$").ad(m.getTypeParametersWithBoundsList()).ad("implements ").ad(m.getSimpleName()).ad(m.getTypeParametersWithoutBoundsList().isEmpty() ? "$ " : "$").ad(m.getTypeParametersWithoutBoundsList()).ad("{").nl()
+                    .ad(m.getModifiers().toString()).ad(m.hasAbstractMethods() ? "abstract " : "final ").ad("class ").ad(m.getSimpleName()).ad(m.getTypeParametersWithBoundsList().isEmpty() ? "$$ " : "$$").ad(m.getTypeParametersWithBoundsList()).ad("implements ").ad(m.getSimpleName()).ad(m.getTypeParametersWithoutBoundsList().isEmpty() ? "$ " : "$").ad(m.getTypeParametersWithoutBoundsList()).ad("{").nl()
                     .in();
             m.forAllModuleMethods4CompanionClass().accept(out);
             out.out().ad("}").nl();
