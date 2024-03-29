@@ -269,8 +269,8 @@ public final class AnnotationProcessor extends AbstractProcessor {
         getMessager().printMessage(WARNING, message, e);
     }
 
-    private boolean checkCacheableReturnType(ExecutableElement e) {
-        return hasCacheableReturnType(e) || error("Cannot cache return value.", e);
+    private boolean checkNonVoidReturnType(ExecutableElement e) {
+        return hasNonVoidReturnType(e) || error("Cannot cache void return type.", e);
     }
 
     private String typeParametersWithoutBoundsList(Parameterizable parameterizable) {
@@ -351,8 +351,9 @@ public final class AnnotationProcessor extends AbstractProcessor {
                     .filter(Utils::isAbstract)
                     .filter(e -> !hasAnnotation(e, Lookup.class))
                     // HC SVNT DRACONES!
-                    .filter(AnnotationProcessor.this::checkCacheableReturnType)
-                    .map(e -> new DisabledCaching4CompanionInterfaceVisitor().visitModuleMethod4CompanionInterface(newModuleMethod(e)))
+                    .filter(AnnotationProcessor.this::checkNonVoidReturnType)
+                    .map(this::newModuleMethod)
+                    .map(m -> new DisabledCaching4CompanionInterfaceVisitor().visitModuleMethod4CompanionInterface(m))
                     .forEach(c -> c.accept(out));
         }
 
@@ -362,8 +363,9 @@ public final class AnnotationProcessor extends AbstractProcessor {
                     .filter(e -> cachingStrategy(e) != DISABLED)
                     .filter(e -> !hasAnnotation(e, Lookup.class))
                     // HC SVNT DRACONES!
-                    .filter(AnnotationProcessor.this::checkCacheableReturnType)
-                    .map(e -> methodVisitor(e).visitModuleMethod4CompanionClass(newModuleMethod(e)))
+                    .filter(AnnotationProcessor.this::checkNonVoidReturnType)
+                    .map(this::newModuleMethod)
+                    .map(m -> m.getMethodVisitor().visitModuleMethod4CompanionClass(m))
                     .forEach(c -> c.accept(out));
         }
 
@@ -387,6 +389,11 @@ public final class AnnotationProcessor extends AbstractProcessor {
         }
 
         abstract class ModuleMethod extends Method {
+
+            @Override
+            boolean resolveCachingDisabled() {
+                return getCachingStrategy() == DISABLED || !getMethodParameters().isEmpty();
+            }
 
             @Getter(lazy = true)
             private final Name localMakeElementName =
@@ -489,11 +496,9 @@ public final class AnnotationProcessor extends AbstractProcessor {
             Consumer<Output> forAllComponentMethods() {
                 return out -> filteredOverridableMethods((TypeElement) getMakeElement())
                         // HC SVNT DRACONES!
-                        .map(e -> new Tuple2<>(newComponentMethod(e), e))
-                        .filter(t -> t.getT1().isCachingDisabled() || checkCacheableReturnType(t.getT2()))
-                        .map(t ->
-                                (t.getT1().isCachingDisabled() ? new DisabledCachingVisitor() : methodVisitor(t.getT2()))
-                                        .visitComponentMethod(t.getT1()))
+                        .map(this::newComponentMethod)
+                        .filter(m -> m.isCachingDisabled() || checkNonVoidReturnType(m.getMethodElement()))
+                        .map(m -> m.getMethodVisitor().visitComponentMethod(m))
                         .forEach(c -> c.accept(out));
             }
 
@@ -569,10 +574,8 @@ public final class AnnotationProcessor extends AbstractProcessor {
                             + (isModuleRef() ? "" : "." + (isFieldRef() ? getModuleFieldName() + "" : getModuleMethodName() + "(" + getMethodParametersWithoutTypesList() + ")"));
                 }
 
-                @Getter(lazy = true)
-                private final boolean cachingDisabled = resolveCachingDisabled();
-
-                private boolean resolveCachingDisabled() {
+                @Override
+                boolean resolveCachingDisabled() {
                     val e = getAccessedElement().map(Tuple2::getT2);
                     return isParameterRef()
                             || isModuleRef()
@@ -650,10 +653,17 @@ public final class AnnotationProcessor extends AbstractProcessor {
         abstract class Method {
 
             @Getter(lazy = true)
+            private final boolean cachingDisabled = resolveCachingDisabled();
+
+            abstract boolean resolveCachingDisabled();
+
+            @Getter(lazy = true)
             private final CachingStrategy cachingStrategy = cachingStrategy(getMethodElement());
 
             @Getter(lazy = true)
             private final String cachingStrategyName = CACHING_STRATEGY_CLASSNAME + "." + getCachingStrategy();
+
+            abstract ExecutableElement getMethodElement();
 
             @Getter(lazy = true)
             private final String localMethodCacheType =
@@ -680,8 +690,6 @@ public final class AnnotationProcessor extends AbstractProcessor {
                     isPrimitiveMethodReturnType()
                             ? getTypes().boxedClass((PrimitiveType) getMethodReturnType()).asType()
                             : getMethodReturnType();
-
-            abstract ExecutableElement getMethodElement();
 
             @Getter(lazy = true)
             private final ModifierSet methodModifiers = modifiersOf(getMethodElement()).retain(PROTECTED_PUBLIC);
@@ -731,6 +739,13 @@ public final class AnnotationProcessor extends AbstractProcessor {
 
             @Getter(lazy = true)
             private final String methodTypeParametersWithBoundsList = typeParametersWithBoundsList(getMethodElement());
+
+            @Getter(lazy = true)
+            private final MethodVisitor methodVisitor = resolveMethodVisitor();
+
+            MethodVisitor resolveMethodVisitor() {
+                return isCachingDisabled() ? new DisabledCachingVisitor() : methodVisitor(getMethodElement());
+            }
 
             @Getter(lazy = true)
             private final boolean nullable = resolveNullable();

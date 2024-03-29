@@ -19,7 +19,6 @@ import bali.Cache;
 import bali.CacheNullable;
 import bali.CachingStrategy;
 import bali.Module;
-import lombok.val;
 
 import javax.lang.model.AnnotatedConstruct;
 import javax.lang.model.element.*;
@@ -91,7 +90,7 @@ final class Utils {
         return e.getParameters().isEmpty() && e.getTypeParameters().isEmpty();
     }
 
-    static boolean hasCacheableReturnType(final ExecutableElement e) {
+    static boolean hasNonVoidReturnType(ExecutableElement e) {
         return !isVoid(e.getReturnType());
     }
 

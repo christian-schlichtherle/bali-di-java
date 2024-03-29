@@ -20,8 +20,6 @@ import bali.java.AnnotationProcessor.ModuleInterface.ModuleMethod;
 
 import java.util.function.Consumer;
 
-import static bali.CachingStrategy.DISABLED;
-
 final class DisabledCaching4CompanionInterfaceVisitor extends DisabledCachingVisitor {
 
     @Override
@@ -32,7 +30,7 @@ final class DisabledCaching4CompanionInterfaceVisitor extends DisabledCachingVis
     private Consumer<Output> visitMethodBegin1(ModuleMethod m) {
         return out -> {
             out.nl();
-            if (m.getCachingStrategy() != DISABLED && m.getMethodParameters().isEmpty()) {
+            if (!m.isCachingDisabled()) {
                 out.ad("@bali.Cache").ad(m.isNullable() ? "Nullable" : "").ad("(").ad(m.getCachingStrategyName()).ad(")").nl();
             }
             out
