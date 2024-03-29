@@ -94,10 +94,6 @@ final class Utils {
         return !isVoid(e.getReturnType());
     }
 
-    static boolean hasVoidReturnType(ExecutableElement e) {
-        return isVoid(e.getReturnType());
-    }
-
     static boolean isAbstract(Element e) {
         return e.getModifiers().contains(Modifier.ABSTRACT);
     }

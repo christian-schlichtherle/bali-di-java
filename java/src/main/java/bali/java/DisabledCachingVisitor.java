@@ -22,24 +22,8 @@ import java.util.function.Consumer;
 class DisabledCachingVisitor implements MethodVisitor {
 
     @Override
-    public Consumer<Output> visitNonNullField(Method m, String prefix) {
-        return visitNullableField(m, prefix);
-    }
-
-    @Override
     public Consumer<Output> visitNullableField(Method m, String prefix) {
-        return out -> {
-        };
-    }
-
-    @Override
-    public Consumer<Output> visitNonNullMethodBegin(Method m) {
-        return visitNullableMethodBegin(m);
-    }
-
-    @Override
-    public Consumer<Output> visitNonNullMethodEnd(Method m) {
-        return visitNullableMethodEnd(m);
+        return NOOP;
     }
 
     @Override
@@ -53,12 +37,22 @@ class DisabledCachingVisitor implements MethodVisitor {
     }
 
     @Override
-    public Consumer<Output> visitNonNullSetterBody(Method m) {
-        throw new AssertionError();
+    public Consumer<Output> visitNonNullField(Method m, String prefix) {
+        return visitNullableField(m, prefix);
     }
 
     @Override
-    public Consumer<Output> visitNullableSetterBody(Method m) {
-        throw new AssertionError();
+    public Consumer<Output> visitNonNullMethodBegin(Method m) {
+        return visitNullableMethodBegin(m);
+    }
+
+    @Override
+    public Consumer<Output> visitNonNullMethodEnd(Method m) {
+        return visitNullableMethodEnd(m);
+    }
+
+    @Override
+    public Consumer<Output> visitSetter(Method m) {
+        return NOOP;
     }
 }

@@ -22,39 +22,10 @@ import java.util.function.Consumer;
 final class ThreadSafeCachingVisitor implements MethodVisitor {
 
     @Override
-    public Consumer<Output> visitNonNullField(Method m, String prefix) {
-        return out -> out
-                .nl()
-                .ad(prefix).ad("volatile ").ad(m.getLocalMethodCacheType()).ad(" ").ad(m.getMethodName()).ad(";").nl();
-    }
-
-    @Override
     public Consumer<Output> visitNullableField(Method m, String prefix) {
         return out -> out
                 .nl()
                 .ad(prefix).ad("volatile java.util.function.Supplier<").ad(m.getLocalMethodCacheType()).ad("> ").ad(m.getMethodName()).ad(";").nl();
-    }
-
-    @Override
-    public Consumer<Output> visitNonNullMethodBegin(Method m) {
-        return out -> out
-                .ad(m.getLocalMethodCacheType()).ad(" value;").nl()
-                .ad("if (null == (value = this.").ad(m.getMethodName()).ad(")) {").nl()
-                .ad("    synchronized (this) {").nl()
-                .ad("        if (null == (value = this.").ad(m.getMethodName()).ad(")) {").nl()
-                .ad("            this.").ad(m.getMethodName()).ad(" = value = ")
-                .in(3);
-    }
-
-    @Override
-    public Consumer<Output> visitNonNullMethodEnd(Method m) {
-        return out -> out
-                .out(3)
-                .ad(";").nl()
-                .ad("        }").nl()
-                .ad("    }").nl()
-                .ad("}").nl()
-                .ad("return value;").nl();
     }
 
     @Override
@@ -81,18 +52,47 @@ final class ThreadSafeCachingVisitor implements MethodVisitor {
     }
 
     @Override
-    public Consumer<Output> visitNonNullSetterBody(Method m) {
-        return out -> out
-                .ad("    synchronized(this) {").nl()
-                .ad("        this.").ad(m.getMethodName()).ad(" = value;").nl()
-                .ad("    }").nl();
-    }
-
-    @Override
     public Consumer<Output> visitNullableSetterBody(Method m) {
         return out -> out
                 .ad("    synchronized(this) {").nl()
                 .ad("        this.").ad(m.getMethodName()).ad(" = () -> value;").nl()
+                .ad("    }").nl();
+    }
+
+    @Override
+    public Consumer<Output> visitNonNullField(Method m, String prefix) {
+        return out -> out
+                .nl()
+                .ad(prefix).ad("volatile ").ad(m.getLocalMethodCacheType()).ad(" ").ad(m.getMethodName()).ad(";").nl();
+    }
+
+    @Override
+    public Consumer<Output> visitNonNullMethodBegin(Method m) {
+        return out -> out
+                .ad(m.getLocalMethodCacheType()).ad(" value;").nl()
+                .ad("if (null == (value = this.").ad(m.getMethodName()).ad(")) {").nl()
+                .ad("    synchronized (this) {").nl()
+                .ad("        if (null == (value = this.").ad(m.getMethodName()).ad(")) {").nl()
+                .ad("            this.").ad(m.getMethodName()).ad(" = value = ")
+                .in(3);
+    }
+
+    @Override
+    public Consumer<Output> visitNonNullMethodEnd(Method m) {
+        return out -> out
+                .out(3)
+                .ad(";").nl()
+                .ad("        }").nl()
+                .ad("    }").nl()
+                .ad("}").nl()
+                .ad("return value;").nl();
+    }
+
+    @Override
+    public Consumer<Output> visitNonNullSetterBody(Method m) {
+        return out -> out
+                .ad("    synchronized(this) {").nl()
+                .ad("        this.").ad(m.getMethodName()).ad(" = value;").nl()
                 .ad("    }").nl();
     }
 }

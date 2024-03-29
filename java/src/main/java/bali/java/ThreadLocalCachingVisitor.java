@@ -22,35 +22,10 @@ import java.util.function.Consumer;
 final class ThreadLocalCachingVisitor implements MethodVisitor {
 
     @Override
-    public Consumer<Output> visitNonNullField(Method m, String prefix) {
-        return out -> out
-                .nl()
-                .ad(prefix).ad("final java.lang.ThreadLocal<").ad(m.getLocalMethodCacheType()).ad("> ").ad(m.getMethodName()).ad(" = new java.lang.ThreadLocal<>();").nl();
-    }
-
-    @Override
     public Consumer<Output> visitNullableField(Method m, String prefix) {
         return out -> out
                 .nl()
                 .ad(prefix).ad("final java.lang.ThreadLocal<java.util.function.Supplier<").ad(m.getLocalMethodCacheType()).ad(">> ").ad(m.getMethodName()).ad(" = new java.lang.ThreadLocal<>();").nl();
-    }
-
-    @Override
-    public Consumer<Output> visitNonNullMethodBegin(Method m) {
-        return out -> out
-                .ad(m.getLocalMethodCacheType()).ad(" value;").nl()
-                .ad("if (null == (value = this.").ad(m.getMethodName()).ad(".get())) {").nl()
-                .ad("    this.").ad(m.getMethodName()).ad(".set(value = ")
-                .in();
-    }
-
-    @Override
-    public Consumer<Output> visitNonNullMethodEnd(Method m) {
-        return out -> out
-                .out()
-                .ad(");").nl()
-                .ad("}").nl()
-                .ad("return value;").nl();
     }
 
     @Override
@@ -73,14 +48,39 @@ final class ThreadLocalCachingVisitor implements MethodVisitor {
     }
 
     @Override
-    public Consumer<Output> visitNonNullSetterBody(Method m) {
-        return out -> out
-                .ad("    this.").ad(m.getMethodName()).ad(".set(value);").nl();
-    }
-
-    @Override
     public Consumer<Output> visitNullableSetterBody(Method m) {
         return out -> out
                 .ad("    this.").ad(m.getMethodName()).ad(".set(() -> value);").nl();
+    }
+
+    @Override
+    public Consumer<Output> visitNonNullField(Method m, String prefix) {
+        return out -> out
+                .nl()
+                .ad(prefix).ad("final java.lang.ThreadLocal<").ad(m.getLocalMethodCacheType()).ad("> ").ad(m.getMethodName()).ad(" = new java.lang.ThreadLocal<>();").nl();
+    }
+
+    @Override
+    public Consumer<Output> visitNonNullMethodBegin(Method m) {
+        return out -> out
+                .ad(m.getLocalMethodCacheType()).ad(" value;").nl()
+                .ad("if (null == (value = this.").ad(m.getMethodName()).ad(".get())) {").nl()
+                .ad("    this.").ad(m.getMethodName()).ad(".set(value = ")
+                .in();
+    }
+
+    @Override
+    public Consumer<Output> visitNonNullMethodEnd(Method m) {
+        return out -> out
+                .out()
+                .ad(");").nl()
+                .ad("}").nl()
+                .ad("return value;").nl();
+    }
+
+    @Override
+    public Consumer<Output> visitNonNullSetterBody(Method m) {
+        return out -> out
+                .ad("    this.").ad(m.getMethodName()).ad(".set(value);").nl();
     }
 }

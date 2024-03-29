@@ -17,11 +17,12 @@ package bali.java;
 
 import bali.java.AnnotationProcessor.ModuleInterface.Method;
 import bali.java.AnnotationProcessor.ModuleInterface.ModuleMethod;
-import bali.java.AnnotationProcessor.ModuleInterface.ModuleMethod.ComponentMethod;
 
 import java.util.function.Consumer;
 
 interface MethodVisitor {
+
+    Consumer<Output> NOOP = out -> {};
 
     default Consumer<Output> visitModuleMethod4CompanionInterface(ModuleMethod m) {
         return visitMethodBegin(m)
@@ -29,33 +30,30 @@ interface MethodVisitor {
                 .andThen(visitMethodEnd(m));
     }
 
-    default Consumer<Output> visitModuleMethod4CompanionClass(ModuleMethod m) {
+    default Consumer<Output> visitMethod(Method m) {
         return visitField(m, "private ")
                 .andThen(visitMethodBegin(m))
-                .andThen(out -> out.ad(m.getCompanionInterfaceRef()).ad(".").ad(m.getMethodName()).ad("()"))
+                .andThen(out -> out.ad(m.getDependencyCall()))
                 .andThen(visitMethodEnd(m))
                 .andThen(visitSetter(m));
-    }
-
-    default Consumer<Output> visitComponentMethod(ComponentMethod m) {
-        return visitField(m, "")
-                .andThen(visitMethodBegin(m))
-                .andThen(out -> out.ad(m.getAccessedElementRef()))
-                .andThen(visitMethodEnd(m));
     }
 
     default Consumer<Output> visitField(Method m, String prefix) {
         return m.isNullable() ? visitNullableField(m, prefix) : visitNonNullField(m, prefix);
     }
 
-    Consumer<Output> visitNonNullField(Method m, String prefix);
-
     Consumer<Output> visitNullableField(Method m, String prefix);
+
+    Consumer<Output> visitNonNullField(Method m, String prefix);
 
     default Consumer<Output> visitMethodBegin(Method m) {
         return visitMethodBegin0(m)
                 .andThen(m.isNullable() ? visitNullableMethodBegin(m) : visitNonNullMethodBegin(m));
     }
+
+    Consumer<Output> visitNullableMethodBegin(Method m);
+
+    Consumer<Output> visitNonNullMethodBegin(Method m);
 
     default Consumer<Output> visitMethodBegin0(Method m) {
         return out -> out
@@ -70,17 +68,13 @@ interface MethodVisitor {
                 .andThen(visitMethodEnd0(m));
     }
 
-    default Consumer<Output> visitMethodEnd0(Method ignoredM) {
-        return out -> out.out().ad("}").nl();
-    }
-
-    Consumer<Output> visitNonNullMethodBegin(Method m);
+    Consumer<Output> visitNullableMethodEnd(Method m);
 
     Consumer<Output> visitNonNullMethodEnd(Method m);
 
-    Consumer<Output> visitNullableMethodBegin(Method m);
-
-    Consumer<Output> visitNullableMethodEnd(Method m);
+    default Consumer<Output> visitMethodEnd0(Method ignoredM) {
+        return out -> out.out().ad("}").nl();
+    }
 
     default Consumer<Output> visitSetter(final Method m) {
         return out -> {
@@ -93,7 +87,11 @@ interface MethodVisitor {
         };
     }
 
-    Consumer<Output> visitNonNullSetterBody(Method m);
+    default Consumer<Output> visitNullableSetterBody(Method m) {
+        return NOOP;
+    }
 
-    Consumer<Output> visitNullableSetterBody(Method m);
+    default Consumer<Output> visitNonNullSetterBody(Method m) {
+        return visitNullableSetterBody(m);
+    }
 }

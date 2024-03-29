@@ -159,7 +159,7 @@ public final class AnnotationProcessor extends AbstractProcessor {
     private Stream<ExecutableElement> filteredOverridableMethods(final TypeElement element) {
         val type = element.asType();
         val methods = allOverridableMethods(element)
-                .filter(e -> !hasVoidReturnType(e))
+                .filter(Utils::hasNonVoidReturnType)
                 .collect(Collectors.toList());
         return methods
                 .stream()
@@ -171,10 +171,14 @@ public final class AnnotationProcessor extends AbstractProcessor {
                             val types = getTypes();
                             val t1 = (ExecutableType) types.asMemberOf((DeclaredType) type, e1);
                             val t2 = (ExecutableType) types.asMemberOf((DeclaredType) type, e2);
-                            return (types.isSubsignature(t1, t2) || types.isSubsignature(t2, t1))
-                                    && !error("Cannot implement this interface because ...", element)
-                                    && !error("... this method clashes with ...", e1)
-                                    && !error("... this method => remove or override these methods.", e2);
+                            if (types.isSubsignature(t1, t2) || types.isSubsignature(t2, t1)) {
+                                error("Cannot implement this interface because ...", element);
+                                error("... this method clashes with ...", e1);
+                                error("... this method => remove or override these methods.", e2);
+                                return true;
+                            } else {
+                                return false;
+                            }
                         }));
     }
 
@@ -260,18 +264,12 @@ public final class AnnotationProcessor extends AbstractProcessor {
         return getTypes().asElement(t);
     }
 
-    private boolean error(final CharSequence message, final Element e) {
+    private void error(CharSequence message, Element e) {
         getMessager().printMessage(ERROR, message, e);
-        return false;
     }
 
-    private boolean warn(CharSequence message, Element e) {
+    private void warn(CharSequence message, Element e) {
         getMessager().printMessage(WARNING, message, e);
-        return true;
-    }
-
-    private boolean checkNonVoidReturnType(ExecutableElement e) {
-        return hasNonVoidReturnType(e) || error("Cannot cache void return type.", e);
     }
 
     private String typeParametersWithoutBoundsList(Parameterizable parameterizable) {
@@ -288,7 +286,12 @@ public final class AnnotationProcessor extends AbstractProcessor {
     }
 
     private boolean isSubtype(TypeMirror a, TypeMirror b, Element e) {
-        return getTypes().isSubtype(a, b) || error(a + " is not a subtype of " + b + ".", e);
+        if (getTypes().isSubtype(a, b)) {
+            return true;
+        } else {
+            error(a + " is not a subtype of " + b + ".", e);
+            return false;
+        }
     }
 
     private PackageElement packageOf(Element e) {
@@ -352,11 +355,14 @@ public final class AnnotationProcessor extends AbstractProcessor {
                     .filter(Utils::isAbstract)
                     .filter(e -> !hasAnnotation(e, Lookup.class))
                     // HC SVNT DRACONES!
-                    .filter(AnnotationProcessor.this::checkNonVoidReturnType)
                     .map(this::newModuleMethod)
-                    .filter(m -> m.getMethodParameters().isEmpty() ||
-                            m.isMakeTypeAbstract() ||
-                            warn("Method parameters will be ignored by the factory method in the companion interface.", m.getMethodElement()))
+                    .filter(m -> {
+                        if (!m.getMethodParameters().isEmpty() && !m.isMakeTypeAbstract()) {
+                            warn("Method parameters will be ignored by the default implementation of this method in the companion interface.",
+                                    m.getMethodElement());
+                        }
+                        return true;
+                    })
                     .map(m -> new DisabledCaching4CompanionInterfaceVisitor().visitModuleMethod4CompanionInterface(m))
                     .forEach(c -> c.accept(out));
         }
@@ -367,9 +373,8 @@ public final class AnnotationProcessor extends AbstractProcessor {
                     .filter(e -> cachingStrategy(e) != DISABLED)
                     .filter(e -> !hasAnnotation(e, Lookup.class))
                     // HC SVNT DRACONES!
-                    .filter(AnnotationProcessor.this::checkNonVoidReturnType)
                     .map(this::newModuleMethod)
-                    .map(m -> m.getMethodVisitor().visitModuleMethod4CompanionClass(m))
+                    .map(m -> m.getMethodVisitor().visitMethod(m))
                     .forEach(c -> c.accept(out));
         }
 
@@ -393,6 +398,11 @@ public final class AnnotationProcessor extends AbstractProcessor {
         }
 
         abstract class ModuleMethod extends Method {
+
+            @Override
+            String resolveDependencyCall() {
+                return getCompanionInterfaceRef() + "." + getMethodName() + "()";
+            }
 
             @Override
             boolean resolveCachingDisabled() {
@@ -501,8 +511,7 @@ public final class AnnotationProcessor extends AbstractProcessor {
                 return out -> filteredOverridableMethods((TypeElement) getMakeElement())
                         // HC SVNT DRACONES!
                         .map(this::newComponentMethod)
-                        .filter(m -> m.isCachingDisabled() || checkNonVoidReturnType(m.getMethodElement()))
-                        .map(m -> m.getMethodVisitor().visitComponentMethod(m))
+                        .map(m -> m.getMethodVisitor().visitMethod(m))
                         .forEach(c -> c.accept(out));
             }
 
@@ -565,10 +574,8 @@ public final class AnnotationProcessor extends AbstractProcessor {
                             .findFirst();
                 }
 
-                @Getter(lazy = true)
-                private final String accessedElementRef = resolveAccessedElementRef();
-
-                private String resolveAccessedElementRef() {
+                @Override
+                String resolveDependencyCall() {
                     return isParameterRef()
                             ? getModuleParamName().toString()
                             : isSuperRef()
@@ -666,6 +673,11 @@ public final class AnnotationProcessor extends AbstractProcessor {
 
             @Getter(lazy = true)
             private final String cachingStrategyName = CACHING_STRATEGY_CLASSNAME + "." + getCachingStrategy();
+
+            @Getter(lazy = true)
+            private final String dependencyCall = resolveDependencyCall();
+
+            abstract String resolveDependencyCall();
 
             abstract ExecutableElement getMethodElement();
 
