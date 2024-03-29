@@ -32,7 +32,7 @@ final class DisabledCaching4CompanionInterfaceVisitor extends DisabledCachingVis
     private Consumer<Output> visitMethodBegin1(ModuleMethod m) {
         return out -> {
             out.nl();
-            if (m.getCachingStrategy() != DISABLED) {
+            if (m.getCachingStrategy() != DISABLED && m.getMethodParameters().isEmpty()) {
                 out.ad("@bali.Cache").ad(m.isNullable() ? "Nullable" : "").ad("(").ad(m.getCachingStrategyName()).ad(")").nl();
             }
             out
