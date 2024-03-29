@@ -314,7 +314,7 @@ public final class AnnotationProcessor extends AbstractProcessor {
         private final boolean hasAbstractMethods =
                 allOverridableMethods(getElement())
                         .filter(Utils::isAbstract)
-                        .anyMatch(e -> hasAnnotation(e, Lookup.class) || !hasCacheableReturnType(e));
+                        .anyMatch(e -> hasAnnotation(e, Lookup.class));
 
         @Getter(lazy = true)
         private final String localDeclaredType = local(getDeclaredType());
