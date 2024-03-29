@@ -35,6 +35,8 @@ public interface CacheModule extends SuperModule {
 
     Date threadSafe();
 
+    void threadSafe(Date date);
+
     @Cache(THREAD_LOCAL)
     Date threadLocal();
 

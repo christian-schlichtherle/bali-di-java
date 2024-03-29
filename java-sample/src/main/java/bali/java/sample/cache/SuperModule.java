@@ -1,7 +1,6 @@
 package bali.java.sample.cache;
 
 import bali.Cache;
-import bali.Module;
 
 import java.util.Date;
 
@@ -17,6 +16,8 @@ public interface SuperModule {
 
     @Cache
     Date superThreadSafe();
+
+    void superThreadSafe(Date date);
 
     @Cache(THREAD_LOCAL)
     Date superThreadLocal();

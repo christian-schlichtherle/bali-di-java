@@ -13,19 +13,28 @@ class CacheModuleSpec extends AnyWordSpec {
     import module._
 
     "not cache the time" in {
-      disabled shouldNot be theSameInstanceAs disabled
       superDisabled shouldNot be theSameInstanceAs superDisabled
+      disabled shouldNot be theSameInstanceAs disabled
     }
 
     "cache the time (not thread-safe)" in {
       // TODO: Provoke racing-condition:
-      notThreadSafe shouldBe theSameInstanceAs(notThreadSafe)
       superNotThreadSafe shouldBe theSameInstanceAs(superNotThreadSafe)
+      notThreadSafe shouldBe theSameInstanceAs(notThreadSafe)
     }
 
     "cache the time (thread-safe)" in {
-      threadSafe shouldBe theSameInstanceAs(threadSafe)
+      val date = new Date
+
+      superThreadSafe shouldNot be theSameInstanceAs date
       superThreadSafe shouldBe theSameInstanceAs(superThreadSafe)
+      superThreadSafe(date)
+      superThreadSafe shouldBe theSameInstanceAs(date)
+
+      threadSafe shouldNot be theSameInstanceAs date
+      threadSafe shouldBe theSameInstanceAs(threadSafe)
+      threadSafe(date)
+      threadSafe shouldBe theSameInstanceAs(date)
     }
 
     "cache the time (thread-local)" in {
@@ -42,23 +51,23 @@ class CacheModuleSpec extends AnyWordSpec {
       var d2: Date = null
 
       new Thread(() => {
-        a1 = threadLocal
-        a2 = threadLocal
-      }).tap(_.start()).join()
-
-      new Thread(() => {
         b1 = superThreadLocal
         b2 = superThreadLocal
       }).tap(_.start()).join()
 
       new Thread(() => {
-        c1 = threadLocal
-        c2 = threadLocal
+        a1 = threadLocal
+        a2 = threadLocal
       }).tap(_.start()).join()
 
       new Thread(() => {
         d1 = superThreadLocal
         d2 = superThreadLocal
+      }).tap(_.start()).join()
+
+      new Thread(() => {
+        c1 = threadLocal
+        c2 = threadLocal
       }).tap(_.start()).join()
 
       a1 shouldNot be(null)

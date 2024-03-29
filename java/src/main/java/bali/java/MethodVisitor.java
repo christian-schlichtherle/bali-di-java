@@ -33,7 +33,8 @@ interface MethodVisitor {
         return visitField(m, "private ")
                 .andThen(visitMethodBegin(m))
                 .andThen(out -> out.ad(m.getCompanionInterfaceRef()).ad(".").ad(m.getMethodName()).ad("()"))
-                .andThen(visitMethodEnd(m));
+                .andThen(visitMethodEnd(m))
+                .andThen(visitSetter(m));
     }
 
     default Consumer<Output> visitComponentMethod(ComponentMethod m) {
@@ -80,4 +81,19 @@ interface MethodVisitor {
     Consumer<Output> visitNullableMethodBegin(Method m);
 
     Consumer<Output> visitNullableMethodEnd(Method m);
+
+    default Consumer<Output> visitSetter(final Method m) {
+        return out -> {
+            out
+                    .nl()
+                    .ad(m.getMethodModifiers().toString()).ad(m.getSetterSignatureWithoutModifiers()).ad(" {").nl();
+            (m.isNullable() ? visitNullableSetterBody(m) : visitNonNullSetterBody(m)).accept(out);
+            out
+                    .ad("}").nl();
+        };
+    }
+
+    Consumer<Output> visitNonNullSetterBody(Method m);
+
+    Consumer<Output> visitNullableSetterBody(Method m);
 }

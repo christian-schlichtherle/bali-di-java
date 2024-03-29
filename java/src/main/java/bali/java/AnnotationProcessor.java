@@ -15,8 +15,8 @@
  */
 package bali.java;
 
-import bali.*;
 import bali.Module;
+import bali.*;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.Accessors;
@@ -742,6 +742,11 @@ public final class AnnotationProcessor extends AbstractProcessor {
 
             @Getter(lazy = true)
             private final boolean primitiveMethodReturnType = getMethodReturnType().getKind().isPrimitive();
+
+            @Getter(lazy = true)
+            private final String setterSignatureWithoutModifiers =
+                    getMethodTypeParametersWithBoundsList() + "void " + getMethodName() +
+                            "(" + getLocalMethodReturnType() + " value)";
         }
     }
 }

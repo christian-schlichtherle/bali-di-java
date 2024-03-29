@@ -71,4 +71,16 @@ final class ThreadLocalCachingVisitor implements MethodVisitor {
                 .ad("}").nl()
                 .ad("return supplier.get();").nl();
     }
+
+    @Override
+    public Consumer<Output> visitNonNullSetterBody(Method m) {
+        return out -> out
+                .ad("    this.").ad(m.getMethodName()).ad(".set(value);").nl();
+    }
+
+    @Override
+    public Consumer<Output> visitNullableSetterBody(Method m) {
+        return out -> out
+                .ad("    this.").ad(m.getMethodName()).ad(".set(() -> value);").nl();
+    }
 }

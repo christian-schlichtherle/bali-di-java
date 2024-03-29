@@ -51,4 +51,14 @@ class DisabledCachingVisitor implements MethodVisitor {
     public Consumer<Output> visitNullableMethodEnd(Method m) {
         return out -> out.ad(";").nl();
     }
+
+    @Override
+    public Consumer<Output> visitNonNullSetterBody(Method m) {
+        throw new AssertionError();
+    }
+
+    @Override
+    public Consumer<Output> visitNullableSetterBody(Method m) {
+        throw new AssertionError();
+    }
 }

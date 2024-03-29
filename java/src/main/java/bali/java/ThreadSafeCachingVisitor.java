@@ -79,4 +79,20 @@ final class ThreadSafeCachingVisitor implements MethodVisitor {
                 .ad("}").nl()
                 .ad("return supplier.get();").nl();
     }
+
+    @Override
+    public Consumer<Output> visitNonNullSetterBody(Method m) {
+        return out -> out
+                .ad("    synchronized(this) {").nl()
+                .ad("        this.").ad(m.getMethodName()).ad(" = value;").nl()
+                .ad("    }").nl();
+    }
+
+    @Override
+    public Consumer<Output> visitNullableSetterBody(Method m) {
+        return out -> out
+                .ad("    synchronized(this) {").nl()
+                .ad("        this.").ad(m.getMethodName()).ad(" = () -> value;").nl()
+                .ad("    }").nl();
+    }
 }
