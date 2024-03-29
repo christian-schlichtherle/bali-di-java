@@ -34,7 +34,7 @@ public interface SuperStrangeModule {
         throw new Exception("That's an error.");
     }
 
-    @Cache
+    @Cache(setter = "set")
     default String get() {
         return new String("Hello world!");
     }

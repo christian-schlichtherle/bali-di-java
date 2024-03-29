@@ -776,7 +776,7 @@ public final class AnnotationProcessor extends AbstractProcessor {
 
             @Getter(lazy = true)
             private final String setterSignatureWithoutModifiers =
-                    getMethodTypeParametersWithBoundsList() + "void " + getMethodName() +
+                    getMethodTypeParametersWithBoundsList() + "void " + setterName(getMethodElement()) +
                             "(" + getLocalMethodReturnType() + " value)";
         }
     }

@@ -19,6 +19,7 @@ import bali.Cache;
 import bali.CacheNullable;
 import bali.CachingStrategy;
 import bali.Module;
+import lombok.var;
 
 import javax.lang.model.AnnotatedConstruct;
 import javax.lang.model.element.*;
@@ -57,18 +58,31 @@ final class Utils {
                 )
                 .map(f -> f.apply(e))
                 .filter(Optional::isPresent)
-                .limit(1)
                 .map(Optional::get)
                 .findFirst()
                 .orElse(DISABLED);
     }
 
-    private static <A extends Annotation> Function<Element, Optional<CachingStrategy>> delegatingResolver(
+    static String setterName(Element e) {
+        return Stream
+                .of(
+                        delegatingResolver(CacheNullable.class, CacheNullable::setter),
+                        delegatingResolver(Cache.class, Cache::setter)
+                )
+                .map(f -> f.apply(e))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .filter(s -> !s.isEmpty())
+                .findFirst()
+                .orElse(e.getSimpleName().toString());
+    }
+
+    private static <A extends Annotation, T> Function<Element, Optional<T>> delegatingResolver(
             Class<A> klass,
-            Function<? super A, CachingStrategy> func
+            Function<? super A, T> func
     ) {
         return element -> {
-            Optional<A> optAnnotation = getAnnotation(element, klass);
+            var optAnnotation = getAnnotation(element, klass);
             if (!optAnnotation.isPresent() && element.getModifiers().contains(Modifier.ABSTRACT)) {
                 optAnnotation = Optional
                         .ofNullable(element.getEnclosingElement())

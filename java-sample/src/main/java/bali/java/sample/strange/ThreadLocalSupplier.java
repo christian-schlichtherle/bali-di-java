@@ -22,7 +22,7 @@ import java.util.function.Supplier;
 
 import static bali.CachingStrategy.THREAD_LOCAL;
 
-@Cache(THREAD_LOCAL)
+@Cache(value = THREAD_LOCAL, setter = "set")
 @FunctionalInterface
 interface ThreadLocalSupplier<T> extends Supplier<T> {
 

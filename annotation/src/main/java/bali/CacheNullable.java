@@ -27,4 +27,6 @@ import static java.lang.annotation.ElementType.TYPE;
 public @interface CacheNullable {
 
     CachingStrategy value() default CachingStrategy.THREAD_SAFE;
+
+    String setter() default "";
 }
