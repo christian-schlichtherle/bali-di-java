@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package bali.java.sample.tuple2;
+package bali.java.sample.tuple2a;
 
+import bali.Make;
 import bali.Module;
 
 @Module
-public interface TupleModule {
+public interface Tuple2Factory {
 
-    TupleModule INSTANCE = TupleModule$.new$();
-
-    <T1, T2> TupleFactory<T1, T2> factory(T1 t1, T2 t2);
+    @Make(ImmutableTuple2.class)
+    <T1, T2> Tuple2<T1, T2> tuple(T1 t1, T2 t2);
 }

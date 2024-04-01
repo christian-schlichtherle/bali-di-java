@@ -13,30 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package bali.java.sample.tuple2;
+package bali.java.sample.tuple2b;
 
-import bali.Lookup;
-import bali.Make;
 import bali.Module;
 
 @Module
-public interface TupleFactory<T1, T2> {
+public interface Tuple2Module {
 
-    @Lookup(param = "t1")
-    T1 getT1();
+    Tuple2Module INSTANCE = Tuple2Module$.new$();
 
-    @Lookup(param = "t2")
-    T2 getT2();
-
-    @Make(ImmutableTuple2.class)
-    Tuple2<T1, T2> tuple();
-
-    @Make(ImmutableTuple2.class)
-    Tuple2<T1, T2> tupleFromT1(T1 t1);
-
-    @Make(ImmutableTuple2.class)
-    Tuple2<T1, T2> tupleFromT2(T2 t2);
-
-    @Make(ImmutableTuple2.class)
-    Tuple2<T1, T2> tuple(T1 t1, T2 t2);
+    <T1, T2> Tuple2FactoryWithDefaults<T1, T2> factory(T1 t1, T2 t2);
 }

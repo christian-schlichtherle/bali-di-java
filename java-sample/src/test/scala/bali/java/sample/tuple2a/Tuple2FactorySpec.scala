@@ -13,34 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package bali.java.sample.tuple2
+package bali.java.sample.tuple2a
 
 import org.scalatest.matchers.should.Matchers._
 import org.scalatest.wordspec.AnyWordSpec
 
-class TupleFactorySpec extends AnyWordSpec {
+class Tuple2FactorySpec extends AnyWordSpec {
 
   "The tuple factory" should {
-    val factory = TupleModule.INSTANCE.factory("t1", "t2")
+    val factory = Tuple2Factory$.new$
     import factory._
-
-    "Create a tuple with implicit values for t1 and t2" in {
-      val t = tuple
-      t.getT1 shouldBe "t1"
-      t.getT2 shouldBe "t2"
-    }
-
-    "Create a tuple with an explicit value for t1 and an implicit value for t2" in {
-      val t = tupleFromT1("t1")
-      t.getT1 shouldBe "t1"
-      t.getT2 shouldBe "t2"
-    }
-
-    "Create a tuple with an implicit value for t1 and an explicit value for t2" in {
-      val t = tupleFromT2("t2")
-      t.getT1 shouldBe "t1"
-      t.getT2 shouldBe "t2"
-    }
 
     "Create a tuple with explicit values for t1 and t2" in {
       val t = tuple("Hello", " world!")
@@ -54,8 +36,8 @@ class TupleFactorySpec extends AnyWordSpec {
     }
 
     "implement equals and hashCode" in {
-      val t1 = tupleFromT1("t1");
-      val t2 = tupleFromT2("t2");
+      val t1 = tuple("t1", "t2");
+      val t2 = tuple("t1", "t2");
       val t3 = tuple("Hello", " world!")
 
       t1 shouldBe t2

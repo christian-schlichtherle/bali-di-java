@@ -13,21 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package bali.java.sample.tuple2;
+package bali.java.sample.tuple2b;
 
 import bali.Lookup;
+import bali.Make;
+import bali.Module;
 
-import java.util.function.Function;
+@SuppressWarnings("TypeParameterHidesVisibleType")
+@Module
+public interface Tuple2FactoryWithDefaults<T1, T2> extends Tuple2Factory$ {
 
-public interface Tuple2<T1, T2> {
-
-    @Lookup(param = "t1", field = "t1")
+    @Lookup(param = "t1")
     T1 getT1();
 
-    @Lookup(method = "getT2", value = "t2")
+    @Lookup(param = "t2")
     T2 getT2();
 
-    <R extends T1> Tuple2<T1, T2> mapT1(Function<T1, R> f);
+    @Make(ImmutableTuple2.class)
+    Tuple2<T1, T2> tuple();
 
-    <R extends T2> Tuple2<T1, T2> mapT2(Function<T2, R> f);
+    @Make(ImmutableTuple2.class)
+    <T1> Tuple2<T1, T2> tupleFromT1(T1 t1);
+
+    @Make(ImmutableTuple2.class)
+    <T2> Tuple2<T1, T2> tupleFromT2(T2 t2);
 }

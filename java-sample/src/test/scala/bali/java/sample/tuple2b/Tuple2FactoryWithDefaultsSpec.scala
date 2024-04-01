@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package bali.java.sample.tuple1
+package bali.java.sample.tuple2b
 
 import org.scalatest.matchers.should.Matchers._
 import org.scalatest.wordspec.AnyWordSpec
 
-class TupleFactorySpec extends AnyWordSpec {
+class Tuple2FactoryWithDefaultsSpec extends AnyWordSpec {
 
   "The tuple factory" should {
-    val factory = TupleFactory$.new$
+    val factory = Tuple2Module.INSTANCE.factory("t1", "t2")
     import factory._
 
     "Create a tuple with implicit values for t1 and t2" in {
