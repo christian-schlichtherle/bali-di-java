@@ -15,7 +15,6 @@
  */
 package bali.java;
 
-import bali.Module;
 import bali.*;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -494,7 +493,7 @@ public final class AnnotationProcessor extends AbstractProcessor {
                 try {
                     return Optional.of(getTypes().getDeclaredType(makeElement, makeTypeArgs.toArray(new TypeMirror[0])));
                 } catch (final IllegalArgumentException ignored) {
-                    error("Incompatible type parameters.", getMethodElement());
+                    error("Cannot match type variables by name.", getMethodElement());
                     return Optional.empty();
                 }
             }
