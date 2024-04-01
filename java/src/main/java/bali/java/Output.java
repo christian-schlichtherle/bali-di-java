@@ -15,8 +15,6 @@
  */
 package bali.java;
 
-import javax.lang.model.element.Name;
-
 final class Output {
 
     private final StringBuilder out = new StringBuilder();
@@ -24,6 +22,7 @@ final class Output {
     private int indentation;
     private boolean nl;
 
+    @SuppressWarnings("UnusedReturnValue")
     Output in() {
         return in(1);
     }

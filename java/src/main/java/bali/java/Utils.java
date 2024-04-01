@@ -167,6 +167,7 @@ final class Utils {
     private Utils() {
     }
 
+    @SuppressWarnings("SameParameterValue")
     static String mkString(Collection<?> collection, String prefix, String delimiter, String suffix) {
         return mkString(collection.stream(), prefix, delimiter, suffix);
     }
