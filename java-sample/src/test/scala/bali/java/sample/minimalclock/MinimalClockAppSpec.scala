@@ -13,27 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package bali.java.sample.genericclock;
+package bali.java.sample.minimalclock
 
-import bali.Cache;
-import bali.Module;
+import org.scalatest.matchers.should.Matchers._
+import org.scalatest.wordspec.AnyWordSpec
 
-import java.util.Date;
-import java.util.function.Supplier;
+class MinimalClockAppSpec extends AnyWordSpec {
 
-@Module
-public interface GenericClockApp {
+  "The minimal clock app" should {
+    val app = MinimalClockApp$.new$
+    import app._
 
-    @Cache
-    Supplier<Date> clock();
-
-    Date get();
-
-    default void run() {
-        System.out.printf("It is now %s.\n", clock().get());
+    "not cache the time" in {
+      get shouldNot be theSameInstanceAs get
     }
-
-    static void main(String... args) {
-        GenericClockApp$.new$().run();
-    }
+  }
 }

@@ -20,8 +20,6 @@ import bali.Module;
 
 import java.util.Date;
 
-import static java.lang.System.out;
-
 @Module
 public interface ClockApp extends Runnable {
 
@@ -32,7 +30,7 @@ public interface ClockApp extends Runnable {
 
     @Override
     default void run() {
-        out.printf("It is now %s.\n", clock().now());
+        System.out.printf("It is now %s.\n", clock().now());
     }
 
     static void main(String... args) {

@@ -13,27 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package bali.java.sample.genericclock;
+package bali.java.sample.minimalclock;
 
-import bali.Cache;
 import bali.Module;
 
 import java.util.Date;
-import java.util.function.Supplier;
 
 @Module
-public interface GenericClockApp {
-
-    @Cache
-    Supplier<Date> clock();
+public interface MinimalClockApp {
 
     Date get();
 
     default void run() {
-        System.out.printf("It is now %s.\n", clock().get());
+        System.out.printf("It is now %s.\n", get());
     }
 
     static void main(String... args) {
-        GenericClockApp$.new$().run();
+        MinimalClockApp$.new$().run();
     }
 }
