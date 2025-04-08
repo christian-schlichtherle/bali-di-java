@@ -70,7 +70,7 @@ To use Bali DI for Java in a Maven project, add the following snippet to your `p
 <dependency>
   <groupId>global.namespace.bali</groupId>
   <artifactId>bali-java</artifactId>
-  <version>0.12.0</version> <!-- check for latest version at https://search.maven.org/artifact/global.namespace.bali/bali-java -->
+  <version>0.13.0</version> <!-- check for latest version at https://search.maven.org/artifact/global.namespace.bali/bali-java -->
   <scope>provided</scope> <!-- compile-time only! -->
 </dependency>
 ```
@@ -162,7 +162,7 @@ public interface GenericClockApp {
 }
 ```
 
-Finally, let's look at the generated code.
+Next, let's look at the generated code.
 We start with the companion interface:
 
 ```java
@@ -172,7 +172,7 @@ package bali.java.sample.genericclock;
     processor = "bali.java.AnnotationProcessor",
     round = 1,
     timestamp = "2025-04-05T22:04:32.083+02:00",
-    version = "0.12.0"
+    version = "0.13.0"
 )
 public interface GenericClockApp$ extends GenericClockApp {
 
@@ -213,7 +213,7 @@ public interface GenericClockApp$ extends GenericClockApp {
    + If the constructor is non-public or has parameters, you need to manually implement the `get()` method in the module
      interface.
 
-Finally, let's have a look at the companion class:
+Finally, let's have a look at the generated companion class:
 
 ```java
 package bali.java.sample.genericclock;
@@ -222,9 +222,9 @@ package bali.java.sample.genericclock;
     processor = "bali.java.AnnotationProcessor",
     round = 1,
     timestamp = "2025-04-05T22:04:32.084+02:00",
-    version = "0.12.0"
+    version = "0.13.0"
 )
-public final class GenericClockApp$$ implements GenericClockApp$ {
+final class GenericClockApp$$ implements GenericClockApp$ {
 
     private volatile java.util.function.Supplier<java.util.Date> clock; // 2.
 
